@@ -555,3 +555,61 @@ test('L2 & L3 - Custom WhatsApp Greeting, Sitemap XML Generator & GSC Submit End
   });
   assert.equal(ownerGscNoKey.status, 503, 'Missing service-account-key.json must return 503');
 });
+
+test('L2 & L3 - SEO Tools: Competitor Backlink Spy & 4-Stage Clone Pipeline (Scrape -> List -> Auto-Fill -> Spintax Post)', async () => {
+  const {
+    analyzeCompetitorDomain,
+    generateCloneSubmissionPlan
+  } = require('../src/domain/competitorBacklinkEngine');
+
+  // 1. Domain Backlink Profiling
+  const profile = analyzeCompetitorDomain('https://kompetitor-jaya.co.id/layanan-utama');
+  assert.equal(profile.competitorDomain, 'kompetitor-jaya.co.id');
+  assert.ok(profile.metrics.estimatedTotalBacklinks > 100);
+  assert.ok(profile.metrics.dofollowRatioPercent > 50);
+  assert.ok(profile.curatedTargetWebsites.length >= 6);
+  assert.ok(profile.curatedTargetWebsites[0].submissionUrl.startsWith('http'));
+
+  // 2. Clone Submission Pipeline Plan
+  const plan = generateCloneSubmissionPlan({
+    competitorDomain: 'kompetitor-jaya.co.id',
+    yourWebsiteUrl: 'https://wevo.biz.id',
+    brandName: 'LocalSpin AI Wevo',
+    topic: 'Jasa Pemasangan Solar Panel',
+    selectedTargets: profile.curatedTargetWebsites.slice(0, 4)
+  });
+
+  assert.equal(plan.totalTargetsPrepared, 4);
+  assert.equal(plan.autoFillProfile.brandName, 'LocalSpin AI Wevo');
+  assert.ok(plan.autoFillProfile.contactEmail.includes('@wevo.biz.id'));
+  assert.ok(plan.submissionTasks[0].autoFillData.websiteUrl === 'https://wevo.biz.id');
+  assert.ok(plan.submissionTasks[0].readyToPostContent.spintaxBody.includes('{'));
+  assert.ok(plan.submissionTasks[0].readyToPostContent.plainPreview.includes('https://wevo.biz.id'));
+
+  // 3. API Endpoints
+  const { createAppServer } = require('../src/server');
+  const { dispatch } = createAppServer({ dbPath: ':memory:' });
+
+  const apiBacklinkRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/competitor-backlinks',
+    body: { competitorUrl: 'kompetitor-jaya.co.id' }
+  });
+  assert.equal(apiBacklinkRes.status, 200);
+  const backlinkData = await apiBacklinkRes.json();
+  assert.equal(backlinkData.competitorDomain, 'kompetitor-jaya.co.id');
+
+  const apiCloneRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/clone-pipeline',
+    body: {
+      competitorDomain: 'kompetitor-jaya.co.id',
+      yourWebsiteUrl: 'https://wevo.biz.id',
+      brandName: 'Wevo Solutions',
+      topic: 'Jasa Panel Surya'
+    }
+  });
+  assert.equal(apiCloneRes.status, 200);
+  const cloneData = await apiCloneRes.json();
+  assert.ok(cloneData.submissionTasks.length > 0);
+});

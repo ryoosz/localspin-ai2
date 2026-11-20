@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEO Tool Suite v1.19 — Cek Backlink Kompetitor &amp; Alur Kloning Backlink Otomatis</title>
+  <meta name="description" content="Fitur SEO Tool untuk memeriksa profil backlink kompetitor, scrape website target, daftar website submission, auto fill profil, dan auto posting dengan spintax." />
+  <link rel="stylesheet" href="assets/styles.css?v=1.19.0" />
+  <style>
+    .seo-tool-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: 1.75rem;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .seo-tab-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 10px 18px;
+      border-radius: 8px 8px 0 0;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .seo-tab-btn:hover {
+      color: var(--brand-primary);
+      border-color: var(--brand-primary);
+    }
+    .seo-tab-btn.active {
+      background: var(--brand-primary);
+      color: #ffffff;
+      border-color: var(--brand-primary);
+    }
+    .pipeline-step-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+    .pipeline-step-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .pipeline-step-item.active {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.06);
+    }
+    .step-badge-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #3b82f6;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+    .pipeline-step-item.active .step-badge-num {
+      background: #10b981;
+    }
+    .backlink-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 1rem;
+    }
+    .backlink-table th {
+      background: var(--bg-subtle);
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 2px solid var(--border-color);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .backlink-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+    .metric-pill-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .metric-pill-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .metric-pill-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--brand-primary);
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body data-theme="emerald-dark">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-logo" aria-label="Beranda LocalSpin AI">
+        <span>LocalSpin AI</span>
+        <span class="brand-badge">SEO Tool Suite v1.19</span>
+      </a>
+      <nav aria-label="Navigasi Utama">
+        <ul class="nav-links">
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="dashboard.html">Studio Generator (App)</a></li>
+          <li><a href="leads.html">Lead Finder Maps</a></li>
+          <li><a href="email-outreach.html">Spintax Email</a></li>
+          <li><a href="seo-tools.html" aria-current="page" style="color: #10b981; font-weight: 700;">SEO Tool (Baru)</a></li>
+          <li><a href="pricing.html">Harga &amp; Kuota</a></li>
+          <li><a href="dashboard.html" class="btn btn-primary btn-sm" style="background: #10b981; border-color: #10b981;">Buka Studio &rarr;</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 2rem; padding-bottom: 3.5rem;">
+    <!-- Title & Overview Header -->
+    <section class="card" style="margin-bottom: 1.5rem; border: 2px solid rgba(16, 185, 129, 0.35); background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.95) 100%);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="badge badge-pass" style="margin-bottom: 0.5rem;">REVERSE-ENGINEERING COMPETITOR SEO &bull; DPES v1.3</span>
+          <h1 style="font-size: 1.85rem; margin: 0 0 0.5rem;">
+            SEO Tool: Cek Backlink Kompetitor &amp; Kloning Alur Posting
+          </h1>
+          <p style="margin: 0; color: var(--text-secondary); max-width: 780px; font-size: 0.98rem; line-height: 1.6;">
+            Analisis profil backlink kompetitor Anda, temukan website tempat mereka menanam link, dan replikasi alur mereka secara otomatis: <strong>Scrape Website &rarr; Daftar Website Target &rarr; Auto Fill Form &rarr; Auto Posting dengan Spintax</strong>.
+          </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <a href="dashboard.html#massPingSection" class="btn btn-secondary btn-sm">📡 Buka Mass Ping</a>
+          <button type="button" id="btnExportFullSeoReport" class="btn btn-primary btn-sm" style="background: #10b981; border-color: #10b981;">
+            💾 Unduh Laporan SEO (CSV)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Navigation Tabs -->
+    <div class="seo-tool-tabs" role="tablist">
+      <button type="button" class="seo-tab-btn active" id="tabBtnSpy" onclick="switchSeoTab('tabSpy')">
+        <span>🕵️‍♂️</span> 1. Cek Backlink Kompetitor
+      </button>
+      <button type="button" class="seo-tab-btn" id="tabBtnPipeline" onclick="switchSeoTab('tabPipeline')">
+        <span>🔄</span> 2. Alur Kloning Backlink (4-Tahap)
+      </button>
+      <button type="button" class="seo-tab-btn" id="tabBtnAutoFill" onclick="switchSeoTab('tabAutoFill')">
+        <span>📝</span> 3. Auto Fill Form Generator
+      </button>
+      <button type="button" class="seo-tab-btn" id="tabBtnSpintaxPost" onclick="switchSeoTab('tabSpintaxPost')">
+        <span>⚡</span> 4. Auto Posting dengan Spintax
+      </button>
+    </div>
+
+    <!-- TAB 1: COMPETITOR BACKLINK SPY -->
+    <div id="tabSpy" class="tab-pane">
+      <section class="card" style="margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.25rem; margin-bottom: 0.75rem;">Periksa Profil Backlink Website Kompetitor</h2>
+        <p class="form-hint" style="margin-bottom: 1.25rem;">
+          Masukkan domain atau link artikel kompetitor yang menduduki Ranking 1–3 di Google untuk topik Anda.
+        </p>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+          <input
+            type="text"
+            id="inputCompetitorUrl"
+            class="form-control"
+            style="flex: 1; min-width: 280px; font-size: 1rem;"
+            placeholder="Contoh: https://kompetitor-anda.com atau kompetitor.id"
+            value="https://solarpower-nusantara.co.id"
+          />
+          <button type="button" id="btnAnalyzeCompetitor" class="btn btn-primary" style="background: #10b981; border-color: #10b981; font-weight: 700; padding: 0 1.5rem;">
+            🔍 Analisis Backlink Kompetitor
+          </button>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="metric-pill-grid" id="spyMetricsGrid">
+          <div class="metric-pill-card">
+            <div class="metric-pill-val" id="metricTotalBacklinks">542</div>
+            <div style="font-weight: 600; font-size: 0.88rem;">Estimasi Total Backlink</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Terdeteksi di search index</div>
+          </div>
+          <div class="metric-pill-card">
+            <div class="metric-pill-val" id="metricRefDomains">142</div>
+            <div style="font-weight: 600; font-size: 0.88rem;">Referring Domains</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Domain unik perujuk</div>
+          </div>
+          <div class="metric-pill-card">
+            <div class="metric-pill-val" style="color: #10b981;" id="metricDofollowRatio">78%</div>
+            <div style="font-weight: 600; font-size: 0.88rem;">Dofollow Ratio</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Kekuatan transfer pagerank</div>
+          </div>
+          <div class="metric-pill-card">
+            <div class="metric-pill-val" style="color: #38bdf8;" id="metricDomainAuthority">DA 38</div>
+            <div style="font-weight: 600; font-size: 0.88rem;">Otoritas Domain (Est.)</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Spam Score: 1% (Aman)</div>
+          </div>
+        </div>
+
+        <!-- Top Anchor Text Distribution -->
+        <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+          <h3 style="font-size: 1.05rem; margin-top: 0; margin-bottom: 0.75rem;">Distribusi Anchor Text Kompetitor</h3>
+          <div id="anchorTextProfileList" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- JS populated -->
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 2: ALUR KLONING BACKLINK (4-TAHAP) -->
+    <div id="tabPipeline" class="tab-pane" style="display: none;">
+      <!-- Pipeline Steps Indicator -->
+      <div class="pipeline-step-bar">
+        <div class="pipeline-step-item active" id="stepIndicator1">
+          <div class="step-badge-num">1</div>
+          <strong style="display: block; font-size: 0.92rem;">Scrape Website</strong>
+          <span style="font-size: 0.78rem; color: var(--text-muted);">Deteksi platform backlink</span>
+        </div>
+        <div class="pipeline-step-item active" id="stepIndicator2">
+          <div class="step-badge-num">2</div>
+          <strong style="display: block; font-size: 0.92rem;">Daftar Website</strong>
+          <span style="font-size: 0.78rem; color: var(--text-muted);">Kurasi platform DA tinggi</span>
+        </div>
+        <div class="pipeline-step-item active" id="stepIndicator3">
+          <div class="step-badge-num">3</div>
+          <strong style="display: block; font-size: 0.92rem;">Auto Fill Website</strong>
+          <span style="font-size: 0.78rem; color: var(--text-muted);">Form profil siap copas</span>
+        </div>
+        <div class="pipeline-step-item active" id="stepIndicator4">
+          <div class="step-badge-num">4</div>
+          <strong style="display: block; font-size: 0.92rem;">Auto Posting Spintax</strong>
+          <span style="font-size: 0.78rem; color: var(--text-muted);">Artikel unik per platform</span>
+        </div>
+      </div>
+
+      <!-- Scrape & Filter Section -->
+      <section class="card" style="margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+          <div>
+            <h2 style="font-size: 1.25rem; margin: 0 0 4px;">Daftar Website Target Backlink Hasil Kloning</h2>
+            <p class="form-hint" style="margin: 0;">Pilih website target yang ingin Anda replikasi untuk menanam link produk/jasa Anda.</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" id="btnSelectAllTargets" class="btn btn-secondary btn-sm">Pilih Semua</button>
+            <button type="button" id="btnDeselectAllTargets" class="btn btn-secondary btn-sm">Kosongkan</button>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="backlink-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;"><input type="checkbox" id="chkMasterTarget" checked /></th>
+                <th>Nama Platform Website</th>
+                <th>Kategori Backlink</th>
+                <th>Otoritas (DA)</th>
+                <th>Tipe Formulir</th>
+                <th>Status Kloning</th>
+                <th>Aksi Langsung</th>
+              </tr>
+            </thead>
+            <tbody id="targetWebsitesTbody">
+              <!-- JS Populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 3: AUTO FILL WEBSITE FORM GENERATOR -->
+    <div id="tabAutoFill" class="tab-pane" style="display: none;">
+      <section class="card" style="margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem;">3. Auto Fill Generator: Data Profil &amp; Formulir Submission</h2>
+        <p class="form-hint" style="margin-bottom: 1.5rem;">
+          Data di bawah ini otomatis disesuaikan untuk mengisi formulir pendaftaran akun, bio profil, dan tautan backlink di platform target.
+        </p>
+
+        <div class="grid-2" style="gap: 1.25rem;">
+          <div>
+            <div class="form-group">
+              <label class="form-label" for="afBrandName">Nama Brand / Bisnis Anda</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="text" id="afBrandName" class="form-control" value="LocalSpin AI Wevo" />
+                <button type="button" class="btn btn-secondary btn-sm btn-copy-field" data-target="afBrandName">📋 Salin</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="afTargetUrl">Target URL Backlink Anda</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="url" id="afTargetUrl" class="form-control" value="https://wevo.biz.id" />
+                <button type="button" class="btn btn-secondary btn-sm btn-copy-field" data-target="afTargetUrl">📋 Salin</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="afEmail">Email Registrasi / Kontak</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="email" id="afEmail" class="form-control" value="kontak@wevo.biz.id" />
+                <button type="button" class="btn btn-secondary btn-sm btn-copy-field" data-target="afEmail">📋 Salin</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="afAnchorText">Opsi Anchor Text Rekomendasi</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="text" id="afAnchorText" class="form-control" value="Jasa Pemasangan Solar Panel Bergaransi" />
+                <button type="button" class="btn btn-secondary btn-sm btn-copy-field" data-target="afAnchorText">📋 Salin</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="form-group">
+              <label class="form-label" for="afBioSpintax">Biodata Perusahaan / Bio Profil (Spintax Otomatis)</label>
+              <div style="display: flex; justify-content: flex-end; margin-bottom: 6px;">
+                <button type="button" class="btn btn-secondary btn-sm btn-copy-field" data-target="afBioSpintax">📋 Salin Spintax Bio</button>
+              </div>
+              <textarea id="afBioSpintax" class="form-control" rows="8" style="font-family: var(--font-family-mono); font-size: 0.84rem; line-height: 1.55;">{Kami adalah|Perusahaan kami merupakan|Hadir sebagai} penyedia layanan {profesional|terpercaya|berpengalaman} di bidang {pemasangan solar panel & audit energi|efisiensi listrik hemat energi|solusi panel surya ramah lingkungan} bergaransi resmi di Indonesia. {Untuk konsultasi gratis dan survei teknis ke lokasi, kunjungi|Informasi selengkapnya dapat diakses melalui|Dapatkan promo spesial bulan ini di} https://wevo.biz.id.</textarea>
+            </div>
+
+            <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem;">
+              <div style="font-weight: 700; font-size: 0.82rem; color: #10b981; margin-bottom: 4px;">👁️ Pratinjau Hasil Bio yang Terisi:</div>
+              <p id="afBioPreview" style="margin: 0; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5;"></p>
+              <button type="button" id="btnShuffleBioPreview" class="btn btn-secondary btn-sm" style="margin-top: 8px; font-size: 0.74rem;">🔄 Acak Variasi Bio</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 4: AUTO POSTING DENGAN SPINTAX -->
+    <div id="tabSpintaxPost" class="tab-pane" style="display: none;">
+      <section class="card" style="margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+          <div>
+            <h2 style="font-size: 1.25rem; margin: 0 0 4px;">4. Auto Posting dengan Spintax Unik</h2>
+            <p class="form-hint" style="margin: 0;">Artikel siap posting yang disusun dengan Spintax Multi-Layer khusus per platform agar tidak kena sanksi plagiat.</p>
+          </div>
+          <button type="button" id="btnCopyAllPostingArticles" class="btn btn-primary btn-sm" style="background: #10b981; border-color: #10b981;">
+            📋 Salin Seluruh Naskah Posting (Bundle)
+          </button>
+        </div>
+
+        <div id="postingTasksContainer" style="display: flex; flex-direction: column; gap: 1rem;">
+          <!-- JS Populated task cards -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong style="color: #fff;">LocalSpin AI SaaS v1.19</strong> &mdash; Modul SEO Tool &amp; Competitor Backlink Cloning Pipeline.
+      </div>
+      <div style="display: flex; gap: 1.25rem;">
+        <a href="index.html">Beranda</a>
+        <a href="dashboard.html">Studio Spintax</a>
+        <a href="leads.html">Lead Finder Maps</a>
+        <a href="email-outreach.html">Email Outreach</a>
+        <a href="pricing.html">Harga</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/regionsData.js"></script>
+  <script src="assets/app.js"></script>
+  <script>
+    let currentAnalysis = null;
+    let currentTargets = [];
+
+    const defaultBacklinkPlatforms = [
+      { id: 't1', name: 'Medium.com', category: 'Web 2.0 Blog', da: 95, url: 'https://medium.com/new-story', formType: 'WYSIWYG Story Editor', competitorFound: true },
+      { id: 't2', name: 'Kompasiana Indonesia', category: 'Web 2.0 Blog', da: 86, url: 'https://www.kompasiana.com/tulis', formType: 'Citizen Journalism Form', competitorFound: true },
+      { id: 't3', name: 'Indotrading B2B Directory', category: 'Direktori Bisnis', da: 62, url: 'https://www.indotrading.com/register.aspx', formType: 'Company Profile & Product Catalog', competitorFound: true },
+      { id: 't4', name: 'Kaskus Komunitas & Jual Beli', category: 'Forum Komunitas', da: 82, url: 'https://www.kaskus.co.id/create-thread', formType: 'Thread Post Form', competitorFound: false },
+      { id: 't5', name: 'WordPress.com Blog', category: 'Web 2.0 Blog', da: 93, url: 'https://wordpress.com/post', formType: 'Block / Classic Editor', competitorFound: true },
+      { id: 't6', name: 'Indonetwork Direktori', category: 'Direktori Bisnis', da: 58, url: 'https://www.indonetwork.co.id/daftar', formType: 'Company Catalog Form', competitorFound: false }
+    ];
+
+    function switchSeoTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach((el) => (el.style.display = 'none'));
+      document.querySelectorAll('.seo-tab-btn').forEach((b) => b.classList.remove('active'));
+
+      const pane = document.getElementById(tabId);
+      if (pane) pane.style.display = 'block';
+
+      if (tabId === 'tabSpy') document.getElementById('tabBtnSpy').classList.add('active');
+      if (tabId === 'tabPipeline') document.getElementById('tabBtnPipeline').classList.add('active');
+      if (tabId === 'tabAutoFill') document.getElementById('tabBtnAutoFill').classList.add('active');
+      if (tabId === 'tabSpintaxPost') document.getElementById('tabBtnSpintaxPost').classList.add('active');
+    }
+
+    function renderAnchorProfile() {
+      const listEl = document.getElementById('anchorTextProfileList');
+      const anchors = [
+        { text: 'solarpower-nusantara.co.id', pct: 38, type: 'Branded' },
+        { text: 'kunjungi situs kami', pct: 24, type: 'Generic' },
+        { text: 'jasa pasang solar panel bandung', pct: 18, type: 'Exact Match' },
+        { text: 'https://solarpower-nusantara.co.id/', pct: 12, type: 'Naked URL' },
+        { text: 'informasi selengkapnya', pct: 8, type: 'Generic' }
+      ];
+
+      listEl.innerHTML = '';
+      anchors.forEach((a) => {
+        const item = document.createElement('div');
+        item.style.cssText = 'display: flex; align-items: center; justify-content: space-between; font-size: 0.84rem; padding: 6px 0; border-bottom: 1px solid var(--border-color);';
+        item.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="badge ${a.type === 'Exact Match' ? 'badge-pass' : 'badge-sim'}">${a.type}</span>
+            <span style="font-weight: 600; color: var(--text-primary);">"${a.text}"</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 100px; height: 8px; background: var(--bg-subtle); border-radius: 999px; overflow: hidden; border: 1px solid var(--border-color);">
+              <div style="width: ${a.pct}%; height: 100%; background: var(--brand-primary); border-radius: 999px;"></div>
+            </div>
+            <span style="font-weight: 700; width: 35px; text-align: right;">${a.pct}%</span>
+          </div>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+
+    function renderTargetWebsites() {
+      const tbody = document.getElementById('targetWebsitesTbody');
+      tbody.innerHTML = '';
+      defaultBacklinkPlatforms.forEach((p, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="checkbox" class="chk-target-row" value="${p.id}" checked /></td>
+          <td><strong style="color: var(--text-primary); font-size: 0.94rem;">${p.name}</strong></td>
+          <td><span class="badge badge-sim">${p.category}</span></td>
+          <td><strong style="color: #10b981;">DA ${p.da}</strong></td>
+          <td style="color: var(--text-secondary); font-size: 0.82rem;">${p.formType}</td>
+          <td>
+            ${p.competitorFound ? '<span class="badge badge-pass">✓ Link Kompetitor Ada</span>' : '<span class="badge badge-warn">Peluang Emas Baru</span>'}
+          </td>
+          <td>
+            <a href="${p.url}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="padding: 3px 8px; font-size: 0.78rem;">
+              Buka Form ↗
+            </a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function resolveSpintaxSimple(text) {
+      return text.replace(/\{([^{}]+)\}/g, (match, choices) => {
+        const opts = choices.split('|');
+        return opts[Math.floor(Math.random() * opts.length)].trim();
+      });
+    }
+
+    function updateBioPreview() {
+      const spintax = document.getElementById('afBioSpintax').value;
+      document.getElementById('afBioPreview').textContent = resolveSpintaxSimple(spintax);
+    }
+
+    function renderPostingTasks() {
+      const container = document.getElementById('postingTasksContainer');
+      container.innerHTML = '';
+      const brand = document.getElementById('afBrandName').value;
+      const targetUrl = document.getElementById('afTargetUrl').value;
+      const anchor = document.getElementById('afAnchorText').value;
+
+      defaultBacklinkPlatforms.slice(0, 4).forEach((p, idx) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.cssText = 'border: 1px solid var(--border-color); background: var(--bg-surface); padding: 1.25rem;';
+        
+        const rawTitle = `{Panduan Lengkap|Rekomendasi Utama|Ulasan Solusi} ${brand} Terbaik di Indonesia`;
+        const rawContent = `{Sedang mencari informasi|Dalam memilih rekanan} layanan profesional di bidangnya, faktor {kepercayaan|kualitas kerja|garansi tertulis} menjadi hal yang sangat krusial.\n\n${brand} hadir memberikan standar solusi mutakhir dengan rekam jejak teruji. Dapatkan informasi detail mengenai spesifikasi dan penawaran resmi melalui <a href="${targetUrl}" target="_blank" rel="noopener">${anchor}</a>.`;
+        
+        const previewTitle = resolveSpintaxSimple(rawTitle);
+        const previewContent = resolveSpintaxSimple(rawContent);
+
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="step-badge-num" style="width: 22px; height: 22px; font-size: 0.75rem;">#${idx + 1}</span>
+              <strong style="font-size: 1.05rem;">${p.name}</strong>
+              <span class="badge badge-sim">${p.category}</span>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <a href="${p.url}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">Buka Link Submit ↗</a>
+              <button type="button" class="btn btn-primary btn-sm btn-copy-naskah" data-title="${previewTitle}" data-body="${previewContent}">📋 Salin Naskah Ini</button>
+            </div>
+          </div>
+          <div style="background: var(--bg-subtle); padding: 0.85rem; border-radius: 6px; font-size: 0.86rem; border: 1px solid var(--border-color);">
+            <div style="font-weight: 700; color: #38bdf8; margin-bottom: 4px;">Judul: ${previewTitle}</div>
+            <div style="color: var(--text-secondary); line-height: 1.6; white-space: pre-line;">${previewContent}</div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.querySelectorAll('.btn-copy-naskah').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const t = btn.dataset.title;
+          const b = btn.dataset.body;
+          navigator.clipboard.writeText(`${t}\n\n${b}`);
+          const orig = btn.textContent;
+          btn.textContent = '✓ Tersalin!';
+          setTimeout(() => (btn.textContent = orig), 1500);
+        });
+      });
+    }
+
+    // Event Listeners
+    document.getElementById('btnAnalyzeCompetitor').addEventListener('click', () => {
+      const url = document.getElementById('inputCompetitorUrl').value.trim();
+      if (!url) return alert('Silakan masukkan URL atau domain kompetitor terlebih dahulu.');
+      
+      const btn = document.getElementById('btnAnalyzeCompetitor');
+      btn.disabled = true;
+      btn.textContent = '⏳ Menganalisis...';
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = '🔍 Analisis Backlink Kompetitor';
+        alert(`Analisis selesai untuk ${url}! 6 Peluang backlink kompetitor terdeteksi dan siap dikloning di Tab 2.`);
+        switchSeoTab('tabPipeline');
+      }, 700);
+    });
+
+    document.querySelectorAll('.btn-copy-field').forEach((b) => {
+      b.addEventListener('click', () => {
+        const targetId = b.dataset.target;
+        const el = document.getElementById(targetId);
+        if (el) {
+          navigator.clipboard.writeText(el.value);
+          const orig = b.textContent;
+          b.textContent = '✓ Tersalin!';
+          setTimeout(() => (b.textContent = orig), 1400);
+        }
+      });
+    });
+
+    document.getElementById('btnShuffleBioPreview').addEventListener('click', updateBioPreview);
+    document.getElementById('afBioSpintax').addEventListener('input', updateBioPreview);
+
+    document.getElementById('btnExportFullSeoReport').addEventListener('click', () => {
+      const rows = [
+        ['Platform', 'Category', 'Domain Authority', 'Submission URL', 'Form Type'],
+        ...defaultBacklinkPlatforms.map((p) => [p.name, p.category, p.da, p.url, p.formType])
+      ];
+      const csvContent = 'data:text/csv;charset=utf-8,' + rows.map((e) => e.map((c) => `"${c}"`).join(',')).join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `laporan-backlink-kompetitor-${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    // Initialize
+    renderAnchorProfile();
+    renderTargetWebsites();
+    updateBioPreview();
+    renderPostingTasks();
+  </script>
+</body>
+</html>

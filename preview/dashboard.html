@@ -19,6 +19,7 @@
           <li><a href="dashboard.html" aria-current="page">Studio Generator (App)</a></li>
           <li><a href="leads.html">Lead Finder Maps</a></li>
           <li><a href="email-outreach.html">Spintax Email</a></li>
+          <li><a href="seo-tools.html">SEO Tool (Baru)</a></li>
           <li><a href="pricing.html">Harga &amp; Kuota</a></li>
           <li><a href="privacy.html">Privasi</a></li>
           <li><a href="terms.html">Syarat Layanan</a></li>
@@ -72,6 +73,7 @@
     <div class="sidebar-controls-bar" role="region" aria-label="Pengaturan Tampilan Sidebar">
       <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
         <button type="button" id="btnToggleSidebar" class="btn btn-secondary btn-sm">&#9703; Minimize Sidebar</button>
+        <button type="button" id="btnOpenWorkspaceSettings" class="btn btn-secondary btn-sm" style="border-color: #3b82f6; color: #38bdf8;">⚙️ Pengaturan UI Workspace</button>
         <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; color: var(--text-secondary);">
           <span>Lebar Sidebar:</span>
           <input type="range" id="rangeSidebarWidth" min="280" max="680" value="410" style="width: 130px;" />
@@ -87,6 +89,15 @@
         <h2 id="form-config-heading" style="font-size: 1.2rem; margin-bottom: 1rem;">
           1. Pengaturan Project, 99 Gambar &amp; Target Daerah
         </h2>
+
+        <div class="spin-action-card">
+          <button type="button" id="btnRunBatchGeneration" class="btn-hero-spin" style="width: 100%; justify-content: center;">
+            🚀 Spin &amp; Generate Artikel Sekarang
+          </button>
+          <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 8px; line-height: 1.4;">
+            Klik tombol ini untuk memulai proses generate. Dilengkapi ritme halus &amp; indikator progress real-time tanpa membebani server.
+          </div>
+        </div>
 
         <form id="generatorForm" onsubmit="return false;">
           <div class="form-group">
@@ -152,10 +163,41 @@
             Tersimpan khusus untuk project ini. Masukkan 1 URL gambar per baris (hingga <strong>99 gambar</strong>) atau unggah banyak gambar sekaligus.
           </p>
 
-          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
-            <button type="button" id="btnFill25Images" class="btn btn-secondary btn-sm">Isi Contoh 25 Gambar</button>
-            <button type="button" id="btnFill99Images" class="btn btn-secondary btn-sm">Isi Penuh 99 Gambar</button>
-            <button type="button" id="btnClearImages" class="btn btn-secondary btn-sm">Reset (4 Gambar)</button>
+          <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem;">
+            <!-- Category Filter Bar -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+              <span style="font-weight: 700; font-size: 0.84rem; color: var(--text-primary);">📁 Kategori Gambar:</span>
+              <div style="display: flex; gap: 4px; flex-wrap: wrap;" id="categoryFilterChips">
+                <button type="button" class="btn btn-primary btn-sm btn-img-cat active" data-cat="ALL" style="font-size: 0.74rem; padding: 2px 8px;">Semua</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-img-cat" data-cat="LAPANGAN" style="font-size: 0.74rem; padding: 2px 8px;">🏗️ Lapangan</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-img-cat" data-cat="PRODUK" style="font-size: 0.74rem; padding: 2px 8px;">📦 Produk</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-img-cat" data-cat="PORTOFOLIO" style="font-size: 0.74rem; padding: 2px 8px;">🤝 Portofolio</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-img-cat" data-cat="BANNER" style="font-size: 0.74rem; padding: 2px 8px;">📢 Banner</button>
+              </div>
+            </div>
+
+            <!-- Quick Add Image by Category -->
+            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+              <input type="url" id="inputNewImageUrl" class="form-control" placeholder="https://domain.com/gambar.jpg" style="flex: 1; font-size: 0.8rem; padding: 4px 8px;" />
+              <select id="selectNewImageCategory" class="form-control" style="width: auto; font-size: 0.8rem; padding: 4px 8px;">
+                <option value="LAPANGAN">🏗️ Lapangan</option>
+                <option value="PRODUK">📦 Produk</option>
+                <option value="PORTOFOLIO">🤝 Portofolio</option>
+                <option value="BANNER">📢 Banner</option>
+              </select>
+              <button type="button" id="btnAddCategorizedImage" class="btn btn-secondary btn-sm" style="white-space: nowrap;">+ Tambah</button>
+            </div>
+
+            <!-- Import / Export Actions -->
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" id="btnExportImagesJson" class="btn btn-secondary btn-sm" style="font-size: 0.76rem;">💾 Simpan File (JSON)</button>
+              <button type="button" id="btnExportImagesCsv" class="btn btn-secondary btn-sm" style="font-size: 0.76rem;">📊 Unduh CSV</button>
+              <label class="btn btn-secondary btn-sm" style="font-size: 0.76rem; cursor: pointer; margin: 0;">
+                📁 Buka dari File (JSON)
+                <input type="file" id="inputImportImagesFile" accept=".json,.txt,.csv" style="display: none;" />
+              </label>
+              <button type="button" id="btnFill99Images" class="btn btn-secondary btn-sm" style="font-size: 0.76rem;">Isi Contoh 99</button>
+            </div>
           </div>
 
           <div class="form-group">
@@ -642,6 +684,7 @@
               </div>
             </div>
             <div style="display: flex; gap: 0.45rem; flex-wrap: wrap;">
+              <button type="button" id="btnTopRightSpin" class="btn btn-primary btn-sm" style="background: #10b981; border-color: #10b981; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">🚀 Spin Sekarang</button>
               <button type="button" id="btnCopyAllSelectedHtml" class="btn btn-secondary btn-sm">&#128203; Salin HTML</button>
               <button type="button" id="btnExpandAllArticles" class="btn btn-secondary btn-sm">&#9662; Buka Semua</button>
               <button type="button" id="btnMinimizeAllArticles" class="btn btn-secondary btn-sm">&#9652; Minimize Semua</button>
@@ -851,6 +894,130 @@
     </div>
   </footer>
 
+  
+  <!-- Generation Progress Modal -->
+  <div class="progress-overlay" id="generationProgressModal" role="dialog" aria-modal="true" aria-label="Status Generate Artikel">
+    <div class="progress-card">
+      <div style="font-size: 2.2rem; margin-bottom: 0.5rem;" id="progressIconEmoji">⚡</div>
+      <h3 style="margin: 0; font-size: 1.35rem;" id="progressHeadingTitle">Sedang Menghasilkan Artikel...</h3>
+      <p style="color: var(--text-secondary); font-size: 0.92rem; margin: 0.5rem 0 1rem;" id="progressStatusSubtitle">
+        Generator sedang meracik variasi spintax dengan ritme halus agar tidak membebani sistem.
+      </p>
+
+      <!-- Progress Bar -->
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+      </div>
+
+      <!-- Counters & Details -->
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.86rem; color: var(--text-muted); font-weight: 600;">
+        <span id="progressArticleCounter">Artikel 0 dari 0</span>
+        <span id="progressPercentBadge" style="color: #10b981; font-size: 1.1rem; font-weight: 800;">0%</span>
+      </div>
+
+      <!-- Active Step Status Box -->
+      <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem; margin-top: 1.25rem; font-size: 0.84rem; text-align: left; display: flex; align-items: center; gap: 8px;">
+        <span class="progress-pulse-dot"></span>
+        <span id="progressStageDetail" style="color: var(--text-primary); font-family: var(--font-family-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          Menyiapkan parameter spintax &amp; geo-target...
+        </span>
+      </div>
+
+      <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 10px;">
+        <button type="button" class="btn btn-secondary btn-sm" id="btnCancelGeneration">
+          ✕ Hentikan Proses
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Workspace & Studio Settings -->
+  <div class="editor-modal-backdrop" id="modalWorkspaceSettings" role="dialog" aria-modal="true" aria-labelledby="modalSettingsTitle">
+    <div class="editor-modal-dialog" style="max-width: 640px;">
+      <div class="editor-modal-header">
+        <h3 id="modalSettingsTitle" style="margin: 0; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+          <span>⚙️</span> Pengaturan Tampilan Workspace &amp; Generator
+        </h3>
+        <button type="button" class="btn btn-secondary btn-sm" id="btnCloseSettingsModal" aria-label="Tutup">&times;</button>
+      </div>
+      <div class="editor-modal-body" style="padding: 1.25rem;">
+        <!-- Theme Selection -->
+        <div class="form-group">
+          <label class="form-label" style="font-weight: 700;">1. Tema Warna Workspace</label>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
+            <label style="border: 2px solid #10b981; border-radius: 8px; padding: 10px; cursor: pointer; background: #111827; color: #fff; text-align: center;">
+              <input type="radio" name="radioTheme" value="emerald-dark" checked />
+              <div style="font-weight: 700; margin-top: 4px; font-size: 0.88rem; color: #10b981;">🌿 Emerald Dark</div>
+              <div style="font-size: 0.74rem; color: #94a3b8;">Default Pro</div>
+            </label>
+            <label style="border: 1px solid #334155; border-radius: 8px; padding: 10px; cursor: pointer; background: #0f172a; color: #fff; text-align: center;">
+              <input type="radio" name="radioTheme" value="midnight-blue" />
+              <div style="font-weight: 700; margin-top: 4px; font-size: 0.88rem; color: #38bdf8;">🌌 Midnight</div>
+              <div style="font-size: 0.74rem; color: #94a3b8;">Classic SaaS</div>
+            </label>
+            <label style="border: 1px solid #334155; border-radius: 8px; padding: 10px; cursor: pointer; background: #18181b; color: #fff; text-align: center;">
+              <input type="radio" name="radioTheme" value="cyberpunk" />
+              <div style="font-weight: 700; margin-top: 4px; font-size: 0.88rem; color: #06b6d4;">⚡ Cyberpunk</div>
+              <div style="font-size: 0.74rem; color: #94a3b8;">Neon Violet</div>
+            </label>
+            <label style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; cursor: pointer; background: #ffffff; color: #0f172a; text-align: center;">
+              <input type="radio" name="radioTheme" value="slate-light" />
+              <div style="font-weight: 700; margin-top: 4px; font-size: 0.88rem; color: #2563eb;">☀️ Slate Light</div>
+              <div style="font-size: 0.74rem; color: #64748b;">Minimalis Terang</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Density Selection -->
+        <div class="form-group" style="margin-top: 1.25rem;">
+          <label class="form-label" style="font-weight: 700;">2. Kerapatan Tata Letak (Density)</label>
+          <div style="display: flex; gap: 16px;">
+            <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="radio" name="radioDensity" value="spacious" checked />
+              <span>Nyaman (Spacious)</span>
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="radio" name="radioDensity" value="compact" />
+              <span>Kompak (Compact &mdash; Hemat Ruang Layar)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Layout Selection -->
+        <div class="form-group" style="margin-top: 1.25rem;">
+          <label class="form-label" style="font-weight: 700;">3. Susunan Kolom Studio</label>
+          <div style="display: flex; gap: 16px;">
+            <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="radio" name="radioLayout" value="columns" checked />
+              <span>Dua Kolom (Berdampingan: Form Kiri, Hasil Kanan)</span>
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="radio" name="radioLayout" value="stacked" />
+              <span>Satu Kolom Bertumpuk (Form Atas, Hasil Bawah)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Pacing Speed Selection -->
+        <div class="form-group" style="margin-top: 1.25rem;">
+          <label class="form-label" style="font-weight: 700;">4. Kecepatan &amp; Ritme Generator (Pacing)</label>
+          <div style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 6px;">
+            Memperlambat proses secara bertahap agar tidak membebani browser &amp; server saat menghasilkan puluhan/ratusan artikel.
+          </div>
+          <select id="selectPacingSpeed" class="form-control">
+            <option value="60" selected>⚡ Santai &amp; Halus (Jeda 60ms/artikel &mdash; Direkomendasikan)</option>
+            <option value="120">🎬 Ultra Halus (Jeda 120ms/artikel &mdash; Animasi Detail)</option>
+            <option value="0">🚀 Instan (Tanpa Jeda &mdash; Langsung Seketika)</option>
+          </select>
+        </div>
+      </div>
+      <div class="editor-modal-footer" style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" class="btn btn-secondary" id="btnCancelSettingsModal">Batal</button>
+        <button type="button" class="btn btn-primary" id="btnSaveSettingsModal">Simpan &amp; Terapkan</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Pop-Up Wide Modal: 2. Kolom Artikel Utama -->
   <div id="modalRawArticle" class="editor-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalRawTitle">
     <div class="editor-modal-dialog">
@@ -988,7 +1155,180 @@
           .slice(0, MAX_IMAGES_PER_PROJECT);
       }
 
+      
+      // ==========================================
+      // Categorized Image Asset Manager & File Save
+      // ==========================================
+      let activeImageCategoryFilter = 'ALL';
+      let categorizedImagesData = [];
+
+      function syncCategorizedImagesFromTextarea() {
+        const rawUrls = getCurrentImageListFromTextarea();
+        const existingMap = new Map(categorizedImagesData.map(img => [img.url, img]));
+        const categories = ['LAPANGAN', 'PRODUK', 'PORTOFOLIO', 'BANNER'];
+
+        categorizedImagesData = rawUrls.map((url, idx) => {
+          if (existingMap.has(url)) return existingMap.get(url);
+          return {
+            url,
+            category: categories[idx % categories.length],
+            title: `Foto Dokumentasi #${idx + 1}`,
+            addedAt: new Date().toISOString()
+          };
+        });
+      }
+
       function updateImagePoolUI() {
+        syncCategorizedImagesFromTextarea();
+        const imgs = categorizedImagesData;
+        const filtered = activeImageCategoryFilter === 'ALL'
+          ? imgs
+          : imgs.filter(i => i.category === activeImageCategoryFilter);
+
+        const countText = `${imgs.length} / ${MAX_IMAGES_PER_PROJECT} Gambar`;
+        const counterEl = document.getElementById('labelImgCounter');
+        if (counterEl) counterEl.textContent = countText;
+        const projBadge = document.getElementById('projectImagesBadge');
+        if (projBadge) projBadge.textContent = `${countText} Tersimpan di Project Ini`;
+        const metricEl = document.getElementById('metricImagePoolCount');
+        if (metricEl) metricEl.textContent = `${imgs.length} / 99`;
+
+        imageThumbsStrip.innerHTML = '';
+        filtered.slice(0, 15).forEach((item, idx) => {
+          const div = document.createElement('div');
+          div.className = 'image-thumb-item';
+          const catIcon = item.category === 'LAPANGAN' ? '🏗️' : item.category === 'PRODUK' ? '📦' : item.category === 'PORTOFOLIO' ? '🤝' : '📢';
+          div.innerHTML = `<img src="${item.url}" alt="Ref #${idx + 1}" loading="lazy" /><span>${catIcon} #${idx + 1}</span>`;
+          div.title = `Kategori: ${item.category} | ${item.url}`;
+          imageThumbsStrip.appendChild(div);
+        });
+        if (filtered.length > 15) {
+          const more = document.createElement('div');
+          more.className = 'image-thumb-item';
+          more.style.display = 'flex';
+          more.style.alignItems = 'center';
+          more.style.justifyContent = 'center';
+          more.style.fontWeight = '700';
+          more.style.fontSize = '0.75rem';
+          more.textContent = `+${filtered.length - 15}`;
+          imageThumbsStrip.appendChild(more);
+        }
+      }
+
+      // Wire Category Filter Chips
+      document.querySelectorAll('.btn-img-cat').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.btn-img-cat').forEach(b => {
+            b.classList.remove('btn-primary', 'active');
+            b.classList.add('btn-secondary');
+          });
+          btn.classList.remove('btn-secondary');
+          btn.classList.add('btn-primary', 'active');
+          activeImageCategoryFilter = btn.dataset.cat;
+          updateImagePoolUI();
+        });
+      });
+
+      // Quick Add Categorized Image
+      const btnAddCatImg = document.getElementById('btnAddCategorizedImage');
+      if (btnAddCatImg) {
+        btnAddCatImg.addEventListener('click', () => {
+          const inputUrl = document.getElementById('inputNewImageUrl');
+          const catSelect = document.getElementById('selectNewImageCategory');
+          const url = (inputUrl && inputUrl.value || '').trim();
+          if (!url) return alert('Silakan masukkan URL gambar terlebih dahulu.');
+          const currentList = getCurrentImageListFromTextarea();
+          if (currentList.length >= MAX_IMAGES_PER_PROJECT) return alert('Koleksi sudah mencapai batas 99 gambar.');
+          currentList.push(url);
+          textareaProjectImages.value = currentList.join('\n');
+          categorizedImagesData.push({
+            url,
+            category: catSelect.value,
+            title: `Foto ${catSelect.value} #${currentList.length}`,
+            addedAt: new Date().toISOString()
+          });
+          inputUrl.value = '';
+          updateImagePoolUI();
+          saveFormIntoActiveProject();
+        });
+      }
+
+      // Export Images to JSON file
+      const btnExportImgJson = document.getElementById('btnExportImagesJson');
+      if (btnExportImgJson) {
+        btnExportImgJson.addEventListener('click', () => {
+          syncCategorizedImagesFromTextarea();
+          const projName = (inputProjectName.value || 'project').replace(/[^a-z0-9]/gi, '-').toLowerCase();
+          const exportPayload = {
+            projectName: inputProjectName.value,
+            exportedAt: new Date().toISOString(),
+            totalImages: categorizedImagesData.length,
+            images: categorizedImagesData
+          };
+          const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `koleksi-gambar-${projName}.json`;
+          a.click();
+        });
+      }
+
+      // Export Images to CSV
+      const btnExportImgCsv = document.getElementById('btnExportImagesCsv');
+      if (btnExportImgCsv) {
+        btnExportImgCsv.addEventListener('click', () => {
+          syncCategorizedImagesFromTextarea();
+          const projName = (inputProjectName.value || 'project').replace(/[^a-z0-9]/gi, '-').toLowerCase();
+          const rows = [['Nomor', 'URL_Gambar', 'Kategori', 'Judul_Gambar']];
+          categorizedImagesData.forEach((img, idx) => {
+            rows.push([idx + 1, `"${img.url}"`, `"${img.category}"`, `"${img.title}"`]);
+          });
+          const csvText = rows.map(r => r.join(',')).join('\n');
+          const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `koleksi-gambar-${projName}.csv`;
+          a.click();
+        });
+      }
+
+      // Import Images from File
+      const inputImportImg = document.getElementById('inputImportImagesFile');
+      if (inputImportImg) {
+        inputImportImg.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            try {
+              const text = evt.target.result;
+              let importedUrls = [];
+              if (file.name.endsWith('.json')) {
+                const parsed = JSON.parse(text);
+                if (Array.isArray(parsed.images)) {
+                  categorizedImagesData = parsed.images;
+                  importedUrls = parsed.images.map(i => i.url || i);
+                } else if (Array.isArray(parsed)) {
+                  importedUrls = parsed.map(i => i.url || i);
+                }
+              } else {
+                importedUrls = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+              }
+              if (importedUrls.length > 0) {
+                textareaProjectImages.value = importedUrls.slice(0, MAX_IMAGES_PER_PROJECT).join('\n');
+                updateImagePoolUI();
+                saveFormIntoActiveProject();
+                alert(`Berhasil memuat ${importedUrls.length} gambar ke dalam project ini!`);
+              }
+            } catch (err) {
+              alert('Gagal membaca file gambar: ' + err.message);
+            }
+          };
+          reader.readAsText(file);
+        });
+      }
+
+      function _legacyUpdateImagePoolUI() {
         const imgs = getCurrentImageListFromTextarea();
         const countText = `${imgs.length} / ${MAX_IMAGES_PER_PROJECT} Gambar`;
         document.getElementById('labelImgCounter').textContent = countText;
@@ -1038,7 +1378,8 @@
         updateDetectedLanguageUI();
         updateImagePoolUI();
         rebuildBlueprintFromInputs(true);
-        runBatchGeneration();
+        currentBatchArticles = [];
+        renderArticlesList();
       }
 
       function saveFormIntoActiveProject() {
@@ -1294,7 +1635,39 @@
       document.getElementById('btnFill99Images').addEventListener('click', () => fillPresetReferenceImages(99));
       document.getElementById('btnClearImages').addEventListener('click', () => fillPresetReferenceImages(4));
 
-      function runBatchGeneration() {
+      let isGeneratingCancelled = false;
+
+      function showProgressModal(total) {
+        isGeneratingCancelled = false;
+        const modal = document.getElementById('generationProgressModal');
+        if (modal) modal.classList.add('is-active');
+        const bar = document.getElementById('progressBarFill');
+        if (bar) bar.style.width = '0%';
+        const pct = document.getElementById('progressPercentBadge');
+        if (pct) pct.textContent = '0%';
+        const cnt = document.getElementById('progressArticleCounter');
+        if (cnt) cnt.textContent = `Artikel 0 dari ${total}`;
+        const stage = document.getElementById('progressStageDetail');
+        if (stage) stage.textContent = 'Menyiapkan parameter spintax & geo-target...';
+      }
+
+      function updateProgressUI({ current, total, percent, stageText }) {
+        const bar = document.getElementById('progressBarFill');
+        if (bar) bar.style.width = `${percent}%`;
+        const pct = document.getElementById('progressPercentBadge');
+        if (pct) pct.textContent = `${percent}%`;
+        const cnt = document.getElementById('progressArticleCounter');
+        if (cnt) cnt.textContent = `Artikel ${current} dari ${total}`;
+        const stage = document.getElementById('progressStageDetail');
+        if (stage && stageText) stage.textContent = stageText;
+      }
+
+      function hideProgressModal() {
+        const modal = document.getElementById('generationProgressModal');
+        if (modal) modal.classList.remove('is-active');
+      }
+
+      async function runBatchGeneration() {
         const w = getSelectedWilayahObj();
         const d = getSelectedDaerahObj();
         const checkedInputs = Array.from(kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked'));
@@ -1382,7 +1755,22 @@
         const maxAttempts = targetPool.length > 30 ? 3 : 8;
         const peerWindow = targetPool.length > 30 ? 8 : 25;
 
-        targetPool.forEach((target, idx) => {
+        // Open Smooth Progress Modal
+        showProgressModal(targetPool.length);
+        const wsSettings = getWorkspaceSettings();
+        const pacingDelay = Math.max(0, Number(wsSettings.pacingSpeed != null ? wsSettings.pacingSpeed : 60));
+
+        for (let idx = 0; idx < targetPool.length; idx++) {
+          if (isGeneratingCancelled) break;
+          const target = targetPool[idx];
+          const pct = Math.round(((idx + 1) / targetPool.length) * 85);
+          updateProgressUI({
+            current: idx + 1,
+            total: targetPool.length,
+            percent: pct,
+            stageText: `[Tahap 1/3] Meracik spintax & wilayah: Kec. ${target.kecamatan}, ${target.labelKotaKabupaten}...`
+          });
+
           const imgRender = clientRenderProjectImagesForArticle({
             projectImages,
             imagesPerArticle,
@@ -1466,7 +1854,22 @@
             content: bestContent,
             htmlContent
           });
+
+          // Pacing delay to avoid overloading browser and server
+          if (pacingDelay > 0) {
+            await new Promise((r) => setTimeout(r, pacingDelay));
+          } else if (idx % 4 === 0) {
+            await new Promise((r) => setTimeout(r, 0));
+          }
+        }
+
+        updateProgressUI({
+          current: generated.length,
+          total: targetPool.length,
+          percent: 92,
+          stageText: '[Tahap 2/3] Memeriksa skor keunikan n-gram Copyscape (&le;14% overlap)...'
         });
+        await new Promise((r) => setTimeout(r, 80));
 
         let sumUniqueness = 0;
         let allPassed = true;
@@ -1503,13 +1906,22 @@
         currentArticlesPage = 1;
         updateCapacityAdvisorUI();
 
-        const avgUnique = generated.length === 1 ? 100 : (sumUniqueness / generated.length).toFixed(1);
+        const avgUnique = generated.length <= 1 ? 100 : (sumUniqueness / generated.length).toFixed(1);
         document.getElementById('metricAvgUniqueness').textContent = `${avgUnique}%`;
         document.getElementById('metricCopyscapeGate').innerHTML = allPassed
           ? `<span class="badge badge-pass">&#10003; LULUS COPYSCAPE (&le;14% Overlap)</span>`
           : `<span class="badge badge-warn">&#9888; PERLU TAMBAH SPINTAX</span>`;
 
-        renderArticlesList(currentBatchArticles);
+        updateProgressUI({
+          current: generated.length,
+          total: targetPool.length,
+          percent: 100,
+          stageText: `[Tahap 3/3] Selesai! ${generated.length} artikel berhasil dibuat (${avgUnique}% keunikan).`
+        });
+        await new Promise((r) => setTimeout(r, 350));
+        hideProgressModal();
+
+        renderArticlesList();
         refreshSitemapPreview();
       }
 
@@ -1605,6 +2017,24 @@ ${art.htmlContent}
       }
 
       function renderArticlesList() {
+        if (!currentBatchArticles || currentBatchArticles.length === 0) {
+          articlesOutputContainer.innerHTML = `
+            <div style="text-align: center; padding: 3.5rem 1.5rem; border: 2px dashed var(--border-color); border-radius: var(--radius-md); background: var(--bg-surface); margin-top: 1rem;">
+              <div style="font-size: 2.8rem; margin-bottom: 0.75rem;">🚀</div>
+              <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--text-primary);">Studio Siap Digunakan</h3>
+              <p style="color: var(--text-secondary); max-width: 520px; margin: 0 auto 1.5rem; font-size: 0.95rem; line-height: 1.6;">
+                Pilih nama project, atur target wilayah / kecamatan di sebelah kiri, lalu klik tombol hijau <strong>"Spin &amp; Generate Artikel Sekarang"</strong> untuk mulai menghasilkan artikel secara halus.
+              </p>
+              <button type="button" class="btn-hero-spin" onclick="runBatchGeneration()">
+                🚀 Spin &amp; Generate Artikel Sekarang
+              </button>
+            </div>
+          `;
+          const indicator = document.getElementById('articlesPageIndicator');
+          if (indicator) indicator.textContent = 'Hal 1 / 1 (0 Artikel)';
+          return;
+        }
+
         articlesOutputContainer.innerHTML = '';
         const { pageSlice, startIdx, endIdx, totalPages } = getCurrentPageArticles();
         const indicator = document.getElementById('articlesPageIndicator');
@@ -1993,14 +2423,12 @@ ${art.htmlContent}
         const cap = updateCapacityAdvisorUI();
         inputMaxArticlesToGen.value = String(cap.optimalSweetSpot);
         updateCapacityAdvisorUI();
-        runBatchGeneration();
       });
 
       document.getElementById('btnApplyMaxSafeCount').addEventListener('click', () => {
         const cap = updateCapacityAdvisorUI();
         inputMaxArticlesToGen.value = String(cap.recommendedSafeMaxArticles);
         updateCapacityAdvisorUI();
-        runBatchGeneration();
       });
 
       selectWilayah.addEventListener('change', populateDaerahDropdown);
@@ -2019,7 +2447,6 @@ ${art.htmlContent}
         el.addEventListener('change', () => {
           rebuildBlueprintFromInputs(true);
           saveFormIntoActiveProject();
-          runBatchGeneration();
         });
       });
 
@@ -2689,7 +3116,6 @@ if __name__ == '__main__':
         updateDetectedLanguageUI();
         rebuildBlueprintFromInputs(true);
         saveFormIntoActiveProject();
-        runBatchGeneration();
         refreshAlignmentAuditUI();
       }
 
@@ -2787,15 +3213,24 @@ if __name__ == '__main__':
       window.LocalSpinClient.initWorkspaceLayoutControls();
       window.LocalSpinClient.initQuickGuideAndScrollTop();
       window.LocalSpinClient.checkBackendHealth(document.getElementById('backendStatusBadge'));
+      // Smooth initial load (critical elements paint first)
       renderProjectDropdown();
       populateDaerahDropdown();
       loadProjectIntoForm(activeProjectId);
-      document.getElementById('quizPrimaryKeyword').value = inputTopic.value;
-      current9SectionsMap = generateStructured9SectionsDraft(getQuizConfigFromUI());
-      render9SectionsGrid();
-      merge9SectionsAndSyncAll();
-      refreshPromptOutputUI();
-      loadGeneratedUrlsIntoMassPing();
+
+      // Defer heavy auxiliary tools to avoid blocking the UI thread
+      setTimeout(() => {
+        try {
+          const qpk = document.getElementById('quizPrimaryKeyword');
+          if (qpk) qpk.value = inputTopic.value;
+          current9SectionsMap = generateStructured9SectionsDraft(getQuizConfigFromUI());
+          render9SectionsGrid();
+          refreshPromptOutputUI();
+          loadGeneratedUrlsIntoMassPing();
+        } catch (e) {
+          console.warn('Deferred init completed gracefully:', e);
+        }
+      }, 80);
     })();
   </script>
 </body>

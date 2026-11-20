@@ -42,6 +42,10 @@ const {
   executeMassPing
 } = require('./domain/massPingEngine');
 const {
+  analyzeCompetitorDomain,
+  generateCloneSubmissionPlan
+} = require('./domain/competitorBacklinkEngine');
+const {
   MAX_IMAGES_PER_PROJECT,
   createDatabase,
   authorizeWorkspaceAction,
@@ -840,11 +844,43 @@ function createAppServer({ dbPath = ':memory:' } = {}) {
         );
       }
 
+      // 10J. SEO Tools: Competitor Backlink Analysis
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/competitor-backlinks') {
+        const body = await parseJsonBody(req);
+        const competitorUrl = body.competitorUrl || body.domain || '';
+        if (!competitorUrl.trim()) {
+          return sendJson(res, 400, { error: 'Parameter competitorUrl wajib diisi.' }, requestId);
+        }
+        const result = analyzeCompetitorDomain(competitorUrl);
+        return sendJson(res, 200, { message: 'Analisis profil backlink kompetitor selesai.', ...result }, requestId);
+      }
+
+      // 10K. SEO Tools: Competitor Backlink Clone Pipeline (Scrape -> List -> Auto-Fill -> Post with Spintax)
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/clone-pipeline') {
+        const body = await parseJsonBody(req);
+        const plan = generateCloneSubmissionPlan({
+          competitorDomain: body.competitorDomain || '',
+          yourWebsiteUrl: body.yourWebsiteUrl || 'https://wevo.biz.id',
+          brandName: body.brandName || 'LocalSpin AI Solutions',
+          topic: body.topic || 'Jasa Layanan Profesional',
+          selectedTargets: body.selectedTargets || []
+        });
+        return sendJson(res, 200, { message: 'Rencana alur kloning backlink kompetitor siap.', ...plan }, requestId);
+      }
+
       // 11. Serve Static HTML Preview Files (DPES v1.3 HTML Visual Handoff)
       let relPath = pathname === '/' ? '/index.html' : pathname.replace(/^\/preview/, '');
       if (relPath === '' || relPath === '/') relPath = '/index.html';
       const safeRelPath = path.normalize(relPath).replace(/^(\.\.(\/|\\|$))+/, '');
-      const fullFilePath = path.join(previewDir, safeRelPath);
+      let fullFilePath = path.join(previewDir, safeRelPath);
+
+      // Support serving from preview/ or directly from project root
+      if (!fs.existsSync(fullFilePath) || !fs.statSync(fullFilePath).isFile()) {
+        const rootPath = path.join(__dirname, '..', safeRelPath);
+        if (fs.existsSync(rootPath) && fs.statSync(rootPath).isFile()) {
+          fullFilePath = rootPath;
+        }
+      }
 
       if (fullFilePath.startsWith(previewDir) && fs.existsSync(fullFilePath) && fs.statSync(fullFilePath).isFile()) {
         const ext = path.extname(fullFilePath).toLowerCase();

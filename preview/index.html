@@ -3,95 +3,368 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LocalSpin AI v1.8 — SaaS Generator Artikel Spintax AI, Lead Finder Maps &amp; Email Outreach</title>
-  <meta name="description" content="Platform SaaS Local SEO Indonesia dengan Multi-Layer AI Spintax, 38 Provinsi Indonesia, Pool 99 Gambar/Project, Lead Finder Google Maps, Spintax Email Outreach, CTA WhatsApp, dan Sitemap GSC." />
-  <link rel="stylesheet" href="assets/styles.css" />
+  <title>LocalSpin AI Pro v1.18 — SaaS Generator Artikel Spintax AI, Lead Finder Maps &amp; Mass Ping Indexer</title>
+  <meta name="description" content="Platform SaaS Local SEO Indonesia dengan Multi-Layer AI Spintax, 38 Provinsi Indonesia, Pool 99 Gambar/Project, Lead Finder Google Maps, Spintax Email Outreach, dan Mass Ping Indexer 12 Search Engine Endpoints." />
+  <link rel="stylesheet" href="assets/styles.css?v=1.18.0" />
+  <style>
+    .hero-section {
+      padding: 4.5rem 1rem 3.5rem;
+      background: radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0) 70%);
+    }
+    .hero-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 999px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #10b981;
+      margin-bottom: 1.5rem;
+    }
+    .hero-interactive-box {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+    }
+    .interactive-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 0.75rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #94a3b8;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+      background: #1e293b;
+      color: #38bdf8;
+      border-color: #38bdf8;
+    }
+    .stats-bar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.25rem;
+      margin: 2.5rem 0;
+    }
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-3px);
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--brand-primary);
+      margin-bottom: 0.25rem;
+    }
+    .feature-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.75rem;
+    }
+    .feature-item-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .feature-icon-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+    .step-card-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--brand-primary);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    .cta-banner-box {
+      background: linear-gradient(135deg, #065f46, #0f172a);
+      border: 1px solid #10b981;
+      border-radius: var(--radius-lg);
+      padding: 3.5rem 2rem;
+      text-align: center;
+      color: #f8fafc;
+      margin: 4rem 0;
+      box-shadow: 0 20px 40px -10px rgba(6, 95, 70, 0.4);
+    }
+  </style>
 </head>
-<body>
+<body data-theme="emerald-dark">
   <header class="site-header">
     <div class="container header-inner">
       <a href="index.html" class="brand-logo" aria-label="Beranda LocalSpin AI">
         <span>LocalSpin AI</span>
-        <span class="brand-badge">v1.8 SEO+</span>
+        <span class="brand-badge">v1.18 Pro</span>
       </a>
       <nav aria-label="Navigasi Utama">
         <ul class="nav-links">
-          <li><a href="index.html" aria-current="page">Beranda</a></li>
+          <li><a href="index.html" aria-current="page" style="color: #10b981; font-weight: 700;">Beranda</a></li>
           <li><a href="dashboard.html">Studio Generator (App)</a></li>
           <li><a href="leads.html">Lead Finder Maps</a></li>
           <li><a href="email-outreach.html">Spintax Email</a></li>
+          <li><a href="seo-tools.html">SEO Tool (Baru)</a></li>
           <li><a href="pricing.html">Harga &amp; Kuota</a></li>
-          <li><a href="privacy.html">Privasi</a></li>
-          <li><a href="terms.html">Syarat Layanan</a></li>
           <li><a href="login.html" class="btn btn-secondary btn-sm">Masuk Akun</a></li>
-          <li><a href="dashboard.html" class="btn btn-primary btn-sm">Buka Studio SaaS &rarr;</a></li>
+          <li><a href="dashboard.html" class="btn btn-primary btn-sm" style="background: #10b981; border-color: #10b981;">Buka Studio &rarr;</a></li>
         </ul>
       </nav>
     </div>
   </header>
 
   <main>
-    <section class="container" style="padding: 3.5rem 1rem 2.5rem;">
-      <div class="grid-2" style="align-items: center;">
-        <div>
-          <span class="badge badge-pass" style="margin-bottom: 1rem;">
-            &#10003; H1/H2/H3 + Bold/Underline + Gambar Alt + Klik WA + Lolos Copyscape
-          </span>
-          <h1>Dominasi Halaman 1 Google di Setiap Wilayah, Kota, Kabupaten &amp; Kecamatan</h1>
-          <p style="font-size: 1.08rem; color: var(--text-secondary);">
-            <strong>LocalSpin AI v1.1</strong> menyusun artikel SEO lokal lengkap dengan struktur <strong>H1, H2, H3</strong>, penekanan kata kunci <strong>Bold &amp; Underline</strong>, penyisipan <strong>Gambar + Alt-Text Spintax Daerah</strong>, <strong>Hyperlink/Backlink</strong>, <strong>Tombol Klik WhatsApp per Kecamatan</strong>, serta <strong>Schema.org JSON-LD Google</strong> yang teruji <strong>overlap 4-gram &le; 14% (Lolos Copyscape)</strong>.
-          </p>
-          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem;">
-            <a href="dashboard.html" class="btn btn-primary">Buka Studio Generator</a>
-            <a href="leads.html" class="btn btn-whatsapp">Lead Finder Maps</a>
-            <a href="email-outreach.html" class="btn btn-secondary">Spintax Email B2B</a>
-            <a href="#fitur-seo" class="btn btn-secondary">Lihat Fitur</a>
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="grid-2" style="align-items: center; gap: 3rem;">
+          <div>
+            <div class="hero-badge-pill">
+              <span class="progress-pulse-dot"></span>
+              <span>DPES v1.3 Verified &bull; Dominasi Halaman 1 Google di Seluruh Kecamatan</span>
+            </div>
+            <h1 style="font-size: 2.6rem; line-height: 1.25; margin-bottom: 1.25rem;">
+              Kuasai <span style="color: #10b981;">Ranking 1 Google</span> di 38 Provinsi &amp; 7.200+ Kecamatan Indonesia
+            </h1>
+            <p style="font-size: 1.12rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 2rem;">
+              LocalSpin AI menyusun ribuan artikel SEO lokal berkualitas tinggi dengan struktur semantik <strong>H1, H2, H3</strong>, penekanan <strong>Bold &amp; Underline</strong>, penyisipan <strong>99 Gambar/Project</strong> dengan Alt-Text Spintax, <strong>Tombol WhatsApp per Kecamatan</strong>, dan lolos uji keunikan <strong>Copyscape (&le; 14% overlap)</strong>.
+            </p>
+            <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+              <a href="dashboard.html" class="btn btn-primary" style="background: #10b981; border-color: #10b981; padding: 0.85rem 1.6rem; font-weight: 700;">
+                🚀 Buka Studio Generator
+              </a>
+              <a href="leads.html" class="btn btn-secondary" style="padding: 0.85rem 1.4rem;">
+                📍 Lead Finder Google Maps
+              </a>
+              <a href="email-outreach.html" class="btn btn-secondary" style="padding: 0.85rem 1.4rem;">
+                ✉️ Spintax Email B2B
+              </a>
+            </div>
+            <div style="margin-top: 1.5rem; font-size: 0.86rem; color: var(--text-muted); display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+              <span>✅ Tanpa Perlu Langganan Vercel/Netlify</span>
+              <span>✅ 100% Server Pribadi Cepat</span>
+              <span>✅ Standar Anti-Artikel Sampah</span>
+            </div>
           </div>
-        </div>
 
-        <div class="card" style="background: #0f172a; color: #f8fafc; border-color: #1e293b;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <span style="font-weight: 700; color: #93c5fd;">Komponen Otomatis di Setiap Artikel Daerah</span>
-            <span class="badge badge-pass">Skor SEO: 100/100</span>
+          <!-- Hero Interactive Live Demo Card -->
+          <div class="hero-interactive-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <div style="font-weight: 700; color: #93c5fd; display: flex; align-items: center; gap: 8px;">
+                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></span>
+                <span>Live Studio Simulator</span>
+              </div>
+              <span class="badge badge-pass">Keunikan: 98.6% Lolos</span>
+            </div>
+
+            <div class="interactive-tabs" role="tablist">
+              <button type="button" class="tab-btn active" onclick="switchDemoTab(0)">1. Spintax Artikel</button>
+              <button type="button" class="tab-btn" onclick="switchDemoTab(1)">2. Lead Maps</button>
+              <button type="button" class="tab-btn" onclick="switchDemoTab(2)">3. Mass Ping</button>
+              <button type="button" class="tab-btn" onclick="switchDemoTab(3)">4. Schema JSON-LD</button>
+            </div>
+
+            <div id="demoContent" style="background: #020617; padding: 1.25rem; border-radius: 8px; font-family: var(--font-family-mono); font-size: 0.84rem; color: #cbd5e1; min-height: 220px; line-height: 1.6; border: 1px solid #1e293b;">
+              <!-- Dynamic JS content injected here -->
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+              <span style="font-size: 0.8rem; color: #64748b;" id="demoTargetLabel">Target: Kec. Coblong, Kota Bandung</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="shuffleDemoArticle()" style="color: #38bdf8; border-color: #38bdf8;">
+                🔄 Uji Coba Acak Spintax Baru
+              </button>
+            </div>
           </div>
-          <pre style="background: #1e293b; padding: 1rem; border-radius: 8px; overflow-x: auto; font-size: 0.82rem; line-height: 1.55; color: #e2e8f0; margin: 0;"><code>&lt;h1&gt;Rekomendasi &lt;strong&gt;Jasa Panel Surya&lt;/strong&gt; di Kec. Coblong&lt;/h1&gt;
-&lt;p&gt;Layanan &lt;u&gt;bergaransi resmi tertulis&lt;/u&gt; di &lt;strong&gt;Kecamatan Coblong&lt;/strong&gt;...
-Kunjungi &lt;a href="https://..."&gt;halaman resmi kami&lt;/a&gt;.&lt;/p&gt;
-&lt;figure class="seo-article-figure"&gt;
-  &lt;img src="..." alt="Tim teknisi di Kecamatan Coblong, Kota Bandung" /&gt;
-&lt;/figure&gt;
-&lt;h2&gt;Keunggulan Utama di Coblong, Bandung&lt;/h2&gt;
-&lt;h3&gt;1. Jaminan Mutu &amp; Spesifikasi Terukur&lt;/h3&gt;
-&lt;a href="https://wa.me/628123...?text=Halo+Admin..." class="wa-cta-button"&gt;
-  Chat WhatsApp Area Coblong
-&lt;/a&gt;</code></pre>
         </div>
       </div>
     </section>
 
-    <section id="fitur-seo" class="container" style="padding: 2.5rem 1rem;">
-      <h2>Fitur Lengkap Pemformatan, Media, Konversi WhatsApp &amp; SEO Google</h2>
-      <div class="grid-3" style="margin-top: 1.5rem;">
-        <article class="card">
-          <h3>1. Toolbar H1, H2, H3, Bold &amp; Underline</h3>
-          <p>
-            Atur hirarki heading semantik (<code>H1</code> judul utama, <code>H2</code> subtopik, <code>H3</code> poin detail &amp; FAQ) serta penekanan <strong>Bold</strong> pada kata kunci daerah dan <u>Underline</u> pada nilai jual utama agar mudah dipindai algoritma Google.
-          </p>
+    <!-- Platform Stats Bar -->
+    <section class="container" style="padding-top: 1rem; padding-bottom: 2rem;">
+      <div class="stats-bar-grid">
+        <div class="stat-card">
+          <div class="stat-number">38</div>
+          <div style="font-weight: 600;">Provinsi Indonesia</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Dari Sabang sampai Merauke</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">514</div>
+          <div style="font-weight: 600;">Kota &amp; Kabupaten</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Struktur hirarki resmi BPS</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">7.200+</div>
+          <div style="font-weight: 600;">Kecamatan Terdata</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Target mikro hiper-lokal</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">&le; 14%</div>
+          <div style="font-weight: 600;">Batas Overlap Copyscape</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Garansi anti-artikel sampah</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">12</div>
+          <div style="font-weight: 600;">Endpoint Mass Ping</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">IndexNow, Google, Bing, Yandex</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 Main Pillars Section -->
+    <section class="container" style="padding: 2.5rem 1rem;">
+      <div style="text-align: center; max-width: 720px; margin: 0 auto 2.5rem;">
+        <span class="badge badge-sim" style="margin-bottom: 0.75rem;">SOLUSI LENGKAP LOCAL SEO</span>
+        <h2 style="font-size: 2.1rem; margin-bottom: 0.75rem;">4 Mesin Pertumbuhan Trafik &amp; Penjualan Bisnis Anda</h2>
+        <p style="color: var(--text-secondary); font-size: 1.05rem;">
+          Dirancang dari pengalaman praktisi SEO untuk menghemat ratusan jam kerja manual dan mendatangkan pelanggan tertarget dari Google Search, Google Maps, dan Email Outreach.
+        </p>
+      </div>
+
+      <div class="feature-grid-4">
+        <article class="feature-item-card">
+          <div>
+            <div class="feature-icon-badge">⚡</div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.75rem;">1. Multi-Layer Spintax Generator</h3>
+            <p style="color: var(--text-secondary); font-size: 0.94rem; line-height: 1.6;">
+              Menyusun artikel bertingkat dengan sintaks <code>{opsi1|opsi2|{sub1|sub2}}</code>, mendeteksi bahasa (Indonesia, Inggris, atau Campuran), serta menyematkan tombol WhatsApp spesifik daerah penerima.
+            </p>
+          </div>
+          <div style="margin-top: 1.25rem;">
+            <a href="dashboard.html" class="btn btn-secondary btn-sm" style="width: 100%; text-align: center;">Buka Studio Spintax &rarr;</a>
+          </div>
         </article>
 
-        <article class="card">
-          <h3>2. Gambar SEO + Spintax Alt-Text Daerah</h3>
-          <p>
-            Masukkan URL gambar atau unggah gambar lokal dari komputer. Atribut <code>alt="..."</code> dan <code>&lt;figcaption&gt;</code> otomatis di-spin dengan nama Kecamatan &amp; Kota/Kabupaten untuk mendominasi <strong>Google Images</strong>.
-          </p>
+        <article class="feature-item-card">
+          <div>
+            <div class="feature-icon-badge" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">📍</div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.75rem;">2. Google Maps Lead Finder</h3>
+            <p style="color: var(--text-secondary); font-size: 0.94rem; line-height: 1.6;">
+              Mencari calon klien B2B langsung dari peta dengan Serper.dev atau OpenStreetMap gratis. Lengkap dengan deteksi website tanpa SSL, enrichment email otomatis, dan export CSV siap pakai.
+            </p>
+          </div>
+          <div style="margin-top: 1.25rem;">
+            <a href="leads.html" class="btn btn-secondary btn-sm" style="width: 100%; text-align: center;">Cari Leads Bisnis &rarr;</a>
+          </div>
         </article>
 
-        <article class="card">
-          <h3>3. CTA Klik WhatsApp &amp; Hyperlink Kontekstual</h3>
-          <p>
-            Hasilkan tombol klik WhatsApp (<code>https://wa.me/...</code>) dengan pesan chat yang otomatis menyebut nama Kecamatan target pelanggan, ditambah penyisipan <strong>Hyperlink / Backlink</strong> dengan opsi <em>Dofollow / Nofollow</em>.
-          </p>
+        <article class="feature-item-card">
+          <div>
+            <div class="feature-icon-badge" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">✉️</div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.75rem;">3. Spintax Email Outreach</h3>
+            <p style="color: var(--text-secondary); font-size: 0.94rem; line-height: 1.6;">
+              Kuis 5-bagian perakit email penawaran B2B dengan spintax komoditas, rotasi multi-pengirim (SMTP), mode Random Drip (3–5 menit anti-spam), dan isolasi workspace tenant.
+            </p>
+          </div>
+          <div style="margin-top: 1.25rem;">
+            <a href="email-outreach.html" class="btn btn-secondary btn-sm" style="width: 100%; text-align: center;">Buat Email Outreach &rarr;</a>
+          </div>
         </article>
+
+        <article class="feature-item-card">
+          <div>
+            <div class="feature-icon-badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">📡</div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.75rem;">4. Mass Ping 12 Search Engines</h3>
+            <p style="color: var(--text-secondary); font-size: 0.94rem; line-height: 1.6;">
+              Notifikasi instan ke 12 endpoint perayap mesin pencari (Google WebSub, IndexNow, Bing, Yandex, Seznam, Naver, Ping-O-Matic) agar ribuan URL dan backlink terindeks lebih cepat.
+            </p>
+          </div>
+          <div style="margin-top: 1.25rem;">
+            <a href="dashboard.html#massPingSection" class="btn btn-secondary btn-sm" style="width: 100%; text-align: center;">Buka Mass Ping &rarr;</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- How it works 3-Step Section -->
+    <section class="container" style="padding: 2.5rem 1rem;">
+      <div style="text-align: center; max-width: 680px; margin: 0 auto 2.5rem;">
+        <span class="badge badge-pass" style="margin-bottom: 0.5rem;">ALUR KERJA MUDAH</span>
+        <h2 style="font-size: 2rem;">Hanya Butuh 3 Langkah untuk Dominasi Kota Anda</h2>
+      </div>
+
+      <div class="grid-3" style="gap: 1.5rem;">
+        <div class="card">
+          <div class="step-card-num">1</div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Pilih Project &amp; Masukkan Materi</h3>
+          <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6;">
+            Ketik nama produk / jasa Anda, unggah hingga 99 koleksi gambar dokumentasi, dan biarkan AI menganalisis struktur bahasa serta menyusun formula spintax dasar.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="step-card-num">2</div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Tentukan Target Daerah &amp; Tekan Spin</h3>
+          <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6;">
+            Pilih Provinsi, Kota, atau centang semua Kecamatan target. Tekan tombol <strong>Spin Sekarang</strong>, dan sistem akan meng-generate artikel secara halus dengan indikator progress real-time.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="step-card-num">3</div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Export &amp; Kirim Mass Ping</h3>
+          <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6;">
+            Unduh artikel dalam format WordPress XML, CSV, atau HTML Bundle (ZIP). Lalu kirimkan sinyal sitemap ke 12 endpoint mesin pencari dengan Mass Ping tool.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Big CTA Banner -->
+    <section class="container">
+      <div class="cta-banner-box">
+        <h2 style="font-size: 2.3rem; margin-bottom: 1rem; color: #fff;">
+          Siap Mendominasi Halaman 1 Google di Kota Anda?
+        </h2>
+        <p style="font-size: 1.1rem; color: #a7f3d0; max-width: 640px; margin: 0 auto 2rem; line-height: 1.7;">
+          Mulai sekarang juga di studio mandiri Anda. Tanpa instalasi rumit, tanpa biaya serverless per klik, dan 100% kendali di tangan Anda.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <a href="dashboard.html" class="btn btn-hero-spin" style="text-decoration: none;">
+            🚀 Buka Studio Generator Sekarang
+          </a>
+          <a href="pricing.html" class="btn btn-secondary" style="padding: 0.9rem 1.8rem; font-size: 1.05rem;">
+            Lihat Pilihan Kuota &amp; Lisensi
+          </a>
+        </div>
       </div>
     </section>
   </main>
@@ -99,18 +372,121 @@ Kunjungi &lt;a href="https://..."&gt;halaman resmi kami&lt;/a&gt;.&lt;/p&gt;
   <footer class="site-footer">
     <div class="container footer-inner">
       <div>
-        <strong>LocalSpin AI SaaS v1.8.0</strong> &mdash; Dibangun dengan standar <em>APOPS 2.2 &amp; DPES v1.3</em>.
+        <div style="font-weight: 700; color: #fff; font-size: 1.1rem; margin-bottom: 4px;">LocalSpin AI SaaS</div>
+        <p style="margin: 0; font-size: 0.85rem; color: #94a3b8;">
+          Platform Local SEO &amp; Generator Spintax AI Standar DPES v1.3 &bull; Solusi Dominasi Pasar Daerah.
+        </p>
       </div>
-      <div style="display: flex; gap: 1.25rem; flex-wrap: wrap;">
-        <a href="dashboard.html">Studio App</a>
-        <a href="leads.html">Lead Finder Maps</a>
-        <a href="email-outreach.html">Spintax Email</a>
-        <a href="pricing.html">Harga</a>
-        <a href="privacy.html">Kebijakan Privasi</a>
-        <a href="terms.html">Syarat Layanan</a>
-        <a href="login.html">Login</a>
+      <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; font-size: 0.88rem;">
+        <a href="dashboard.html" style="color: #cbd5e1; text-decoration: none;">Studio Generator</a>
+        <a href="leads.html" style="color: #cbd5e1; text-decoration: none;">Lead Finder Maps</a>
+        <a href="email-outreach.html" style="color: #cbd5e1; text-decoration: none;">Spintax Email</a>
+        <a href="pricing.html" style="color: #cbd5e1; text-decoration: none;">Harga</a>
+        <a href="privacy.html" style="color: #cbd5e1; text-decoration: none;">Privasi</a>
+        <a href="terms.html" style="color: #cbd5e1; text-decoration: none;">Syarat Layanan</a>
       </div>
     </div>
   </footer>
+
+  <script>
+    const sampleArticles = [
+      {
+        kec: "Coblong",
+        kota: "Kota Bandung",
+        prov: "Jawa Barat",
+        title: "Pusat Rekomendasi Jasa Panel Surya Terbaik di Kecamatan Coblong, Kota Bandung",
+        snippet: "<p>Mencari solusi <strong>instalasi solar panel profesional</strong> di <u>Kecamatan Coblong, Kota Bandung</u>? Tim teknisi tersertifikasi kami siap melayani survei teknis gratis ke lokasi Anda dengan jaminan garansi resmi tertulis.</p>\n<p>Hubungi layanan pelanggan area Coblong untuk mendapatkan promo penawaran hemat energi bulan ini.</p>\n<a href='#' class='wa-btn'>💬 Chat WhatsApp Area Coblong</a>"
+      },
+      {
+        kec: "Sukajadi",
+        kota: "Kota Bandung",
+        prov: "Jawa Barat",
+        title: "Vendor Pemasangan Solar Panel Bergaransi Resmi di Kecamatan Sukajadi, Kota Bandung",
+        snippet: "<p>Kini warga <strong>Kecamatan Sukajadi</strong> dapat menikmati efisiensi tagihan listrik hingga 60% dengan sistem <u>Panel Surya On-Grid</u> berteknologi Tier-1 mutakhir dari tim spesialis kami di Kota Bandung.</p>\n<p>Konsultasikan kebutuhan daya atap rumah Anda hari ini secara transparan tanpa biaya tersembunyi.</p>\n<a href='#' class='wa-btn'>💬 Chat WhatsApp Area Sukajadi</a>"
+      },
+      {
+        kec: "Cicendo",
+        kota: "Kota Bandung",
+        prov: "Jawa Barat",
+        title: "Ahli Pemasangan & Pemeliharaan Panel Surya di Area Kecamatan Cicendo, Kota Bandung",
+        snippet: "<p>Layanan terpercaya pemasangan <strong>solar cell hemat listrik</strong> untuk hunian dan ruko bisnis di wilayah <u>Kecamatan Cicendo, Bandung</u>. Kami mengutamakan material kabel berstandar SNI dan inverter pintar.</p>\n<p>Dapatkan simulasi ROI dan estimasi penghematan bulanan Anda bersama konsultan kami.</p>\n<a href='#' class='wa-btn'>💬 Chat WhatsApp Area Cicendo</a>"
+      }
+    ];
+
+    let currentDemoTab = 0;
+    let sampleIdx = 0;
+
+    function renderDemoContent() {
+      const el = document.getElementById('demoContent');
+      const cur = sampleArticles[sampleIdx % sampleArticles.length];
+      document.getElementById('demoTargetLabel').textContent = `Target: Kec. ${cur.kec}, ${cur.kota} (${cur.prov})`;
+
+      if (currentDemoTab === 0) {
+        el.innerHTML = `
+<div style="color: #38bdf8; font-weight: 700; margin-bottom: 8px;">&lt;h1&gt;${cur.title}&lt;/h1&gt;</div>
+<div style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 8px;">[Spintax Terpilih: Opsi 2 dari 18.432 Kemungkinan &bull; Skor Overlap 4-gram: 8.2% (Aman)]</div>
+${cur.snippet}
+`;
+      } else if (currentDemoTab === 1) {
+        el.innerHTML = `
+<div style="color: #10b981; font-weight: 700; margin-bottom: 8px;">📍 Hasil Ekstraksi Lead Google Maps (Kec. ${cur.kec}):</div>
+<table style="width: 100%; border-collapse: collapse; font-size: 0.78rem;">
+  <tr style="border-bottom: 1px solid #334155; color: #94a3b8;">
+    <th style="text-align: left; padding: 4px;">Nama Bisnis</th>
+    <th style="text-align: left; padding: 4px;">Telepon</th>
+    <th style="text-align: left; padding: 4px;">Website Status</th>
+  </tr>
+  <tr style="border-bottom: 1px solid #1e293b;">
+    <td style="padding: 4px; color: #f8fafc;">PT Energi Mandiri ${cur.kec}</td>
+    <td style="padding: 4px; color: #38bdf8;">0812-3344-xxxx</td>
+    <td style="padding: 4px; color: #f59e0b;">No SSL (Perlu Outreach)</td>
+  </tr>
+  <tr>
+    <td style="padding: 4px; color: #f8fafc;">CV Sejahtera Abadi ${cur.kota}</td>
+    <td style="padding: 4px; color: #38bdf8;">0813-8899-xxxx</td>
+    <td style="padding: 4px; color: #10b981;">Valid SSL (Enriched Email)</td>
+  </tr>
+</table>
+`;
+      } else if (currentDemoTab === 2) {
+        el.innerHTML = `
+<div style="color: #f59e0b; font-weight: 700; margin-bottom: 8px;">📡 Sinyal Mass Ping Terkirim ke 12 Mesin Pencari:</div>
+<div style="color: #10b981;">&bull; Google WebSub Hub ............ [HTTP 204 OK]</div>
+<div style="color: #10b981;">&bull; IndexNow (Bing / Yandex) ...... [HTTP 200 OK]</div>
+<div style="color: #10b981;">&bull; Ping-O-Matic Aggregator ....... [Pushed 1 URL]</div>
+<div style="color: #10b981;">&bull; Seznam &amp; Naver Endpoints ...... [Dispatched]</div>
+<div style="margin-top: 8px; color: #94a3b8; font-size: 0.78rem;">Total: 1 URL terkirim ke 12 endpoint secara bersamaan dalam 0.4 detik.</div>
+`;
+      } else if (currentDemoTab === 3) {
+        el.innerHTML = `
+<div style="color: #a855f7; font-weight: 700; margin-bottom: 8px;">&lt;script type="application/ld+json"&gt;</div>
+<pre style="margin: 0; color: #e2e8f0; font-size: 0.78rem;">{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Jasa Panel Surya Area ${cur.kec}",
+  "areaServed": "${cur.kec}, ${cur.kota}, ${cur.prov}",
+  "telephone": "+628123456789",
+  "priceRange": "$$"
+}</pre>
+<div style="color: #a855f7; font-weight: 700; margin-top: 8px;">&lt;/script&gt;</div>
+`;
+      }
+    }
+
+    function switchDemoTab(idx) {
+      currentDemoTab = idx;
+      const btns = document.querySelectorAll('.tab-btn');
+      btns.forEach((b, i) => b.classList.toggle('active', i === idx));
+      renderDemoContent();
+    }
+
+    function shuffleDemoArticle() {
+      sampleIdx++;
+      renderDemoContent();
+    }
+
+    // Initial render
+    renderDemoContent();
+  </script>
 </body>
 </html>
