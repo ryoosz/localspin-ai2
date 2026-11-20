@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lead Finder Google Maps &amp; Ulasan — LocalSpin AI SaaS v1.3</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <style>
+    .leads-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      scrollbar-width: thin;
+    }
+    table.leads-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    table.leads-table th,
+    table.leads-table td {
+      padding: 0.75rem 0.85rem;
+      border-bottom: 1px solid var(--border-subtle);
+      text-align: left;
+      vertical-align: top;
+    }
+    table.leads-table th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--bg-subtle);
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      box-shadow: 0 1px 0 var(--border-subtle);
+    }
+    table.leads-table tr:hover td {
+      background: #f8fafc;
+    }
+    .hours-list {
+      margin: 0;
+      padding-left: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .review-snippet {
+      background: #f8fafc;
+      border-left: 3px solid var(--brand-primary);
+      padding: 6px 10px;
+      margin-top: 6px;
+      border-radius: 4px;
+      font-size: 0.82rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-logo">
+        <span>LocalSpin AI</span>
+        <span class="brand-badge">Lead Finder v1.3</span>
+      </a>
+      <nav aria-label="Navigasi Utama">
+        <ul class="nav-links">
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="dashboard.html">Studio Generator (App)</a></li>
+          <li><a href="leads.html" aria-current="page">Lead Finder Maps</a></li>
+          <li><a href="email-outreach.html">Spintax Email</a></li>
+          <li><a href="pricing.html">Harga &amp; Kuota</a></li>
+          <li><a href="privacy.html">Privasi</a></li>
+          <li><a href="terms.html">Syarat Layanan</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 1.5rem; padding-bottom: 3rem;">
+    <div class="notice-banner" role="status">
+      <strong>Mode Pengambilan Data Resmi &amp; Transparan:</strong> Fitur ini menggunakan <strong>Google Maps Platform — Places API (New)</strong> di server (<code>GOOGLE_PLACES_API_KEY</code>) untuk mengambil nama tempat, alamat, nomor telepon, jam buka, rating, dan ulasan tanpa melanggar Ketentuan Layanan/anti-bot. Email dicari secara opsional dari halaman kontak publik <em>website milik usaha itu sendiri</em> (menghormati <code>robots.txt</code>). Saat dibuka tanpa API key, Anda dapat menguji seluruh filter &amp; ekspor menggunakan <strong>Data Demo Depok (SIMULASI)</strong>.
+    </div>
+
+    <!-- Top Metrics -->
+    <section class="metrics-bar" aria-label="Ringkasan Data Tempat Usaha">
+      <div class="metric-box">
+        <div class="metric-label">Total Tempat Ditemukan</div>
+        <div class="metric-value" id="metricTotalLeads">0</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Punya Nomor Telepon</div>
+        <div class="metric-value" id="metricWithPhone" style="color: var(--brand-primary);">0</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Punya Email Kontak</div>
+        <div class="metric-value" id="metricWithEmail" style="color: var(--brand-secondary);">0</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Punya Jam Buka</div>
+        <div class="metric-value" id="metricWithHours">0</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Sumber &amp; Status</div>
+        <div class="metric-value" id="metricSourceStatus" style="font-size: 0.95rem;">
+          <span class="badge badge-sim">SIMULASI DEMO</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="sidebar-controls-bar" role="region" aria-label="Pengaturan Tampilan Sidebar">
+      <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+        <button type="button" id="btnToggleSidebar" class="btn btn-secondary btn-sm">&#9703; Minimize Sidebar</button>
+        <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; color: var(--text-secondary);">
+          <span>Lebar Sidebar:</span>
+          <input type="range" id="rangeSidebarWidth" min="280" max="680" value="410" style="width: 130px;" />
+        </label>
+        <span class="form-hint" style="margin: 0;">Seret garis pemisah di samping sidebar.</span>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm btn-open-guide">&#10067; Cara Pakai Website</button>
+    </div>
+
+    <div class="studio-layout">
+      <!-- Left Column: Search & Filter Controls -->
+      <aside class="card" aria-labelledby="lead-search-heading">
+        <h2 id="lead-search-heading" style="font-size: 1.2rem; margin-bottom: 1rem;">
+          1. Pencarian Tempat &amp; Filter Data
+        </h2>
+
+        <form id="leadSearchForm" onsubmit="return false;">
+          <div class="form-group">
+            <label class="form-label" for="inputKeyword">Jenis Usaha / Kata Kunci</label>
+            <input type="text" id="inputKeyword" class="form-control" value="Coffee Shop / Tempat Kopi" required />
+            <span class="form-hint">Contoh: Coffee Shop, Bengkel Mobil, Klinik Gigi, Jasa Renovasi</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="selectLeadWilayah">Pilih Daerah Otomatis (38 Provinsi / Kota / Kecamatan)</label>
+            <select id="selectLeadWilayah" class="form-control" style="margin-bottom: 0.45rem;"></select>
+            <div class="grid-2" style="gap: 0.45rem; margin-bottom: 0.45rem;">
+              <select id="selectLeadDaerah" class="form-control" aria-label="Pilih Kota atau Kabupaten"></select>
+              <select id="selectLeadKecamatan" class="form-control" aria-label="Pilih Kecamatan"></select>
+            </div>
+            <label class="form-label" for="inputLocation" style="font-size: 0.78rem;">Daerah Target Aktif (Otomatis / Bisa Diedit Manual)</label>
+            <input type="text" id="inputLocation" class="form-control" value="Depok" required />
+            <span class="form-hint">Pilih Provinsi &rarr; Kota/Kabupaten &rarr; Kecamatan di atas agar kolom daerah terisi otomatis.</span>
+          </div>
+
+          <div class="grid-2" style="gap: 0.5rem;">
+            <div class="form-group">
+              <label class="form-label" for="selectMaxResults">Batas Hasil API</label>
+              <select id="selectMaxResults" class="form-control">
+                <option value="20" selected>20 Tempat (1 Halaman)</option>
+                <option value="40">40 Tempat (2 Halaman)</option>
+                <option value="60">60 Tempat (Maks. Places API)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="selectSortBy">Urutkan Hasil</label>
+              <select id="selectSortBy" class="form-control">
+                <option value="rating_desc" selected>Rating Tertinggi</option>
+                <option value="reviews_desc">Ulasan Terbanyak</option>
+                <option value="completeness_desc">Data Terlengkap (Telp/Email/Jam)</option>
+                <option value="name_asc">Nama Tempat (A-Z)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="seo-toggles-grid" style="margin-bottom: 1rem;">
+            <label class="toggle-item">
+              <input type="checkbox" id="chkIncludeReviews" checked />
+              <span>Ambil Ulasan Google</span>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="chkEnrichEmail" checked />
+              <span>Cari Email di Website</span>
+            </label>
+          </div>
+
+          <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.65rem; margin-bottom: 0.85rem;">
+            <label class="form-label" for="inputSerperOrPlacesKey" style="font-size: 0.78rem; color: #1e3a8a; margin-bottom: 0.25rem;">
+              &#128273; API Key Google Maps (Serper.dev Gratis Tanpa Kartu Kredit / Google Places)
+            </label>
+            <div style="display: flex; gap: 0.35rem;">
+              <input type="password" id="inputSerperOrPlacesKey" class="form-control" placeholder="Opsional: Tempel API Key serper.dev atau AIzaSy..." style="font-size: 0.8rem;" />
+              <button type="button" id="btnSaveMapsApiKey" class="btn btn-secondary btn-sm">Simpan</button>
+            </div>
+            <span class="form-hint" style="font-size: 0.72rem;">
+              Daftar gratis di <strong>serper.dev</strong> (2.500 pencarian Google Maps asli tanpa kartu kredit/500rb), atau kosongkan untuk memakai <strong>OpenStreetMap Real POI + Smart Paste Maps</strong>.
+            </span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1rem;">
+            <button type="submit" id="btnSearchLive" class="btn btn-primary">
+              &#128269; 1. Cari Data Tempat Live &amp; Sinkronkan Peta
+            </button>
+            <button type="button" id="btnOpenLiveGmapsSearch" class="btn btn-whatsapp">
+              &#127758; 2. Buka Pencarian Ini di Tab Google Maps Asli &nearr;
+            </button>
+            <div class="grid-2" style="gap: 0.45rem;">
+              <button type="button" id="btnLoadDemoDepok" class="btn btn-secondary btn-sm">
+                &#9749; Demo Depok
+              </button>
+              <button type="button" id="btnLoadDemoJapan" class="btn btn-secondary btn-sm">
+                &#127471;&#127477; Demo Jepang
+              </button>
+            </div>
+          </div>
+
+          <details style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.65rem; margin-bottom: 1rem;">
+            <summary style="cursor: pointer; font-weight: 700; font-size: 0.84rem; color: #166534;">
+              &#128203; Smart Paste 100% Sama dengan Google Maps (Tanpa API Key)
+            </summary>
+            <p class="form-hint" style="font-size: 0.74rem; margin: 0.4rem 0;">
+              Ingin hasil tabel <strong>100% sama persis urutan &amp; datanya</strong> dengan tab Google Maps Anda tanpa API key? Klik tombol <em>Buka di Tab Google Maps</em> di atas, blok daftar tempat di panel kiri Google Maps (<code>Ctrl+A</code> lalu <code>Ctrl+C</code>), tempel di bawah ini:
+            </p>
+            <textarea id="textareaSmartPasteGmaps" class="form-control" rows="4" placeholder="Tempel (Ctrl+V) teks daftar hasil dari halaman Google Maps di sini..." style="font-size: 0.78rem; margin-bottom: 0.45rem;"></textarea>
+            <button type="button" id="btnParseGmapsPaste" class="btn btn-whatsapp btn-sm" style="width: 100%;">
+              &#128229; Ekstrak Teks Google Maps ke Tabel Sekarang
+            </button>
+          </details>
+
+          <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1rem 0;" />
+
+          <h3 style="font-size: 1rem; margin-bottom: 0.65rem;">2. Atur Filter Kelengkapan Data</h3>
+
+          <div class="form-group">
+            <label class="form-label" for="inputFilterName">Cari Nama Tempat</label>
+            <input type="text" id="inputFilterName" class="form-control" placeholder="Ketik nama tempat kopi..." />
+          </div>
+
+          <div class="grid-2" style="gap: 0.5rem;">
+            <div class="form-group">
+              <label class="form-label" for="selectMinRating">Rating Minimal</label>
+              <select id="selectMinRating" class="form-control">
+                <option value="0" selected>Semua Rating</option>
+                <option value="4.0">&ge; 4.0 Bintang</option>
+                <option value="4.5">&ge; 4.5 Bintang</option>
+                <option value="4.8">&ge; 4.8 Bintang</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputMinReviews">Min. Jumlah Ulasan</label>
+              <input type="number" id="inputMinReviews" class="form-control" min="0" value="0" />
+            </div>
+          </div>
+
+          <div class="seo-toggles-grid">
+            <label class="toggle-item">
+              <input type="checkbox" id="chkRequirePhone" />
+              <span>Wajib Ada No. Telepon</span>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="chkRequireEmail" />
+              <span>Wajib Ada Email</span>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="chkRequireHours" />
+              <span>Wajib Ada Jam Buka</span>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="chkOpenNowOnly" />
+              <span>Sedang Buka Sekarang</span>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="chkRequireWebsite" />
+              <span>Wajib Ada Website</span>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="chkOperationalOnly" checked />
+              <span>Hanya Usaha Aktif</span>
+            </label>
+          </div>
+        </form>
+      </aside>
+
+      <div id="sidebarResizer" class="sidebar-resizer" title="Seret untuk mengatur lebar sidebar"></div>
+
+      <!-- Right Column: Live Google Maps View + Results Table & Export -->
+      <div class="studio-main-pane">
+        <!-- Live Embedded Google Maps Viewer -->
+        <section class="card" style="margin-bottom: 1rem; padding: 0.85rem 1rem;" aria-labelledby="live-gmaps-heading">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem;">
+            <div>
+              <h2 id="live-gmaps-heading" style="font-size: 1.08rem; margin: 0;">
+                &#128506; Tampilan Live Google Maps: <span id="liveGmapsQueryLabel" style="color: var(--brand-primary);">Coffee Shop di Depok</span>
+              </h2>
+              <p class="form-hint" style="margin: 0; font-size: 0.76rem;">
+                Peta Google Maps di bawah otomatis mengikuti Kata Kunci &amp; Daerah yang Anda pilih. Klik <strong>&#128205; Fokus Peta</strong> pada baris tabel untuk menyorot lokasi tempat tersebut.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+              <button type="button" id="btnRefreshGmapsEmbed" class="btn btn-secondary btn-sm">&#128260; Segarkan Peta</button>
+              <button type="button" id="btnOpenGmapsNewTab" class="btn btn-primary btn-sm">&#127758; Buka Full Google Maps &nearr;</button>
+              <button type="button" id="btnToggleGmapsEmbed" class="btn btn-secondary btn-sm">&#9652; Sembunyikan Peta</button>
+            </div>
+          </div>
+          <div id="gmapsEmbedWrap" style="border: 1px solid var(--border-subtle); border-radius: 8px; overflow: hidden; background: #e2e8f0;">
+            <iframe
+              id="googleMapsEmbedFrame"
+              title="Pratinjau Live Google Maps"
+              src="https://maps.google.com/maps?q=Coffee%20Shop%20di%20Kota%20Depok,%20Jawa%20Barat&t=&z=13&ie=UTF8&iwloc=&output=embed"
+              style="width: 100%; height: 290px; border: 0; display: block;"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="leads-result-heading">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+            <div>
+              <h2 id="leads-result-heading" style="font-size: 1.2rem; margin-bottom: 0.25rem;">
+                Daftar Tempat Usaha &amp; Kontak Terfilter
+              </h2>
+              <p class="form-hint" id="leadsStatusNote" style="margin: 0;">
+                Menampilkan data simulasi tempat kopi di daerah Depok. Atribusi: <strong>Data tempat: Google Maps</strong>.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.45rem; flex-wrap: wrap;">
+              <button type="button" id="btnSendToEmailOutreach" class="btn btn-whatsapp btn-sm">&#9993; Kirim ke Spintax Email (<span id="selectedLeadsCount">0</span>)</button>
+              <button type="button" id="btnCopyPhones" class="btn btn-secondary btn-sm">&#128222; Salin Semua Telepon</button>
+              <button type="button" id="btnCopyEmails" class="btn btn-secondary btn-sm">&#9993; Salin Semua Email</button>
+              <button type="button" id="btnExportLeadsCsv" class="btn btn-primary btn-sm">Unduh CSV (Excel)</button>
+              <button type="button" id="btnExportLeadsJson" class="btn btn-secondary btn-sm">Unduh JSON</button>
+            </div>
+          </div>
+
+          <div class="leads-table-wrap">
+            <table class="leads-table">
+              <thead>
+                <tr>
+                  <th style="width: 38px;"><input type="checkbox" id="chkSelectAllLeads" class="article-checkbox" checked aria-label="Pilih semua tempat" /></th>
+                  <th>Nama Tempat &amp; Alamat</th>
+                  <th>Nomor Telepon</th>
+                  <th>Email &amp; Website</th>
+                  <th>Jam Buka &amp; Status</th>
+                  <th>Rating &amp; Ulasan</th>
+                </tr>
+              </thead>
+              <tbody id="leadsTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>LocalSpin AI SaaS v1.3.0</strong> &mdash; Data tempat: Google Maps (via Places API resmi).
+      </div>
+      <div style="display: flex; gap: 1.25rem;">
+        <a href="index.html">Beranda</a>
+        <a href="dashboard.html">Studio Generator</a>
+        <a href="privacy.html">Privasi</a>
+        <a href="terms.html">Syarat Layanan</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/regionsData.js?v=1.13.0"></script>
+  <script src="assets/app.js?v=1.13.0"></script>
+  <script>
+    (function initLeadFinder() {
+      const DEMO_DEPOK_COFFEE = [
+        {
+          placeId: 'demo_depok_1',
+          name: 'Kopi Nalar Margonda',
+          category: 'Kedai Kopi',
+          address: 'Jl. Margonda Raya No. 214, Kemiri Muka, Kecamatan Beji, Kota Depok, Jawa Barat 16423',
+          phone: '021-78891234',
+          phoneInternational: '+62 21-78891234',
+          website: 'https://kopinalardepok.example.id',
+          email: 'halo@kopinalardepok.example.id',
+          emailSource: 'https://kopinalardepok.example.id/kontak',
+          rating: 4.8,
+          reviewCount: 642,
+          businessStatus: 'OPERATIONAL',
+          openNow: true,
+          openingHours: ['Senin–Jumat: 08.00–23.00', 'Sabtu–Minggu: 08.00–24.00'],
+          googleMapsUri: 'https://maps.google.com/?q=Kopi+Nalar+Margonda+Depok',
+          reviews: [
+            { author: 'Dian P.', rating: 5, relativeTime: '2 minggu lalu', text: 'Tempat nyaman buat kerja WFC di Margonda, kopi susunya seimbang dan WiFi kencang.' }
+          ]
+        },
+        {
+          placeId: 'demo_depok_2',
+          name: 'Ruang Seduh Kukusan',
+          category: 'Coffee Roastery',
+          address: 'Jl. Palakali Raya No. 48, Kukusan, Kecamatan Beji, Kota Depok, Jawa Barat 16425',
+          phone: '0812-8899-1122',
+          phoneInternational: '+62 812-8899-1122',
+          website: 'https://ruangseduh.example.id',
+          email: 'info@ruangseduh.example.id',
+          emailSource: 'https://ruangseduh.example.id/contact',
+          rating: 4.7,
+          reviewCount: 418,
+          businessStatus: 'OPERATIONAL',
+          openNow: true,
+          openingHours: ['Setiap Hari: 09.00–22.00'],
+          googleMapsUri: 'https://maps.google.com/?q=Ruang+Seduh+Kukusan+Depok',
+          reviews: [
+            { author: 'Arif R.', rating: 5, relativeTime: '1 bulan lalu', text: 'Dekat kampus UI, pilihan manual brew lengkap dan baristanya ramah.' }
+          ]
+        },
+        {
+          placeId: 'demo_depok_3',
+          name: 'Sudut Teduh Coffee & Eatery',
+          category: 'Kafe',
+          address: 'Jl. Siliwangi No. 19, Pancoran Mas, Kecamatan Pancoran Mas, Kota Depok, Jawa Barat 16436',
+          phone: '0813-7766-5544',
+          phoneInternational: '+62 813-7766-5544',
+          website: 'https://sudutteduh.example.id',
+          email: '',
+          emailSource: '',
+          rating: 4.5,
+          reviewCount: 289,
+          businessStatus: 'OPERATIONAL',
+          openNow: false,
+          openingHours: ['Senin–Minggu: 10.00–22.00'],
+          googleMapsUri: 'https://maps.google.com/?q=Sudut+Teduh+Pancoran+Mas+Depok',
+          reviews: [
+            { author: 'Nadia K.', rating: 4, relativeTime: '3 minggu lalu', text: 'Area outdoor adem, cocok buat kumpul keluarga di Pancoran Mas.' }
+          ]
+        },
+        {
+          placeId: 'demo_depok_4',
+          name: 'Teras Kopi Cinere',
+          category: 'Kedai Kopi',
+          address: 'Jl. Cinere Raya No. 88, Cinere, Kecamatan Cinere, Kota Depok, Jawa Barat 16514',
+          phone: '',
+          phoneInternational: '',
+          website: '',
+          email: '',
+          emailSource: '',
+          rating: 4.3,
+          reviewCount: 154,
+          businessStatus: 'OPERATIONAL',
+          openNow: true,
+          openingHours: ['Senin–Minggu: 07.30–21.30'],
+          googleMapsUri: 'https://maps.google.com/?q=Teras+Kopi+Cinere+Depok',
+          reviews: [
+            { author: 'Bima S.', rating: 4, relativeTime: '1 minggu lalu', text: 'Harga ramah kantong dan buka pagi untuk sarapan.' }
+          ]
+        },
+        {
+          placeId: 'demo_depok_5',
+          name: 'Kopi Senja Sawangan',
+          category: 'Kedai Kopi',
+          address: 'Jl. Raya Muchtar No. 12, Sawangan Baru, Kecamatan Sawangan, Kota Depok, Jawa Barat 16511',
+          phone: '0856-9900-3311',
+          phoneInternational: '+62 856-9900-3311',
+          website: 'https://kopisenjasawangan.example.id',
+          email: 'partnership@kopisenjasawangan.example.id',
+          emailSource: 'https://kopisenjasawangan.example.id/',
+          rating: 4.6,
+          reviewCount: 312,
+          businessStatus: 'OPERATIONAL',
+          openNow: true,
+          openingHours: ['Senin–Jumat: 11.00–23.00', 'Sabtu–Minggu: 10.00–23.30'],
+          googleMapsUri: 'https://maps.google.com/?q=Kopi+Senja+Sawangan+Depok',
+          reviews: [
+            { author: 'Rini W.', rating: 5, relativeTime: '5 hari lalu', text: 'Parkir luas dan kopi arabika lokalnya mantap.' }
+          ]
+        }
+      ];
+
+      const DEMO_JAPAN_COFFEE = [
+        {
+          placeId: 'demo_jp_1',
+          name: 'Shibuya Roast & Brew',
+          category: 'Specialty Coffee Roastery',
+          address: '2-14-8 Dogenzaka, Shibuya-ku, Tokyo 150-0043, Japan',
+          phone: '03-5555-0101',
+          phoneInternational: '+81 3-5555-0101',
+          website: 'https://shibuyaroast.example.jp',
+          email: 'buyer@shibuyaroast.example.jp',
+          rating: 4.9,
+          reviewCount: 812,
+          businessStatus: 'OPERATIONAL',
+          openNow: true,
+          openingHours: ['Senin–Minggu: 08.00–21.00'],
+          googleMapsUri: 'https://maps.google.com/?q=Shibuya+Tokyo+Coffee',
+          reviews: [{ author: 'Kenji T.', rating: 5, relativeTime: '1 minggu lalu', text: 'Great single-origin pour over and friendly roasters.' }]
+        },
+        {
+          placeId: 'demo_jp_2',
+          name: 'Kamo River Coffee Kyoto',
+          category: 'Coffee Shop & Cafe',
+          address: '412 Kiyamachi-dori, Nakagyo-ku, Kyoto 604-8002, Japan',
+          phone: '075-555-0192',
+          phoneInternational: '+81 75-555-0192',
+          website: 'https://kamocoffee.example.jp',
+          email: 'beans@kamocoffee.example.jp',
+          rating: 4.8,
+          reviewCount: 540,
+          businessStatus: 'OPERATIONAL',
+          openNow: true,
+          openingHours: ['Senin–Minggu: 09.00–20.00'],
+          googleMapsUri: 'https://maps.google.com/?q=Kyoto+Coffee+Shop',
+          reviews: [{ author: 'Yuki M.', rating: 5, relativeTime: '2 minggu lalu', text: 'Peaceful atmosphere and aromatic Indonesian Mandheling blend.' }]
+        },
+        {
+          placeId: 'demo_jp_3',
+          name: 'Namba Espresso Bar Osaka',
+          category: 'Espresso Bar',
+          address: '1-9-3 Namba, Chuo-ku, Osaka 542-0076, Japan',
+          phone: '06-5555-0144',
+          phoneInternational: '+81 6-5555-0144',
+          website: 'https://nambaespresso.example.jp',
+          email: 'sourcing@nambaespresso.example.jp',
+          rating: 4.7,
+          reviewCount: 390,
+          businessStatus: 'OPERATIONAL',
+          openNow: true,
+          openingHours: ['Senin–Jumat: 07.30–22.00'],
+          googleMapsUri: 'https://maps.google.com/?q=Osaka+Namba+Espresso',
+          reviews: [{ author: 'Haruto S.', rating: 5, relativeTime: '3 hari lalu', text: 'Strong espresso and specialty seasonal beans.' }]
+        },
+        {
+          placeId: 'demo_jp_4',
+          name: 'Daikanyama Drip House',
+          category: 'Pour Over Cafe',
+          address: '18-5 Sarugakucho, Shibuya-ku, Tokyo 150-0033, Japan',
+          phone: '03-5555-0188',
+          phoneInternational: '+81 3-5555-0188',
+          website: 'https://daikanyamadrip.example.jp',
+          email: 'hello@daikanyamadrip.example.jp',
+          rating: 4.8,
+          reviewCount: 615,
+          businessStatus: 'OPERATIONAL',
+          openNow: false,
+          openingHours: ['Selasa–Minggu: 10.00–19.00'],
+          googleMapsUri: 'https://maps.google.com/?q=Daikanyama+Tokyo+Coffee',
+          reviews: [{ author: 'Mina A.', rating: 5, relativeTime: '1 bulan lalu', text: 'Minimalist interior and clean washed single-origin coffee.' }]
+        },
+        {
+          placeId: 'demo_jp_5',
+          name: 'Fukuoka Harbor Roasters',
+          category: 'Coffee Roastery',
+          address: '3-2-15 Daimyo, Chuo-ku, Fukuoka 810-0041, Japan',
+          phone: '092-555-0177',
+          phoneInternational: '+81 92-555-0177',
+          website: 'https://fukuokaroasters.example.jp',
+          email: 'import@fukuokaroasters.example.jp',
+          rating: 4.6,
+          reviewCount: 278,
+          businessStatus: 'OPERATIONAL',
+          openNow: true,
+          openingHours: ['Setiap Hari: 08.30–20.30'],
+          googleMapsUri: 'https://maps.google.com/?q=Fukuoka+Coffee+Roasters',
+          reviews: [{ author: 'Sora K.', rating: 5, relativeTime: '5 hari lalu', text: 'Freshly roasted beans every week.' }]
+        }
+      ];
+
+      let rawLeads = DEMO_DEPOK_COFFEE.slice();
+      let isLiveApiMode = false;
+      let currentFilteredLeads = [];
+
+      const els = {
+        keyword: document.getElementById('inputKeyword'),
+        location: document.getElementById('inputLocation'),
+        maxResults: document.getElementById('selectMaxResults'),
+        sortBy: document.getElementById('selectSortBy'),
+        includeReviews: document.getElementById('chkIncludeReviews'),
+        enrichEmail: document.getElementById('chkEnrichEmail'),
+        filterName: document.getElementById('inputFilterName'),
+        minRating: document.getElementById('selectMinRating'),
+        minReviews: document.getElementById('inputMinReviews'),
+        requirePhone: document.getElementById('chkRequirePhone'),
+        requireEmail: document.getElementById('chkRequireEmail'),
+        requireHours: document.getElementById('chkRequireHours'),
+        openNowOnly: document.getElementById('chkOpenNowOnly'),
+        requireWebsite: document.getElementById('chkRequireWebsite'),
+        operationalOnly: document.getElementById('chkOperationalOnly'),
+        tbody: document.getElementById('leadsTableBody'),
+        statusNote: document.getElementById('leadsStatusNote'),
+        sourceBadge: document.getElementById('metricSourceStatus')
+      };
+
+      function getFilteredLeads() {
+        const needle = els.filterName.value.trim().toLowerCase();
+        const minR = Number(els.minRating.value) || 0;
+        const minRev = Number(els.minReviews.value) || 0;
+
+        const filtered = rawLeads.filter((l) => {
+          if (els.requirePhone.checked && !l.phone) return false;
+          if (els.requireEmail.checked && !l.email) return false;
+          if (els.requireWebsite.checked && !l.website) return false;
+          if (els.requireHours.checked && !(l.openingHours && l.openingHours.length)) return false;
+          if (els.openNowOnly.checked && l.openNow !== true) return false;
+          if (els.operationalOnly.checked && l.businessStatus && l.businessStatus !== 'OPERATIONAL') return false;
+          if (minR && (l.rating || 0) < minR) return false;
+          if (minRev && (l.reviewCount || 0) < minRev) return false;
+          if (needle && !l.name.toLowerCase().includes(needle)) return false;
+          return true;
+        });
+
+        const sortKey = els.sortBy.value;
+        const completeness = (l) => [l.phone, l.email, l.website, l.openingHours && l.openingHours.length, l.rating].filter(Boolean).length;
+        filtered.sort((a, b) => {
+          if (sortKey === 'reviews_desc') return (b.reviewCount || 0) - (a.reviewCount || 0);
+          if (sortKey === 'name_asc') return a.name.localeCompare(b.name, 'id');
+          if (sortKey === 'completeness_desc') return completeness(b) - completeness(a);
+          return (b.rating || 0) - (a.rating || 0) || (b.reviewCount || 0) - (a.reviewCount || 0);
+        });
+
+        return filtered;
+      }
+
+      function escHtml(s) {
+        return String(s || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function updateSelectedLeadsCount() {
+        const boxes = Array.from(els.tbody.querySelectorAll('.chk-lead-row'));
+        const checked = boxes.filter((b) => b.checked).length;
+        document.getElementById('selectedLeadsCount').textContent = String(checked);
+        const master = document.getElementById('chkSelectAllLeads');
+        if (master) master.checked = boxes.length > 0 && checked === boxes.length;
+      }
+
+      function renderLeads() {
+        const list = getFilteredLeads();
+        currentFilteredLeads = list;
+        try {
+          localStorage.setItem('localspin_latest_scraped_leads', JSON.stringify(list));
+        } catch (_) {}
+        document.getElementById('metricTotalLeads').textContent = String(list.length);
+        document.getElementById('metricWithPhone').textContent = String(list.filter((l) => l.phone).length);
+        document.getElementById('metricWithEmail').textContent = String(list.filter((l) => l.email).length);
+        document.getElementById('metricWithHours').textContent = String(list.filter((l) => l.openingHours && l.openingHours.length).length);
+
+        els.sourceBadge.innerHTML = isLiveApiMode
+          ? '<span class="badge badge-pass">LIVE PLACES API</span>'
+          : '<span class="badge badge-sim">SIMULASI DEMO</span>';
+
+        if (!list.length) {
+          els.tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--text-muted);">Tidak ada tempat usaha yang memenuhi filter Anda saat ini. Longgarkan filter telepon/email/rating di sebelah kiri.</td></tr>`;
+          updateSelectedLeadsCount();
+          return;
+        }
+
+        els.tbody.innerHTML = list
+          .map((l, idx) => {
+            const hoursHtml = (l.openingHours && l.openingHours.length)
+              ? `<ul class="hours-list">${l.openingHours.map((h) => `<li>${escHtml(h)}</li>`).join('')}</ul>`
+              : '<span style="color:var(--text-muted); font-size:0.82rem;">Jam buka belum tersedia</span>';
+
+            const openBadge = l.openNow === true
+              ? '<span class="badge badge-pass" style="margin-bottom:4px;">Buka Sekarang</span>'
+              : l.openNow === false
+                ? '<span class="badge badge-warn" style="margin-bottom:4px;">Tutup Sekarang</span>'
+                : '';
+
+            const reviewsHtml = els.includeReviews.checked && l.reviews && l.reviews.length
+              ? l.reviews
+                  .slice(0, 2)
+                  .map(
+                    (r) =>
+                      `<div class="review-snippet"><strong>${escHtml(r.author || 'Pengguna')}</strong> (${r.rating || '-'}&#9733;, ${escHtml(r.relativeTime)}): "${escHtml(r.text)}"</div>`
+                  )
+                  .join('')
+              : '';
+
+            return `
+              <tr>
+                <td>
+                  <input type="checkbox" class="article-checkbox chk-lead-row" data-idx="${idx}" checked aria-label="Pilih ${escHtml(l.name)}" />
+                </td>
+                <td>
+                  <strong>${escHtml(l.name)}</strong>
+                  <div style="font-size:0.78rem; color:var(--brand-primary); font-weight:600;">${escHtml(l.category)}</div>
+                  <div style="font-size:0.82rem; color:var(--text-secondary); margin-top:4px;">${escHtml(l.address)}</div>
+                  <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:6px;">
+                    <button type="button" class="btn btn-secondary btn-sm btn-focus-map" data-map-query="${escHtml(`${l.name} ${l.address}`)}" style="padding:2px 8px; font-size:0.73rem;">&#128205; Fokus Peta</button>
+                    ${l.googleMapsUri ? `<a href="${escHtml(l.googleMapsUri)}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.73rem; text-decoration:none;">&#127758; Buka Maps &nearr;</a>` : ''}
+                  </div>
+                </td>
+                <td>
+                  ${l.phone ? `<strong>${escHtml(l.phone)}</strong><div style="font-size:0.78rem; color:var(--text-muted);">${escHtml(l.phoneInternational)}</div>` : '<span style="color:var(--text-muted);">Tidak tersedia</span>'}
+                </td>
+                <td>
+                  ${l.email ? `<div><strong>${escHtml(l.email)}</strong></div>` : '<div style="color:var(--text-muted); font-size:0.82rem;">Email tidak ditemukan</div>'}
+                  ${l.website ? `<a href="${escHtml(l.website)}" target="_blank" rel="noopener" style="font-size:0.8rem; word-break:break-all;">${escHtml(l.website)}</a>` : '<span style="font-size:0.8rem; color:var(--text-muted);">Tanpa website</span>'}
+                </td>
+                <td>
+                  ${openBadge}
+                  ${hoursHtml}
+                </td>
+                <td>
+                  <strong>${l.rating ?? '-'} &#9733;</strong> <span style="font-size:0.82rem; color:var(--text-muted);">(${l.reviewCount || 0} ulasan)</span>
+                  ${reviewsHtml}
+                </td>
+              </tr>
+            `;
+          })
+          .join('');
+        els.tbody.querySelectorAll('.chk-lead-row').forEach((chk) => {
+          chk.addEventListener('change', updateSelectedLeadsCount);
+        });
+        els.tbody.querySelectorAll('.btn-focus-map').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const q = btn.dataset.mapQuery;
+            if (q) updateGoogleMapsEmbed(q, 16);
+          });
+        });
+        updateSelectedLeadsCount();
+      }
+
+      function updateGoogleMapsEmbed(customQuery = '', zoom = 13) {
+        const q = customQuery || `${els.keyword.value.split('/')[0].trim()} di ${els.location.value}`;
+        const label = document.getElementById('liveGmapsQueryLabel');
+        if (label) label.textContent = q;
+        const frame = document.getElementById('googleMapsEmbedFrame');
+        if (frame) {
+          frame.src = `https://maps.google.com/maps?q=${encodeURIComponent(q)}&t=&z=${zoom}&ie=UTF8&iwloc=&output=embed`;
+        }
+      }
+
+      document.getElementById('chkSelectAllLeads').addEventListener('change', (e) => {
+        els.tbody.querySelectorAll('.chk-lead-row').forEach((chk) => {
+          chk.checked = e.target.checked;
+        });
+        updateSelectedLeadsCount();
+      });
+
+      document.getElementById('btnSendToEmailOutreach').addEventListener('click', () => {
+        const selected = Array.from(els.tbody.querySelectorAll('.chk-lead-row'))
+          .filter((c) => c.checked)
+          .map((c) => currentFilteredLeads[Number(c.dataset.idx)])
+          .filter((l) => l && l.email);
+
+        if (!selected.length) {
+          alert('Pilih minimal 1 tempat usaha yang memiliki alamat Email untuk dikirim ke Spintax Email Penawaran.');
+          return;
+        }
+        localStorage.setItem('localspin_selected_leads_for_email', JSON.stringify(selected));
+        window.location.href = 'email-outreach.html';
+      });
+
+      document.getElementById('btnLoadDemoDepok').addEventListener('click', () => {
+        rawLeads = DEMO_DEPOK_COFFEE.slice();
+        els.keyword.value = 'Coffee Shop / Tempat Kopi';
+        els.location.value = 'Depok';
+        isLiveApiMode = false;
+        els.statusNote.innerHTML = 'Menampilkan <strong>Data Simulasi Coffee Shop di Depok</strong>. Atribusi: <strong>Data tempat: Google Maps</strong>.';
+        renderLeads();
+      });
+
+      document.getElementById('btnLoadDemoJapan').addEventListener('click', () => {
+        rawLeads = DEMO_JAPAN_COFFEE.slice();
+        els.keyword.value = 'Specialty Coffee Shop & Roastery';
+        els.location.value = 'Japan (Tokyo, Kyoto, Osaka, Fukuoka)';
+        isLiveApiMode = false;
+        els.statusNote.innerHTML = 'Menampilkan <strong>Data Simulasi Coffee Shop di Jepang (Tokyo, Kyoto, Osaka, Fukuoka)</strong>. Centang lalu klik <strong>Kirim ke Spintax Email</strong>.';
+        renderLeads();
+      });
+
+      const MAPS_KEY_STORAGE = 'localspin_maps_api_key';
+      const inputMapsKey = document.getElementById('inputSerperOrPlacesKey');
+      if (inputMapsKey) {
+        inputMapsKey.value = localStorage.getItem(MAPS_KEY_STORAGE) || '';
+      }
+      document.getElementById('btnSaveMapsApiKey').addEventListener('click', () => {
+        if (!inputMapsKey) return;
+        localStorage.setItem(MAPS_KEY_STORAGE, inputMapsKey.value.trim());
+        const btn = document.getElementById('btnSaveMapsApiKey');
+        const orig = btn.textContent;
+        btn.textContent = '✓ Tersimpan';
+        setTimeout(() => (btn.textContent = orig), 1500);
+      });
+
+      function openLiveGoogleMapsTab() {
+        const q = `${els.keyword.value.split('/')[0].trim()} di ${els.location.value}`;
+        window.open(`https://www.google.com/maps/search/${encodeURIComponent(q)}`, '_blank', 'noopener');
+      }
+
+      document.getElementById('btnOpenLiveGmapsSearch').addEventListener('click', openLiveGoogleMapsTab);
+      document.getElementById('btnOpenGmapsNewTab').addEventListener('click', openLiveGoogleMapsTab);
+      document.getElementById('btnRefreshGmapsEmbed').addEventListener('click', () => updateGoogleMapsEmbed());
+      document.getElementById('btnToggleGmapsEmbed').addEventListener('click', () => {
+        const wrap = document.getElementById('gmapsEmbedWrap');
+        const btn = document.getElementById('btnToggleGmapsEmbed');
+        if (!wrap) return;
+        const hidden = wrap.style.display === 'none';
+        wrap.style.display = hidden ? 'block' : 'none';
+        btn.innerHTML = hidden ? '&#9652; Sembunyikan Peta' : '&#9662; Tampilkan Peta';
+      });
+
+      function parseRawGoogleMapsPaste(rawText, location, defaultCategory) {
+        const lines = String(rawText || '')
+          .split(/\r?\n/)
+          .map((l) => l.trim())
+          .filter((l) => l && !/^(Bersponsor|Sponsored|Bagikan|Rute|Situs Web|Telepon|Simpan)$/i.test(l));
+        const leads = [];
+        const seen = new Set();
+
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          // Look for Google Maps rating line pattern e.g. "4,8(642)" or "4.7 (318)" or next line being rating
+          const ratingMatch = line.match(/^([1-5][.,]\d)\s*(?:\(([\d.,]+)\))?/);
+          if (ratingMatch && i > 0) {
+            const name = lines[i - 1];
+            if (!name || name.length < 2 || seen.has(name.toLowerCase()) || /^[1-5][.,]\d/.test(name)) continue;
+            seen.add(name.toLowerCase());
+            const rating = Number(ratingMatch[1].replace(',', '.'));
+            const reviewCount = ratingMatch[2] ? Number(ratingMatch[2].replace(/[.,]/g, '')) : 0;
+
+            let category = defaultCategory;
+            let address = location;
+            let phone = '';
+            let hours = [];
+
+            for (let k = i + 1; k <= Math.min(lines.length - 1, i + 5); k++) {
+              const nextL = lines[k];
+              if (/^[1-5][.,]\d\s*\(/.test(nextL)) break;
+              const phoneMatch = nextL.match(/(\+?\d[\d\s\-().]{7,16}\d)/);
+              if (phoneMatch && !phone) phone = phoneMatch[1].trim();
+              if (/Buka|Tutup|Open|Closed|24 jam|\d{1,2}[.:]\d{2}/i.test(nextL)) {
+                hours.push(nextL);
+              } else if (nextL.includes('·')) {
+                const parts = nextL.split('·').map((s) => s.trim()).filter(Boolean);
+                if (parts[0] && !/Rp|\$/.test(parts[0])) category = parts[0];
+                if (parts[parts.length - 1]) address = `${parts[parts.length - 1]}, ${location}`;
+              }
+            }
+
+            leads.push({
+              placeId: `gmaps_paste_${leads.length + 1}_${Date.now()}`,
+              name,
+              category,
+              address,
+              phone,
+              phoneInternational: phone,
+              website: '',
+              email: '',
+              rating,
+              reviewCount,
+              businessStatus: 'OPERATIONAL',
+              openNow: /Buka|Open/i.test(hours.join(' ')) ? true : null,
+              openingHours: hours,
+              reviews: [],
+              googleMapsUri: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${address}`)}`
+            });
+          }
+        }
+        return leads;
+      }
+
+      document.getElementById('btnParseGmapsPaste').addEventListener('click', () => {
+        const raw = document.getElementById('textareaSmartPasteGmaps').value;
+        const parsed = parseRawGoogleMapsPaste(raw, els.location.value, els.keyword.value.split('/')[0].trim());
+        if (!parsed.length) {
+          els.statusNote.innerHTML = `<span style="color:#b45309; font-weight:600;">Belum ditemukan pola daftar tempat Google Maps pada teks yang ditempel. Pastikan Anda menyalin daftar tempat (yang memuat Nama Tempat &amp; Rating seperti 4,8(312)) dari panel kiri Google Maps.</span>`;
+          return;
+        }
+        rawLeads = parsed;
+        isLiveApiMode = true;
+        updateGoogleMapsEmbed();
+        els.statusNote.innerHTML = `Berhasil mengekstrak <strong>${parsed.length} tempat asli dari teks Google Maps</strong> untuk area <strong>${escHtml(els.location.value)}</strong> (100% sesuai tampilan Google Maps Anda).`;
+        renderLeads();
+      });
+
+      async function browserDirectOsmSearch(keyword, location, limit = 25) {
+        const shortLoc = String(location || 'Depok')
+          .replace(/\([^)]*\)/g, ' ')
+          .replace(/\b(Kecamatan|Kec\.|Kabupaten|Kab\.|Kota Administrasi|Kota|Provinsi)\b/gi, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        const cityOnly = shortLoc.includes(',') ? shortLoc.split(',').slice(-2).join(',').trim() : shortLoc;
+        const isCoffee = /coffee|kopi|cafe|kafe|roaster/i.test(keyword);
+        const kwList = isCoffee ? ['cafe', 'kopi', 'coffee'] : [String(keyword || 'Coffee').split(/[\/,]/)[0].trim()];
+        const queries = [];
+        kwList.forEach((k) => {
+          queries.push(`${k} ${shortLoc}`);
+          if (cityOnly !== shortLoc) queries.push(`${k} ${cityOnly}`);
+        });
+
+        const seen = new Set();
+        const out = [];
+        const pushReal = (item) => {
+          if (out.length >= limit) return;
+          const name = String(item.name || '').trim();
+          if (!name || seen.has(name.toLowerCase())) return;
+          seen.add(name.toLowerCase());
+          const address = item.address || location;
+          out.push({
+            placeId: item.placeId || `osm_${out.length + 1}`,
+            name,
+            category: item.category || String(keyword).split('/')[0].trim(),
+            address,
+            phone: item.phone || '',
+            phoneInternational: item.phone || '',
+            email: item.email || '',
+            website: item.website || '',
+            rating: null,
+            reviewCount: 0,
+            businessStatus: 'OPERATIONAL',
+            openNow: null,
+            openingHours: item.openingHours || [],
+            reviews: [],
+            googleMapsUri: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${address}`)}`
+          });
+        };
+
+        const [geoRes, ...responses] = await Promise.all([
+          fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(shortLoc)}`, {
+            headers: { Accept: 'application/json' }
+          })
+            .then((r) => (r.ok ? r.json() : []))
+            .catch(() => []),
+          ...queries.slice(0, 3).map((q) =>
+            fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&extratags=1&limit=${limit}&q=${encodeURIComponent(q)}`, {
+              headers: { Accept: 'application/json' }
+            })
+              .then((r) => (r.ok ? r.json() : []))
+              .catch(() => [])
+          )
+        ]);
+
+        for (const items of responses) {
+          for (const n of items || []) {
+            const extra = n.extratags || {};
+            const name = (n.name || (n.display_name || '').split(',')[0] || '').trim();
+            if (!name || name.toLowerCase() === shortLoc.toLowerCase()) continue;
+            pushReal({
+              placeId: `nom_client_${n.place_id}`,
+              name,
+              category: n.type ? n.type.replace(/_/g, ' ') : String(keyword).split('/')[0].trim(),
+              address: n.display_name || location,
+              phone: extra.phone || extra['contact:phone'] || extra['contact:whatsapp'] || '',
+              email: extra.email || extra['contact:email'] || '',
+              website: extra.website || extra['contact:website'] || extra.url || '',
+              openingHours: extra.opening_hours ? [extra.opening_hours] : []
+            });
+          }
+        }
+
+        if (Array.isArray(geoRes) && geoRes[0] && Array.isArray(geoRes[0].boundingbox) && out.length < limit) {
+          const [s, n, w, e] = geoRes[0].boundingbox.map(Number);
+          const bboxStr = `${s},${w},${n},${e}`;
+          const safeWord = (String(keyword).split(/[\/,]/)[0] || 'Kopi').replace(/[^a-zA-Z0-9\s]/g, '').trim();
+          const filterExpr = isCoffee
+            ? `(nwr["amenity"="cafe"](${bboxStr});nwr["shop"="coffee"](${bboxStr});nwr["name"~"Kopi|Coffee|Cafe|Kafe",i](${bboxStr}););`
+            : `(nwr["name"~"${safeWord}",i](${bboxStr}););`;
+          const ql = `[out:json][timeout:6];${filterExpr}out center ${limit};`;
+          try {
+            const ov = await fetch('https://overpass.kumi.systems/api/interpreter', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `data=${encodeURIComponent(ql)}`
+            }).then((r) => (r.ok ? r.json() : { elements: [] }));
+            for (const el of ov.elements || []) {
+              const t = el.tags || {};
+              if (!t.name) continue;
+              const addrParts = [t['addr:street'], t['addr:housenumber'], t['addr:suburb'] || t['addr:village'], t['addr:city'] || shortLoc].filter(Boolean);
+              pushReal({
+                placeId: `ov_client_${el.id}`,
+                name: t.name,
+                category: t.amenity || t.shop || String(keyword).split('/')[0].trim(),
+                address: addrParts.length ? addrParts.join(', ') : `${t.name}, ${location}`,
+                phone: t.phone || t['contact:phone'] || t['contact:whatsapp'] || '',
+                email: t.email || t['contact:email'] || '',
+                website: t.website || t['contact:website'] || t.url || '',
+                openingHours: t.opening_hours ? [t.opening_hours] : []
+              });
+            }
+          } catch (_) {}
+        }
+
+        return out;
+      }
+
+      document.getElementById('leadSearchForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnSearchLive');
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '&#9203; Mencari &amp; Menyinkronkan Peta...';
+        updateGoogleMapsEmbed();
+        els.statusNote.textContent = 'Mencari data tempat usaha asli di daerah target...';
+
+        const userKey = inputMapsKey ? inputMapsKey.value.trim() : '';
+        const isGoogleKey = /^AIza[0-9A-Za-z_-]{20,}$/.test(userKey);
+        const serperKey = !isGoogleKey && userKey.length >= 16 ? userKey : '';
+        const googlePlacesKey = isGoogleKey ? userKey : '';
+
+        try {
+          const resp = await fetch('/api/v1/leads/search', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-User-Id': 'usr_owner_a',
+              'X-Workspace-Id': 'wks_nusantara'
+            },
+            body: JSON.stringify({
+              keyword: els.keyword.value,
+              location: els.location.value,
+              maxResults: Number(els.maxResults.value),
+              includeReviews: els.includeReviews.checked,
+              enrichEmail: els.enrichEmail.checked,
+              serperApiKey: serperKey,
+              googlePlacesApiKey: googlePlacesKey,
+              allowFreeFallback: true
+            })
+          });
+          const data = await resp.json();
+          if (resp.ok && Array.isArray(data.leads) && data.leads.length > 0) {
+            rawLeads = data.leads;
+            isLiveApiMode = true;
+            els.statusNote.innerHTML = `Berhasil menemukan <strong>${data.totalFetched} tempat usaha asli</strong> untuk "<em>${escHtml(data.textQuery)}</em>" (${escHtml(data.attribution)}). Klik <strong>&#128205; Fokus Peta</strong> untuk melihat titiknya di Google Maps di atas.`;
+            renderLeads();
+            return;
+          }
+          const clientOsm = await browserDirectOsmSearch(els.keyword.value, els.location.value, Number(els.maxResults.value));
+          if (clientOsm.length > 0) {
+            rawLeads = clientOsm;
+            isLiveApiMode = true;
+            els.statusNote.innerHTML = `Berhasil menemukan <strong>${clientOsm.length} lokasi asli (Real POI)</strong> di peta untuk "<em>${escHtml(els.keyword.value)} di ${escHtml(els.location.value)}</em>". (Ingin 100% urutan &amp; rating persis Google Maps? Gunakan <strong>API Key Serper.dev Gratis</strong> atau fitur <strong>Smart Paste Google Maps</strong> di sidebar kiri).`;
+            renderLeads();
+            return;
+          }
+          els.statusNote.innerHTML = `<span style="color:#b45309; font-weight:600;">Peta Google Maps di atas sudah diarahkan ke "${escHtml(els.keyword.value)} di ${escHtml(els.location.value)}". Untuk menarik daftar lengkapnya ke tabel secara gratis, gunakan tombol <strong>Buka di Tab Google Maps &rarr; Smart Paste</strong> atau isi API Key gratis <strong>serper.dev</strong> di sebelah kiri.</span>`;
+        } catch {
+          try {
+            const clientOsm = await browserDirectOsmSearch(els.keyword.value, els.location.value, Number(els.maxResults.value));
+            if (clientOsm.length > 0) {
+              rawLeads = clientOsm;
+              isLiveApiMode = true;
+              els.statusNote.innerHTML = `Berhasil menemukan <strong>${clientOsm.length} lokasi asli (Real POI)</strong> di peta untuk "<em>${escHtml(els.keyword.value)} di ${escHtml(els.location.value)}</em>".`;
+              renderLeads();
+              return;
+            }
+          } catch (_) {}
+          els.statusNote.innerHTML = `<span style="color:#b45309; font-weight:600;">Peta Google Maps di atas sudah aktif. Gunakan fitur <strong>Smart Paste dari Google Maps</strong> atau API Key gratis <strong>serper.dev</strong> di sebelah kiri.</span>`;
+          isLiveApiMode = false;
+          renderLeads();
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = origHtml;
+        }
+      });
+
+      [
+        els.sortBy,
+        els.includeReviews,
+        els.filterName,
+        els.minRating,
+        els.minReviews,
+        els.requirePhone,
+        els.requireEmail,
+        els.requireHours,
+        els.openNowOnly,
+        els.requireWebsite,
+        els.operationalOnly
+      ].forEach((el) => {
+        el.addEventListener('input', renderLeads);
+        el.addEventListener('change', renderLeads);
+      });
+
+      document.getElementById('btnCopyPhones').addEventListener('click', () => {
+        const phones = getFilteredLeads().map((l) => l.phone).filter(Boolean);
+        if (!phones.length) return;
+        window.LocalSpinClient.clientCopyText(phones.join('\n'));
+        const btn = document.getElementById('btnCopyPhones');
+        const orig = btn.innerHTML;
+        btn.textContent = `✓ ${phones.length} Nomor Tersalin!`;
+        setTimeout(() => (btn.innerHTML = orig), 1800);
+      });
+
+      document.getElementById('btnCopyEmails').addEventListener('click', () => {
+        const emails = getFilteredLeads().map((l) => l.email).filter(Boolean);
+        if (!emails.length) return;
+        window.LocalSpinClient.clientCopyText(emails.join('\n'));
+        const btn = document.getElementById('btnCopyEmails');
+        const orig = btn.innerHTML;
+        btn.textContent = `✓ ${emails.length} Email Tersalin!`;
+        setTimeout(() => (btn.innerHTML = orig), 1800);
+      });
+
+      document.getElementById('btnExportLeadsCsv').addEventListener('click', () => {
+        const list = getFilteredLeads();
+        const headers = [
+          'No',
+          'Nama_Tempat',
+          'Kategori',
+          'Daerah_Target',
+          'Alamat_Lengkap',
+          'No_Telepon',
+          'Email_Kontak',
+          'Website',
+          'Status_Operasional',
+          'Buka_Sekarang',
+          'Jam_Buka',
+          'Rating',
+          'Jumlah_Ulasan',
+          'Ulasan_Singkat',
+          'Link_Google_Maps',
+          'Sumber_Data'
+        ];
+        const rows = list.map((l, idx) => [
+          idx + 1,
+          l.name || '',
+          l.category || '',
+          els.location.value || '',
+          l.address || '',
+          l.phone || '',
+          l.email || '',
+          l.website || '',
+          l.businessStatus || 'OPERATIONAL',
+          l.openNow === null ? '-' : l.openNow ? 'Ya' : 'Tidak',
+          Array.isArray(l.openingHours) ? l.openingHours.join(' ; ') : l.openingHours || '-',
+          l.rating ?? '',
+          l.reviewCount ?? 0,
+          l.reviews && l.reviews[0] ? `${l.reviews[0].author} (${l.reviews[0].rating}*): ${l.reviews[0].text}` : '-',
+          l.googleMapsUri || '',
+          'Google Maps Places'
+        ]);
+        const csv = window.LocalSpinClient.buildCleanCsvString(headers, rows);
+        window.LocalSpinClient.clientDownloadFile(`leads-${els.location.value.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}.csv`, csv, 'text/csv;charset=utf-8;');
+      });
+
+      // Automatic Region Cascade (38 Indonesian Provinces -> Kota/Kabupaten -> Kecamatan + Japan)
+      const selWilayah = document.getElementById('selectLeadWilayah');
+      const selDaerah = document.getElementById('selectLeadDaerah');
+      const selKec = document.getElementById('selectLeadKecamatan');
+      const regionsList = (window.LocalSpinClient && window.LocalSpinClient.LOCALSPIN_REGIONS) || [];
+      const JAPAN_PRESET = {
+        id: 'jp-region',
+        wilayah: 'Jepang (Japan B2B)',
+        daerahList: [
+          { id: 'jp-tokyo', labelLengkap: 'Tokyo, Japan', kecamatan: [{ nama: 'Shibuya' }, { nama: 'Shinjuku' }, { nama: 'Daikanyama' }, { nama: 'Ginza' }] },
+          { id: 'jp-kyoto', labelLengkap: 'Kyoto, Japan', kecamatan: [{ nama: 'Nakagyo-ku' }, { nama: 'Higashiyama' }, { nama: 'Shimogyo-ku' }] },
+          { id: 'jp-osaka', labelLengkap: 'Osaka, Japan', kecamatan: [{ nama: 'Kita-ku' }, { nama: 'Chuo-ku' }, { nama: 'Namba' }] },
+          { id: 'jp-fukuoka', labelLengkap: 'Fukuoka, Japan', kecamatan: [{ nama: 'Chuo-ku Daimyo' }, { nama: 'Hakata' }] }
+        ]
+      };
+      const allLeadRegions = [...regionsList, JAPAN_PRESET];
+
+      function populateLeadWilayah() {
+        selWilayah.innerHTML = '';
+        allLeadRegions.forEach((w) => {
+          const opt = document.createElement('option');
+          opt.value = w.id;
+          opt.textContent = `${w.wilayah} (${(w.daerahList || []).length} Kota/Kab)`;
+          if (w.id === 'wil-jabar') opt.selected = true;
+          selWilayah.appendChild(opt);
+        });
+        populateLeadDaerah(true);
+      }
+
+      function populateLeadDaerah(isInitial = false) {
+        const w = allLeadRegions.find((x) => x.id === selWilayah.value) || allLeadRegions[0];
+        selDaerah.innerHTML = '';
+        (w.daerahList || []).forEach((d, idx) => {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = d.labelLengkap;
+          if ((isInitial && d.labelLengkap.toLowerCase().includes('depok')) || (!isInitial && idx === 0)) {
+            opt.selected = true;
+          }
+          selDaerah.appendChild(opt);
+        });
+        populateLeadKecamatan(isInitial);
+      }
+
+      function populateLeadKecamatan(isInitial = false) {
+        const w = allLeadRegions.find((x) => x.id === selWilayah.value) || allLeadRegions[0];
+        const d = (w.daerahList || []).find((x) => x.id === selDaerah.value) || (w.daerahList || [])[0];
+        selKec.innerHTML = '<option value="__ALL__">-- Semua Kecamatan --</option>';
+        if (d && Array.isArray(d.kecamatan)) {
+          d.kecamatan.forEach((k) => {
+            const opt = document.createElement('option');
+            opt.value = k.nama;
+            opt.textContent = `Kec. ${k.nama}`;
+            selKec.appendChild(opt);
+          });
+        }
+        if (!isInitial) syncLeadLocationInput();
+      }
+
+      function syncLeadLocationInput() {
+        const w = allLeadRegions.find((x) => x.id === selWilayah.value) || allLeadRegions[0];
+        const d = (w.daerahList || []).find((x) => x.id === selDaerah.value) || (w.daerahList || [])[0];
+        if (!d) return;
+        if (selKec.value && selKec.value !== '__ALL__') {
+          els.location.value = `Kecamatan ${selKec.value}, ${d.labelLengkap}, ${w.wilayah}`;
+        } else {
+          els.location.value = `${d.labelLengkap}, ${w.wilayah}`;
+        }
+        updateGoogleMapsEmbed();
+      }
+
+      selWilayah.addEventListener('change', () => populateLeadDaerah(false));
+      selDaerah.addEventListener('change', () => populateLeadKecamatan(false));
+      selKec.addEventListener('change', syncLeadLocationInput);
+      els.keyword.addEventListener('change', () => updateGoogleMapsEmbed());
+      els.location.addEventListener('change', () => updateGoogleMapsEmbed());
+      populateLeadWilayah();
+
+      document.getElementById('btnExportLeadsJson').addEventListener('click', () => {
+        const list = getFilteredLeads();
+        window.LocalSpinClient.clientDownloadFile(
+          `leads-${els.location.value.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}.json`,
+          JSON.stringify({ attribution: 'Data tempat: Google Maps', total: list.length, leads: list }, null, 2),
+          'application/json'
+        );
+      });
+
+      if (window.LocalSpinClient && window.LocalSpinClient.initWorkspaceLayoutControls) {
+        window.LocalSpinClient.initWorkspaceLayoutControls({ storageKey: 'localspin_leads_sidebar_width' });
+        window.LocalSpinClient.initQuickGuideAndScrollTop();
+      }
+      renderLeads();
+    })();
+  </script>
+</body>
+</html>

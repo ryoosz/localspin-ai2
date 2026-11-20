@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kebijakan Privasi — LocalSpin AI SaaS</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-logo"><span>LocalSpin AI</span></a>
+      <nav aria-label="Navigasi Utama">
+        <ul class="nav-links">
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="dashboard.html">Studio Generator (App)</a></li>
+          <li><a href="leads.html">Lead Finder Maps</a></li>
+          <li><a href="email-outreach.html">Spintax Email</a></li>
+          <li><a href="pricing.html">Harga &amp; Kuota</a></li>
+          <li><a href="privacy.html" aria-current="page">Privasi</a></li>
+          <li><a href="terms.html">Syarat Layanan</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 3rem 1rem; max-width: 820px;">
+    <h1>Kebijakan Privasi</h1>
+    <p><strong>Versi:</strong> 1.0.0 &bull; <strong>Tanggal Berlaku:</strong> 16 November 2026</p>
+    <div class="card">
+      <h2>1. Data yang Diproses Secara Nyata</h2>
+      <p>Sesuai prinsip transparansi DPES v1.3 dan UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP), aplikasi ini hanya memproses:</p>
+      <ul>
+        <li><strong>Identitas Akun &amp; Workspace:</strong> Nama lengkap, alamat email, dan peran keanggotaan dalam workspace.</li>
+        <li><strong>Data Kampanye Artikel:</strong> Topik artikel, template Spintax, pilihan target daerah (Wilayah, Kota/Kabupaten, Kecamatan), dan hasil artikel yang disimpan pada basis data terisolasi per workspace.</li>
+      </ul>
+
+      <h2>2. Pemrosesan AI &amp; Copyscape</h2>
+      <p>Secara bawaan, pembuatan template Spintax dan perhitungan kemiripan 4-gram/5-gram shingle dilakukan secara lokal di server aplikasi tanpa mengirim data ke pihak ketiga. Apabila pemilik workspace mengaktifkan kunci API eksternal (seperti Google Gemini API atau Copyscape Premium API), maka teks topik/artikel akan dikirimkan hanya ke penyedia resmi tersebut sesuai instruksi pengguna.</p>
+
+      <h2>3. Isolasi Multi-Tenant &amp; Penghapusan Data</h2>
+      <p>Setiap kampanye artikel dikunci pada <code>workspace_id</code> masing-masing dan tidak dapat diakses oleh pengguna dari organisasi/workspace lain. Pengguna berhak meminta ekspor maupun penghapusan akun beserta seluruh data kampanye artikel melalui pengaturan workspace.</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div><strong>LocalSpin AI SaaS v1.0.0</strong></div>
+      <div style="display: flex; gap: 1.25rem;">
+        <a href="index.html">Beranda</a>
+        <a href="terms.html">Syarat Layanan</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

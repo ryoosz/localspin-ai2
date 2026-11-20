@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spintax Email Penawaran Komoditas &amp; Jadwal Anti-Blast — LocalSpin AI SaaS v1.4</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-logo">
+        <span>LocalSpin AI</span>
+        <span class="brand-badge">Email Outreach v1.4</span>
+      </a>
+      <nav aria-label="Navigasi Utama">
+        <ul class="nav-links">
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="dashboard.html">Studio Generator (App)</a></li>
+          <li><a href="leads.html">Lead Finder Maps</a></li>
+          <li><a href="email-outreach.html" aria-current="page">Spintax Email</a></li>
+          <li><a href="pricing.html">Harga &amp; Kuota</a></li>
+          <li><a href="privacy.html">Privasi</a></li>
+          <li><a href="terms.html">Syarat Layanan</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 1.5rem; padding-bottom: 3rem;">
+    <div class="notice-banner" role="status">
+      <strong>Mode Antrean &amp; Jadwal Pengiriman Email (DPES v1.3):</strong> Fitur ini menyusun email penawaran dagang unik untuk setiap penerima dengan <strong>Spintax Subjek &amp; Isi</strong>, <strong>Rotasi Banyak Alamat &amp; Jenis Pengirim</strong>, serta pilihan <strong>Jadwal Acak 3–5 Menit (Anti-Blast)</strong> atau <strong>Blast Email</strong>. Pengiriman aktual ke SMTP hanya berjalan apabila kredensial <code>SMTP_HOST</code> dikonfigurasi di server; pada preview ini seluruh antrean &amp; waktu terjadwal ditampilkan secara nyata (<em>SIMULASI ANTREAN</em>).
+    </div>
+
+    <!-- Top Metrics -->
+    <section class="metrics-bar" aria-label="Ringkasan Kampanye Email">
+      <div class="metric-box">
+        <div class="metric-label">Penerima Valid</div>
+        <div class="metric-value" id="metricRecipientsCount">0</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Akun Pengirim Aktif</div>
+        <div class="metric-value" id="metricSendersCount" style="color: var(--brand-primary);">0</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Mode Pengiriman</div>
+        <div class="metric-value" id="metricDeliveryMode" style="font-size: 1rem;">Jadwal Acak (3–5m)</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Estimasi Durasi Total</div>
+        <div class="metric-value" id="metricTotalDuration">0 Menit</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Status Koneksi SMTP</div>
+        <div class="metric-value" id="metricSmtpStatus" style="font-size: 0.95rem;">
+          <span class="badge badge-sim">SIMULASI ANTREAN</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="sidebar-controls-bar" role="region" aria-label="Pengaturan Tampilan Sidebar">
+      <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+        <button type="button" id="btnToggleSidebar" class="btn btn-secondary btn-sm">&#9703; Minimize Sidebar</button>
+        <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; color: var(--text-secondary);">
+          <span>Lebar Sidebar:</span>
+          <input type="range" id="rangeSidebarWidth" min="280" max="680" value="410" style="width: 130px;" />
+        </label>
+        <span class="form-hint" style="margin: 0;">Seret garis pemisah di samping sidebar.</span>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm btn-open-guide">&#10067; Cara Pakai Website</button>
+    </div>
+
+    <div class="studio-layout">
+      <!-- Left Sidebar (Independently Scrollable): Senders, Schedule & Commodity -->
+      <aside class="card" aria-labelledby="email-config-heading">
+        <h2 id="email-config-heading" style="font-size: 1.2rem; margin-bottom: 1rem;">
+          1. Pengirim, Komoditas &amp; Jadwal Acak
+        </h2>
+
+        <form id="emailOutreachForm" onsubmit="return false;">
+          <div class="form-group">
+            <label class="form-label" for="inputCommodity">Komoditas / Produk yang Dipromosikan</label>
+            <input
+              type="text"
+              id="inputCommodity"
+              class="form-control"
+              value="Indonesian Specialty Arabica Green Beans (Gayo, Mandheling & Toraja)"
+              required
+            />
+          </div>
+
+          <div class="grid-2" style="gap: 0.5rem;">
+            <div class="form-group">
+              <label class="form-label" for="inputCompanyName">Nama Perusahaan Anda</label>
+              <input type="text" id="inputCompanyName" class="form-control" value="Nusantara Commodity Export" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputSenderWa">WhatsApp Kontak Dagang</label>
+              <input type="text" id="inputSenderWa" class="form-control" value="+62 812-3456-7890" />
+            </div>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1rem 0;" />
+
+          <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">&#128279; Link Website &amp; Gambar di Email</h3>
+          <div class="grid-2" style="gap: 0.5rem;">
+            <div class="form-group">
+              <label class="form-label" for="inputEmailWebsiteUrl">URL Website Katalog</label>
+              <input type="url" id="inputEmailWebsiteUrl" class="form-control" value="https://nusantararoastery.id/katalog-ekspor" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputEmailWebsiteLabel">Teks Tombol Website</label>
+              <input type="text" id="inputEmailWebsiteLabel" class="form-control" value="Lihat Katalog &amp; Harga Ekspor" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inputEmailImageUrl">URL Gambar Produk di Email (atau Unggah File)</label>
+            <input type="url" id="inputEmailImageUrl" class="form-control" value="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=900&q=80" />
+            <input type="file" id="inputEmailImageFile" accept="image/*" class="form-control" style="margin-top: 5px; font-size: 0.8rem; padding: 0.35rem;" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inputEmailImageCaption">Keterangan Gambar Email</label>
+            <input type="text" id="inputEmailImageCaption" class="form-control" value="Sampel Biji Kopi Specialty Ekspor Nusantara" />
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1rem 0;" />
+
+          <!-- Multi-Sender Config -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h3 style="font-size: 1rem; margin: 0;">&#128231; Alamat &amp; Jenis Pengirim (Rotasi)</h3>
+            <button type="button" id="btnAddSender" class="btn btn-secondary btn-sm">+ Tambah Pengirim</button>
+          </div>
+          <p class="form-hint" style="margin-bottom: 0.5rem;">
+            Gunakan beberapa alamat email &amp; jenis layanan berbeda agar pengiriman tampak natural.
+          </p>
+          <div id="sendersContainer" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem;"></div>
+
+          <div class="form-group">
+            <label class="form-label" for="selectSenderRotation">Pola Rotasi Pengirim</label>
+            <select id="selectSenderRotation" class="form-control">
+              <option value="round_robin" selected>Round-Robin (Bergantian Merata)</option>
+              <option value="random">Acak per Penerima</option>
+            </select>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1rem 0;" />
+
+          <!-- Schedule Mode: Random Drip vs Blast -->
+          <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">&#9201; Jadwal Pengiriman (Anti-Blast vs Blast)</h3>
+
+          <div class="form-group">
+            <label class="toggle-item" style="margin-bottom: 6px; background: #f0fdf4; border-color: #86efac;">
+              <input type="radio" name="scheduleMode" value="drip_random" checked />
+              <span><strong>Jadwal Acak (Anti-Blast)</strong> — Kirim bertahap selang acak (misal 3–5 menit)</span>
+            </label>
+            <label class="toggle-item" style="background: #fef3c7; border-color: #fcd34d;">
+              <input type="radio" name="scheduleMode" value="blast" />
+              <span><strong>Mode Blast Email</strong> — Kirim massal sekaligus (1 detik/antrean)</span>
+            </label>
+          </div>
+
+          <div id="dripDelayBox" class="grid-2" style="gap: 0.5rem;">
+            <div class="form-group">
+              <label class="form-label" for="inputMinDelay">Jeda Minimal (Menit)</label>
+              <input type="number" id="inputMinDelay" class="form-control" min="0.5" step="0.5" value="3" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputMaxDelay">Jeda Maksimal (Menit)</label>
+              <input type="number" id="inputMaxDelay" class="form-control" min="0.5" step="0.5" value="5" />
+            </div>
+          </div>
+
+          <label class="toggle-item" style="margin-bottom: 1rem;">
+            <input type="checkbox" id="chkUnsubscribe" checked />
+            <span>Sertakan Teks Opt-Out / Unsubscribe (Kepatuhan B2B)</span>
+          </label>
+
+          <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1rem 0;" />
+
+          <!-- Recipients List -->
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem;">
+            <h3 style="font-size: 1rem; margin: 0;">&#127471;&#127477; Daftar Penerima (Nama | Email | Kota)</h3>
+            <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+              <button type="button" id="btnPasteScrapedLeads" class="btn btn-whatsapp btn-sm">&#128203; Tempel Hasil Scrape Maps</button>
+              <button type="button" id="btnLoadJapanRecipients" class="btn btn-secondary btn-sm">Demo Kopi Jepang</button>
+            </div>
+          </div>
+          <div id="pasteLeadsStatus" style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.35rem; display: none;"></div>
+          <textarea
+            id="textareaRecipients"
+            class="form-control"
+            rows="5"
+            placeholder="Format: Nama Usaha | email@domain.jp | Tokyo"
+          ></textarea>
+          <span class="form-hint">1 baris = 1 penerima. Otomatis menyaring duplikat &amp; email tidak valid.</span>
+
+          <div style="display: flex; flex-direction: column; gap: 0.55rem; margin-top: 1rem;">
+            <button type="submit" id="btnGenerateEmailQueue" class="btn btn-primary">
+              &#9889; Generate Antrean Spintax &amp; Jadwal Pengiriman
+            </button>
+            <button type="button" id="btnSaveQueueServer" class="btn btn-secondary">
+              &#128190; Simpan Jadwal ke Server Database
+            </button>
+          </div>
+        </form>
+      </aside>
+
+      <div id="sidebarResizer" class="sidebar-resizer" title="Seret untuk mengatur lebar sidebar"></div>
+
+      <!-- Right Column: Spintax Email Editor & Scheduled Queue -->
+      <div class="studio-main-pane">
+        <!-- Step 1B: Kuiz Master Prompting & Bagan 5 Bagian Spintax Email Penawaran -->
+        <section class="card" style="margin-bottom: 1.25rem; border: 2px solid #bfdbfe; background: linear-gradient(180deg, #eff6ff 0%, #ffffff 170px);" aria-labelledby="email-quiz-heading">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.65rem;">
+            <div>
+              <span class="badge badge-pass" style="margin-bottom: 0.25rem;">B2B EMAIL PROMPTING FRAMEWORK</span>
+              <h2 id="email-quiz-heading" style="font-size: 1.16rem; margin: 0;">
+                1B. Kuiz Master Prompting &amp; Bagan 5 Bagian Spintax Email Penawaran
+              </h2>
+            </div>
+            <div style="display: flex; gap: 0.45rem; flex-wrap: wrap;">
+              <button type="button" id="btnAutoFill5EmailParts" class="btn btn-primary btn-sm">
+                &#9889; Isi Otomatis 5 Bagan Email
+              </button>
+              <button type="button" id="btnMerge5EmailParts" class="btn btn-whatsapp btn-sm">
+                &#128279; Satukan 5 Bagan &rarr; Editor Spintax Email
+              </button>
+            </div>
+          </div>
+
+          <div class="grid-3" style="gap: 0.65rem; margin-bottom: 0.75rem; background: #f8fafc; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
+            <div>
+              <label class="form-label" for="emailQuizCommodity" style="font-size: 0.78rem;">Komoditas / Produk Utama</label>
+              <input type="text" id="emailQuizCommodity" class="form-control" value="Indonesian Specialty Arabica Green Beans" />
+            </div>
+            <div>
+              <label class="form-label" for="emailQuizTargetMarket" style="font-size: 0.78rem;">Target Penerima / Pasar</label>
+              <input type="text" id="emailQuizTargetMarket" class="form-control" value="Specialty Coffee Roasters & Buyers in Japan" />
+            </div>
+            <div>
+              <label class="form-label" for="emailQuizUsp" style="font-size: 0.78rem;">Keunggulan / Spesifikasi (USP)</label>
+              <input type="text" id="emailQuizUsp" class="form-control" value="Direct Trade, Cupping Score 86+, G1 Grade, 5 Tons/Month" />
+            </div>
+            <div>
+              <label class="form-label" for="emailQuizGoal" style="font-size: 0.78rem;">Tujuan Email (Intent)</label>
+              <select id="emailQuizGoal" class="form-control">
+                <option value="Sample & Direct Trade Offer" selected>Penawaran Sampel &amp; Direct Trade</option>
+                <option value="Wholesale Catalog & Price List">Katalog &amp; Daftar Harga Grosir</option>
+                <option value="Long-Term Supply Partnership">Kemitraan Suplai Jangka Panjang</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="emailQuizTone" style="font-size: 0.78rem;">Tone &amp; Gaya Bahasa</label>
+              <select id="emailQuizTone" class="form-control">
+                <option value="Polite & Consultative B2B" selected>Polite &amp; Consultative B2B</option>
+                <option value="Formal Export Desk">Formal Export Desk</option>
+                <option value="Warm & Direct">Warm &amp; Direct</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="emailQuizLanguage" style="font-size: 0.78rem;">Bahasa Email</label>
+              <select id="emailQuizLanguage" class="form-control">
+                <option value="English (International B2B)" selected>English (International / Japan B2B)</option>
+                <option value="Bahasa Indonesia">Bahasa Indonesia (B2B Lokal)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap: 0.75rem; margin-bottom: 0.75rem;">
+            <div style="background: #0f172a; color: #f8fafc; padding: 0.75rem; border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+                <span style="font-weight: 700; font-size: 0.84rem; color: #93c5fd;">Master Prompt Chatbot (Email B2B)</span>
+                <button type="button" id="btnCopyEmailPrompt" class="btn btn-primary btn-sm">&#128203; Salin Prompt</button>
+              </div>
+              <textarea id="textareaEmailMasterPrompt" class="form-control" rows="5" readonly style="background: #1e293b; color: #e2e8f0; border-color: #334155; font-family: var(--font-family-mono); font-size: 0.76rem;"></textarea>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid var(--border-subtle); padding: 0.75rem; border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+                <span style="font-weight: 700; font-size: 0.84rem;">Tempel Hasil Chatbot &rarr; 5 Bagan Email</span>
+                <button type="button" id="btnParseEmailChatbot" class="btn btn-secondary btn-sm">&#128229; Pecah ke 5 Bagan</button>
+              </div>
+              <textarea id="textareaPasteEmailChatbot" class="form-control" rows="5" placeholder="Tempel balasan chatbot (penanda [EMAIL 01]..[EMAIL 05]) di sini..."></textarea>
+            </div>
+          </div>
+
+          <details open style="background: #fff; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.7rem;">
+            <summary style="cursor: pointer; font-weight: 700; font-size: 0.9rem;">
+              Bagan Modular 5 Bagian Email (Subjek, Sapaan, Spesifikasi, Sampel/Katalog, CTA)
+            </summary>
+            <div id="modular5EmailPartsGrid" class="grid-2" style="gap: 0.6rem; margin-top: 0.65rem;"></div>
+          </details>
+        </section>
+
+        <section class="card hover-popup-shell" style="margin-bottom: 1.25rem;" aria-labelledby="email-editor-heading">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+            <h2 id="email-editor-heading" style="font-size: 1.18rem; margin: 0;">
+              2. Editor Spintax Penawaran Dagang (Subjek &amp; Isi Email)
+            </h2>
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+              <button type="button" id="btnPresetEnJp" class="btn btn-secondary btn-sm">Template B2B Kopi Jepang (EN)</button>
+              <button type="button" id="btnPresetId" class="btn btn-secondary btn-sm">Template B2B Komoditas (ID)</button>
+              <button type="button" id="btnOpenEmailSpintaxPopup" class="btn btn-primary btn-sm hover-popup-hint">&#10530; Pop-Up Editor Lebar</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputSubjectSpintax">Subjek Email Spintax</label>
+            <input type="text" id="inputSubjectSpintax" class="form-control" />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="textareaBodySpintax">Isi Email Spintax (Mendukung <code>{{nama_usaha}}</code>, <code>{{kota_daerah}}</code>, <code>{{komoditas}}</code>, <code>{{email_pengirim}}</code>)</label>
+            <textarea id="textareaBodySpintax" class="form-control" rows="7"></textarea>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="queue-heading">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.85rem;">
+            <div>
+              <h2 id="queue-heading" style="font-size: 1.18rem; margin-bottom: 0.2rem;">
+                3. Antrean Email Unik &amp; Timeline Jadwal Pengiriman
+              </h2>
+              <p class="form-hint" id="queueStatusNote" style="margin: 0;">
+                Setiap penerima mendapat variasi subjek, isi, akun pengirim, dan waktu kirim acak berbeda.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.45rem; flex-wrap: wrap;">
+              <button type="button" id="btnExportQueueCsv" class="btn btn-primary btn-sm">Unduh CSV Jadwal</button>
+              <button type="button" id="btnExportQueueJson" class="btn btn-secondary btn-sm">Unduh JSON</button>
+            </div>
+          </div>
+
+          <div class="bulk-actions-bar">
+            <label style="display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
+              <input type="checkbox" id="chkSelectAllQueue" class="article-checkbox" checked />
+              <span>Pilih Semua (<span id="selectedQueueCount">0</span>)</span>
+            </label>
+            <div style="display: flex; gap: 0.45rem;">
+              <button type="button" id="btnExpandAllQueue" class="btn btn-secondary btn-sm">&#9662; Buka Semua</button>
+              <button type="button" id="btnMinimizeAllQueue" class="btn btn-secondary btn-sm">&#9652; Minimize Semua</button>
+            </div>
+          </div>
+
+          <div id="emailQueueContainer" aria-live="polite"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>LocalSpin AI SaaS v1.4.0</strong> &mdash; B2B Commodity Email Spintax &amp; Random Drip Scheduler.
+      </div>
+      <div style="display: flex; gap: 1.25rem;">
+        <a href="index.html">Beranda</a>
+        <a href="leads.html">Lead Finder Maps</a>
+        <a href="dashboard.html">Studio Generator</a>
+        <a href="privacy.html">Privasi</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Pop-Up Wide Modal: Email Spintax Editor -->
+  <div id="modalEmailSpintax" class="editor-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalEmailTitle">
+    <div class="editor-modal-dialog">
+      <div class="editor-modal-header">
+        <h3 id="modalEmailTitle" style="margin: 0; font-size: 1.15rem;">Pop-Up Editor Lebar — Spintax Subjek &amp; Isi Email Penawaran</h3>
+        <button type="button" id="btnCloseEmailModal" class="btn btn-secondary btn-sm">&times; Tutup</button>
+      </div>
+      <div class="editor-modal-body">
+        <div class="form-group">
+          <label class="form-label" for="modalEmailSubject">Subjek Email Spintax</label>
+          <input type="text" id="modalEmailSubject" class="form-control" />
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="modalEmailBody">Isi Email Spintax</label>
+          <textarea id="modalEmailBody" class="form-control" rows="15" style="font-size: 0.96rem; line-height: 1.65;"></textarea>
+        </div>
+      </div>
+      <div class="editor-modal-footer">
+        <span class="form-hint" style="margin: 0;">Tekan <code>Esc</code> untuk menutup.</span>
+        <button type="button" id="btnApplyEmailModal" class="btn btn-primary">&#9889; Terapkan &amp; Perbarui Antrean Email</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/app.js?v=1.13.0"></script>
+  <script>
+    (function initEmailOutreach() {
+      const { clientResolveSpintax } = window.LocalSpinClient;
+
+      let sendersList = [
+        { id: 'snd_1', name: 'Raka Pratama', email: 'export@nusantararoastery.id', providerType: 'SMTP Server' },
+        { id: 'snd_2', name: 'Sinta Trade Desk', email: 'b2b@kopiarabika.co.id', providerType: 'Gmail Workspace' },
+        { id: 'snd_3', name: 'Nusantara Sales', email: 'trade@spicesindonesia.com', providerType: 'Resend / API' }
+      ];
+
+      const DEFAULT_JAPAN_RECIPIENTS = [
+        'Shibuya Roast & Brew | buyer@shibuyaroast.example.jp | Shibuya, Tokyo',
+        'Kamo River Coffee Kyoto | beans@kamocoffee.example.jp | Nakagyo-ku, Kyoto',
+        'Namba Espresso Bar Osaka | sourcing@nambaespresso.example.jp | Chuo-ku, Osaka',
+        'Daikanyama Drip House | hello@daikanyamadrip.example.jp | Shibuya, Tokyo',
+        'Fukuoka Harbor Roasters | import@fukuokaroasters.example.jp | Chuo-ku, Fukuoka'
+      ];
+
+      const PRESET_EN_JP = {
+        subject:
+          '{Direct Trade Offer|Wholesale Supply Inquiry|B2B Partnership & Sample|Specialty Origin Proposal}: {{komoditas}} {for {{nama_usaha}}|— {{nama_usaha}} ({{kota_daerah}})|Direct from Indonesia to {{kota_daerah}}|Fresh Harvest Allocation}',
+        body: [
+          `{Dear {{nama_usaha}} Team|Hello Coffee Buyer at {{nama_usaha}}|Greetings to the {{nama_usaha}} Roastery & Cafe Team|Dear Purchasing Manager at {{nama_usaha}}},`,
+          `{We are reaching out from {{perusahaan_pengirim}} to introduce our direct-origin|Our export team at {{perusahaan_pengirim}} would love to share our latest harvest of|We specialize in supplying Japanese specialty cafes like {{nama_usaha}} in {{kota_daerah}} with} {{komoditas}} {graded for consistent cupping scores, clean processing, and reliable year-round air or sea freight delivery.|sourced directly from Indonesian highland farms with full traceability and flexible MOQ for independent coffee shops.|crafted to complement pour-over and espresso menus in {{kota_daerah}}.}`,
+          `{If {{nama_usaha}} is open to evaluating new seasonal lots, we would be glad to send a complimentary roasted or green sample pack along with our FOB/CIF Japan price sheet.|Many roasteries in {{kota_daerah}} partner with us for transparent pricing, moisture-controlled packaging, and responsive export documentation.}`,
+          `{Simply reply to {{email_pengirim}} or reach our trade desk via WhatsApp ({{wa_pengirim}}) if you would like us to ship a sample box to {{nama_usaha}}.|Thank you very much for your time and continued passion for great coffee.}`,
+          `Best regards,\n{{nama_pengirim}}\n{{perusahaan_pengirim}}`
+        ].join('\n\n')
+      };
+
+      const PRESET_ID = {
+        subject:
+          '{Penawaran Kerja Sama Suplai|Proposal Dagang Langsung|Katalog Harga Grosir|Sampel Gratis Komoditas} {{komoditas}} {untuk {{nama_usaha}}|Khusus {{nama_usaha}} ({{kota_daerah}})|Penawaran B2B {{kota_daerah}}}',
+        body: [
+          `{Halo Tim|Yth. Pengelola|Salam hangat untuk tim pengadaan|Halo Bapak/Ibu Pimpinan} {{nama_usaha}} di {{kota_daerah}},`,
+          `{Kami dari {{perusahaan_pengirim}} ingin memperkenalkan pasokan langsung|Perkenalkan, kami adalah pemasok tangan pertama untuk|Melalui email ini kami menawarkan kerja sama suplai berkala} {{komoditas}} {dengan kualitas ekspor terstandarisasi dan harga kompetitif langsung dari sumbernya.|yang telah melalui proses sortasi ketat untuk kebutuhan bisnis di {{kota_daerah}}.|dengan konsistensi stok bulanan serta dukungan pengiriman tepat waktu.}`,
+          `{Apabila {{nama_usaha}} sedang mencari mitra penyedia {{komoditas}} yang {stabil dari sisi mutu|fleksibel dalam kuantitas pemesanan|siap mengirimkan sampel uji coba}, kami sangat terbuka untuk berdiskusi lebih lanjut.|Kami siap mengirimkan daftar harga terbaru maupun sampel produk agar tim {{nama_usaha}} dapat menguji kualitasnya secara langsung.}`,
+          `{Silakan balas email ini ({{email_pengirim}}) atau hubungi kami via WhatsApp di {{wa_pengirim}} untuk permintaan katalog dan sampel.|Terima kasih atas waktu Anda, kami menantikan peluang kerja sama jangka panjang bersama {{nama_usaha}}.}`,
+          `Hormat kami,\n{{nama_pengirim}} — {{perusahaan_pengirim}}`
+        ].join('\n\n')
+      };
+
+      const els = {
+        commodity: document.getElementById('inputCommodity'),
+        company: document.getElementById('inputCompanyName'),
+        wa: document.getElementById('inputSenderWa'),
+        websiteUrl: document.getElementById('inputEmailWebsiteUrl'),
+        websiteLabel: document.getElementById('inputEmailWebsiteLabel'),
+        imageUrl: document.getElementById('inputEmailImageUrl'),
+        imageFile: document.getElementById('inputEmailImageFile'),
+        imageCaption: document.getElementById('inputEmailImageCaption'),
+        sendersContainer: document.getElementById('sendersContainer'),
+        rotation: document.getElementById('selectSenderRotation'),
+        minDelay: document.getElementById('inputMinDelay'),
+        maxDelay: document.getElementById('inputMaxDelay'),
+        dripBox: document.getElementById('dripDelayBox'),
+        unsubscribe: document.getElementById('chkUnsubscribe'),
+        recipients: document.getElementById('textareaRecipients'),
+        subject: document.getElementById('inputSubjectSpintax'),
+        body: document.getElementById('textareaBodySpintax'),
+        queueContainer: document.getElementById('emailQueueContainer'),
+        statusNote: document.getElementById('queueStatusNote')
+      };
+
+      els.imageFile.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          els.imageUrl.value = reader.result;
+          computeClientQueue();
+        };
+        reader.readAsDataURL(file);
+      });
+
+      let currentQueue = [];
+
+      function renderSenders() {
+        els.sendersContainer.innerHTML = '';
+        sendersList.forEach((s, idx) => {
+          const row = document.createElement('div');
+          row.style.cssText = 'display:grid; grid-template-columns:1fr 1fr auto; gap:4px; align-items:center; background:var(--bg-subtle); padding:6px; border-radius:6px; border:1px solid var(--border-subtle);';
+          row.innerHTML = `
+            <input type="text" class="form-control snd-email" data-idx="${idx}" value="${s.email}" placeholder="email@domain.com" style="font-size:0.82rem; padding:4px 6px;" />
+            <select class="form-control snd-type" data-idx="${idx}" style="font-size:0.82rem; padding:4px 6px;">
+              <option value="SMTP Server" ${s.providerType === 'SMTP Server' ? 'selected' : ''}>SMTP Server</option>
+              <option value="Gmail Workspace" ${s.providerType === 'Gmail Workspace' ? 'selected' : ''}>Gmail Workspace</option>
+              <option value="Resend / API" ${s.providerType === 'Resend / API' ? 'selected' : ''}>Resend / API</option>
+              <option value="Zoho Mail" ${s.providerType === 'Zoho Mail' ? 'selected' : ''}>Zoho Mail</option>
+            </select>
+            <button type="button" class="btn btn-secondary btn-sm btn-del-sender" data-idx="${idx}" style="padding:2px 8px; min-height:28px;">&times;</button>
+          `;
+          els.sendersContainer.appendChild(row);
+        });
+
+        els.sendersContainer.querySelectorAll('.snd-email').forEach((inp) => {
+          inp.addEventListener('input', () => {
+            sendersList[Number(inp.dataset.idx)].email = inp.value.trim();
+          });
+        });
+        els.sendersContainer.querySelectorAll('.snd-type').forEach((sel) => {
+          sel.addEventListener('change', () => {
+            sendersList[Number(sel.dataset.idx)].providerType = sel.value;
+          });
+        });
+        els.sendersContainer.querySelectorAll('.btn-del-sender').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            if (sendersList.length <= 1) return;
+            sendersList.splice(Number(btn.dataset.idx), 1);
+            renderSenders();
+          });
+        });
+        document.getElementById('metricSendersCount').textContent = String(sendersList.length);
+      }
+
+      document.getElementById('btnAddSender').addEventListener('click', () => {
+        const n = sendersList.length + 1;
+        sendersList.push({
+          id: `snd_${n}`,
+          name: `Sales Team #${n}`,
+          email: `sales${n}@nusantararoastery.id`,
+          providerType: 'SMTP Server'
+        });
+        renderSenders();
+      });
+
+      function parseRecipients() {
+        const seen = new Set();
+        const out = [];
+        els.recipients.value.split(/\r?\n/).forEach((line) => {
+          const parts = line.split('|').map((p) => p.trim());
+          if (!parts[0]) return;
+          const email = (parts[1] || parts[0]).toLowerCase();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || seen.has(email)) return;
+          seen.add(email);
+          out.push({
+            name: parts[1] ? parts[0] : 'Coffee Shop Partner',
+            email,
+            cityArea: parts[2] || 'Tokyo, Japan'
+          });
+        });
+        return out;
+      }
+
+      function computeClientQueue() {
+        const recipients = parseRecipients();
+        const validSenders = sendersList.filter((s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email));
+        const mode = document.querySelector('input[name="scheduleMode"]:checked').value;
+        const minM = Math.max(0.5, Number(els.minDelay.value) || 3);
+        const maxM = Math.max(minM, Number(els.maxDelay.value) || 5);
+        const rot = els.rotation.value;
+
+        document.getElementById('metricRecipientsCount').textContent = String(recipients.length);
+        document.getElementById('metricSendersCount').textContent = String(validSenders.length);
+        document.getElementById('metricDeliveryMode').textContent =
+          mode === 'blast' ? 'Mode Blast Email' : `Jadwal Acak (${minM}–${maxM}m)`;
+
+        if (!recipients.length || !validSenders.length) {
+          els.queueContainer.innerHTML = `<div class="notice-banner" style="border-left-color:#d97706;">Pastikan ada minimal 1 penerima valid dan 1 pengirim valid.</div>`;
+          currentQueue = [];
+          return;
+        }
+
+        const nowMs = Date.now();
+        let cumMs = 0;
+
+        currentQueue = recipients.map((rec, idx) => {
+          let senderIdx = idx % validSenders.length;
+          if (rot === 'random' && validSenders.length > 1) {
+            senderIdx = (idx * 7 + rec.email.length) % validSenders.length;
+          }
+          const sender = validSenders[senderIdx];
+
+          let stepMs = 0;
+          if (idx > 0) {
+            if (mode === 'blast') {
+              stepMs = 1000;
+            } else {
+              const pseudoRand = ((Math.sin(idx * 91.7 + rec.email.length) + 1) / 2);
+              const mins = minM + pseudoRand * (maxM - minM);
+              stepMs = Math.round(mins * 60000);
+            }
+            cumMs += stepMs;
+          }
+
+          const schedDate = new Date(nowMs + cumMs);
+          const vars = {
+            nama_usaha: rec.name,
+            email_tujuan: rec.email,
+            kota_daerah: rec.cityArea,
+            komoditas: els.commodity.value.trim(),
+            nama_pengirim: sender.name,
+            email_pengirim: sender.email,
+            perusahaan_pengirim: els.company.value.trim(),
+            wa_pengirim: els.wa.value.trim(),
+            website_url: els.websiteUrl.value.trim(),
+            image_url: els.imageUrl.value.trim()
+          };
+          const inject = (txt) =>
+            String(txt || '').replace(/\{\{([a-zA-Z0-9_]+)\}\}/g, (f, k) => vars[k.toLowerCase()] || f);
+
+          const subj = inject(clientResolveSpintax(els.subject.value, 'email-subj', idx));
+          const rawSpunBody = inject(clientResolveSpintax(els.body.value, 'email-body', idx));
+          let body = rawSpunBody;
+          if (vars.website_url) {
+            body += `\n\n${els.websiteLabel.value.trim() || 'Website Resmi'}: ${vars.website_url}`;
+          }
+          if (els.unsubscribe.checked) {
+            body += `\n\n---\nIf you prefer not to receive trade offers, reply "UNSUBSCRIBE" to ${sender.email}.`;
+          }
+
+          const htmlParagraphs = rawSpunBody
+            .split(/\n\n+/)
+            .map((p) => `<p style="margin:0 0 12px; line-height:1.65;">${p.replace(/\n/g, '<br/>')}</p>`)
+            .join('');
+          const htmlImg = vars.image_url
+            ? `<div style="margin:12px 0; text-align:center;"><img src="${vars.image_url}" alt="${vars.komoditas}" style="max-width:100%; max-height:240px; border-radius:8px; object-fit:cover;" /><div style="font-size:0.8rem; color:#64748b; margin-top:4px;">${els.imageCaption.value.trim()}</div></div>`
+            : '';
+          const htmlWebBtn = vars.website_url
+            ? `<div style="margin:14px 0;"><a href="${vars.website_url}" target="_blank" rel="noopener" style="display:inline-block; background:#2563eb; color:#fff; padding:9px 16px; border-radius:6px; text-decoration:none; font-weight:600;">&#128279; ${els.websiteLabel.value.trim() || 'Kunjungi Website'}</a></div>`
+            : '';
+          const htmlUnsub = els.unsubscribe.checked
+            ? `<hr style="border:0; border-top:1px solid #e2e8f0; margin:14px 0;"/><p style="font-size:0.78rem; color:#64748b;">If you prefer not to receive trade offers, reply "UNSUBSCRIBE" to ${sender.email}.</p>`
+            : '';
+          const htmlBody = `<div style="font-family:Arial,sans-serif; color:#0f172a;">${htmlImg}${htmlParagraphs}${htmlWebBtn}${htmlUnsub}</div>`;
+
+          return {
+            index: idx + 1,
+            recipientName: rec.name,
+            recipientEmail: rec.email,
+            cityArea: rec.cityArea,
+            senderName: sender.name,
+            senderEmail: sender.email,
+            senderProviderType: sender.providerType,
+            subject: subj,
+            body,
+            htmlBody,
+            scheduleMode: mode,
+            scheduledAt: schedDate.toISOString(),
+            scheduledLocal: schedDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+            stepGapLabel: idx === 0 ? 'Kirim Pertama (0m)' : mode === 'blast' ? '+1 detik (Blast)' : `+${(stepMs / 60000).toFixed(1)} menit`,
+            delayMinutesFromStart: Number((cumMs / 60000).toFixed(1))
+          };
+        });
+
+        const totalMins = currentQueue.length ? currentQueue[currentQueue.length - 1].delayMinutesFromStart : 0;
+        document.getElementById('metricTotalDuration').textContent = `${totalMins} Menit`;
+        renderQueueCards();
+      }
+
+      function updateQueueSelectedCount() {
+        const boxes = Array.from(els.queueContainer.querySelectorAll('.chk-queue-item'));
+        const checked = boxes.filter((b) => b.checked).length;
+        document.getElementById('selectedQueueCount').textContent = `${checked}/${boxes.length}`;
+        document.getElementById('chkSelectAllQueue').checked = boxes.length > 0 && checked === boxes.length;
+      }
+
+      function renderQueueCards() {
+        els.queueContainer.innerHTML = '';
+        currentQueue.forEach((item, idx) => {
+          const card = document.createElement('article');
+          card.className = 'article-card is-minimized';
+          card.id = `email-card-${idx}`;
+          card.innerHTML = `
+            <div class="article-card-header">
+              <div style="display:flex; align-items:flex-start; gap:0.75rem; flex:1; min-width:240px;">
+                <input type="checkbox" class="article-checkbox chk-queue-item" data-idx="${idx}" checked style="margin-top:4px;" />
+                <span class="article-num-badge">#${item.index}</span>
+                <div>
+                  <div style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">
+                    KE: ${item.recipientName} &lt;${item.recipientEmail}&gt; &bull; DARI: ${item.senderEmail} (${item.senderProviderType})
+                  </div>
+                  <h3 style="margin:2px 0 0; font-size:0.96rem;">${item.subject}</h3>
+                </div>
+              </div>
+              <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+                <span class="badge ${item.scheduleMode === 'blast' ? 'badge-warn' : 'badge-pass'}">
+                  &#9201; ${item.scheduledLocal} (${item.stepGapLabel})
+                </span>
+                <button type="button" class="btn btn-secondary btn-sm btn-copy-email" data-idx="${idx}">&#128203; Salin</button>
+                <button type="button" class="btn btn-primary btn-sm btn-toggle-email" data-idx="${idx}">&#9662; Buka Detail</button>
+              </div>
+            </div>
+            <div class="article-card-body">
+              <div style="font-size:0.85rem; margin-bottom:0.75rem; color:var(--text-secondary);">
+                <strong>Pengirim:</strong> ${item.senderName} &lt;${item.senderEmail}&gt; [${item.senderProviderType}]<br/>
+                <strong>Penerima:</strong> ${item.recipientName} &lt;${item.recipientEmail}&gt; (${item.cityArea})<br/>
+                <strong>Jadwal Kirim:</strong> ${item.scheduledAt} (${item.stepGapLabel})
+              </div>
+              <div class="article-rendered-view">${item.htmlBody}</div>
+            </div>
+          `;
+          els.queueContainer.appendChild(card);
+        });
+
+        updateQueueSelectedCount();
+        els.queueContainer.querySelectorAll('.chk-queue-item').forEach((c) => c.addEventListener('change', updateQueueSelectedCount));
+        els.queueContainer.querySelectorAll('.btn-toggle-email').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const card = document.getElementById(`email-card-${btn.dataset.idx}`);
+            const min = card.classList.toggle('is-minimized');
+            btn.innerHTML = min ? '&#9662; Buka Detail' : '&#9652; Minimize';
+          });
+        });
+        els.queueContainer.querySelectorAll('.btn-copy-email').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const item = currentQueue[Number(btn.dataset.idx)];
+            if (!item) return;
+            window.LocalSpinClient.clientCopyText(`Subject: ${item.subject}\n\n${item.body}`);
+            const orig = btn.textContent;
+            btn.textContent = '✓ Tersalin!';
+            setTimeout(() => (btn.textContent = orig), 1600);
+          });
+        });
+      }
+
+      document.querySelectorAll('input[name="scheduleMode"]').forEach((r) => {
+        r.addEventListener('change', () => {
+          els.dripBox.style.display = r.value === 'blast' && r.checked ? 'none' : 'grid';
+          computeClientQueue();
+        });
+      });
+
+      document.getElementById('chkSelectAllQueue').addEventListener('change', (e) => {
+        els.queueContainer.querySelectorAll('.chk-queue-item').forEach((c) => (c.checked = e.target.checked));
+        updateQueueSelectedCount();
+      });
+      document.getElementById('btnExpandAllQueue').addEventListener('click', () => {
+        els.queueContainer.querySelectorAll('.article-card').forEach((c) => c.classList.remove('is-minimized'));
+        els.queueContainer.querySelectorAll('.btn-toggle-email').forEach((b) => (b.innerHTML = '&#9652; Minimize'));
+      });
+      document.getElementById('btnMinimizeAllQueue').addEventListener('click', () => {
+        els.queueContainer.querySelectorAll('.article-card').forEach((c) => c.classList.add('is-minimized'));
+        els.queueContainer.querySelectorAll('.btn-toggle-email').forEach((b) => (b.innerHTML = '&#9662; Buka Detail'));
+      });
+
+      document.getElementById('btnPresetEnJp').addEventListener('click', () => {
+        els.subject.value = PRESET_EN_JP.subject;
+        els.body.value = PRESET_EN_JP.body;
+        computeClientQueue();
+      });
+      document.getElementById('btnPresetId').addEventListener('click', () => {
+        els.subject.value = PRESET_ID.subject;
+        els.body.value = PRESET_ID.body;
+        computeClientQueue();
+      });
+      document.getElementById('btnLoadJapanRecipients').addEventListener('click', () => {
+        els.recipients.value = DEFAULT_JAPAN_RECIPIENTS.join('\n');
+        computeClientQueue();
+      });
+
+      document.getElementById('emailOutreachForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        computeClientQueue();
+      });
+
+      document.getElementById('btnSaveQueueServer').addEventListener('click', async () => {
+        const recipients = parseRecipients();
+        const mode = document.querySelector('input[name="scheduleMode"]:checked').value;
+        try {
+          const resp = await fetch('/api/v1/email-campaigns', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-User-Id': 'usr_owner_a',
+              'X-Workspace-Id': 'wks_nusantara'
+            },
+            body: JSON.stringify({
+              recipients,
+              senders: sendersList,
+              subjectSpintax: els.subject.value,
+              bodySpintax: els.body.value,
+              commodity: els.commodity.value,
+              companyName: els.company.value,
+              senderWhatsapp: els.wa.value,
+              scheduleMode: mode,
+              minDelayMinutes: Number(els.minDelay.value),
+              maxDelayMinutes: Number(els.maxDelay.value),
+              senderRotation: els.rotation.value,
+              includeUnsubscribe: els.unsubscribe.checked
+            })
+          });
+          const data = await resp.json();
+          if (resp.ok) {
+            els.statusNote.innerHTML = `<strong style="color:var(--status-pass-text);">Tersimpan di Server (${data.emailCampaignId}):</strong> ${data.summary.totalQueued} email dijadwalkan (${data.summary.executionMode}).`;
+          } else {
+            els.statusNote.textContent = `Gagal simpan: ${data.message}`;
+          }
+        } catch {
+          els.statusNote.innerHTML = '<span style="color:#b45309;">Mode File Statis: Antrean telah siap diekspor ke CSV/JSON. Jalankan <code>node src/server.js</code> untuk menyimpan ke database SQLite.</span>';
+        }
+      });
+
+      document.getElementById('btnExportQueueCsv').addEventListener('click', () => {
+        const selected = Array.from(els.queueContainer.querySelectorAll('.chk-queue-item'))
+          .filter((c) => c.checked)
+          .map((c) => currentQueue[Number(c.dataset.idx)])
+          .filter(Boolean);
+        if (!selected.length) return;
+        const cols = ['No', 'Nama_Usaha', 'Email_Tujuan', 'Kota_Daerah', 'Email_Pengirim', 'Jenis_Pengirim', 'Jadwal_Kirim_UTC', 'Jeda', 'Subjek_Unik', 'Isi_Email_Unik'];
+        const rows = selected.map((q) => [
+          q.index, q.recipientName, q.recipientEmail, q.cityArea, q.senderEmail, q.senderProviderType, q.scheduledAt, q.stepGapLabel, q.subject, q.body
+        ]);
+        const csv = window.LocalSpinClient.buildCleanCsvString(cols, rows);
+        window.LocalSpinClient.clientDownloadFile(`email-outreach-schedule-${Date.now()}.csv`, csv, 'text/csv;charset=utf-8;');
+      });
+
+      document.getElementById('btnExportQueueJson').addEventListener('click', () => {
+        const selected = Array.from(els.queueContainer.querySelectorAll('.chk-queue-item'))
+          .filter((c) => c.checked)
+          .map((c) => currentQueue[Number(c.dataset.idx)])
+          .filter(Boolean);
+        if (!selected.length) return;
+        window.LocalSpinClient.clientDownloadFile(`email-outreach-schedule-${Date.now()}.json`, JSON.stringify(selected, null, 2), 'application/json');
+      });
+
+      // Boot: Load selected leads from Lead Finder if available, else Japan Coffee Shop demo
+      const pasteLeadsStatusEl = document.getElementById('pasteLeadsStatus');
+      function loadScrapedMapsLeadsIntoRecipients(isManualClick = false) {
+        const selectedLeads = JSON.parse(localStorage.getItem('localspin_selected_leads_for_email') || 'null');
+        const latestLeads = JSON.parse(localStorage.getItem('localspin_latest_scraped_leads') || 'null');
+        const sourceLeads = (Array.isArray(selectedLeads) && selectedLeads.length > 0)
+          ? selectedLeads
+          : (Array.isArray(latestLeads) && latestLeads.length > 0 ? latestLeads : []);
+        const validEmailLeads = sourceLeads.filter((l) => l && l.email && String(l.email).includes('@'));
+        if (validEmailLeads.length > 0) {
+          els.recipients.value = validEmailLeads
+            .map((l) => `${l.name} | ${l.email} | ${l.address || 'Japan'}`)
+            .join('\n');
+          if (isManualClick) {
+            if (pasteLeadsStatusEl) {
+              pasteLeadsStatusEl.style.display = 'block';
+              pasteLeadsStatusEl.style.color = '#15803d';
+              pasteLeadsStatusEl.textContent = `Berhasil menempel ${validEmailLeads.length} penerima ber-email dari hasil scrape Google Maps.`;
+            }
+            computeClientQueue();
+          }
+          return true;
+        }
+        if (isManualClick && pasteLeadsStatusEl) {
+          pasteLeadsStatusEl.style.display = 'block';
+          pasteLeadsStatusEl.style.color = '#b45309';
+          pasteLeadsStatusEl.textContent = 'Belum ada hasil scrape Google Maps yang memiliki email. Buka halaman Lead Finder Maps, lalu jalankan scrape atau centang data terlebih dahulu.';
+        }
+        return false;
+      }
+
+      const btnPasteScrapedLeads = document.getElementById('btnPasteScrapedLeads');
+      if (btnPasteScrapedLeads) {
+        btnPasteScrapedLeads.addEventListener('click', () => loadScrapedMapsLeadsIntoRecipients(true));
+      }
+
+      if (!loadScrapedMapsLeadsIntoRecipients(false)) {
+        els.recipients.value = DEFAULT_JAPAN_RECIPIENTS.join('\n');
+      }
+
+      // Pop-Up Wide Editor Modal for Email Spintax
+      const modalEmail = document.getElementById('modalEmailSpintax');
+      const modalEmailSubj = document.getElementById('modalEmailSubject');
+      const modalEmailBody = document.getElementById('modalEmailBody');
+
+      document.getElementById('btnOpenEmailSpintaxPopup').addEventListener('click', () => {
+        modalEmailSubj.value = els.subject.value;
+        modalEmailBody.value = els.body.value;
+        modalEmail.classList.add('is-open');
+        modalEmailBody.focus();
+      });
+      document.getElementById('btnCloseEmailModal').addEventListener('click', () => modalEmail.classList.remove('is-open'));
+      document.getElementById('btnApplyEmailModal').addEventListener('click', () => {
+        els.subject.value = modalEmailSubj.value;
+        els.body.value = modalEmailBody.value;
+        computeClientQueue();
+        modalEmail.classList.remove('is-open');
+      });
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') modalEmail.classList.remove('is-open');
+      });
+
+      modalEmail.addEventListener('click', (e) => {
+        if (e.target === modalEmail) modalEmail.classList.remove('is-open');
+      });
+
+      if (window.LocalSpinClient && window.LocalSpinClient.initWorkspaceLayoutControls) {
+        window.LocalSpinClient.initWorkspaceLayoutControls({ storageKey: 'localspin_email_sidebar_width' });
+        window.LocalSpinClient.initQuickGuideAndScrollTop();
+      }
+      els.subject.value = PRESET_EN_JP.subject;
+      els.body.value = PRESET_EN_JP.body;
+      renderSenders();
+      computeClientQueue();
+
+      // B2B Email Prompting Quiz & 5-Section Modular Builder
+      const {
+        EMAIL_PROMPT_SECTIONS_SPEC,
+        buildEmailPromptFramework,
+        generateStructured5EmailParts,
+        parseChatbotInto5EmailParts
+      } = window.LocalSpinClient;
+
+      let current5EmailParts = {};
+
+      function getEmailQuizCfg() {
+        return {
+          commodity: document.getElementById('emailQuizCommodity').value || els.commodity.value,
+          targetMarket: document.getElementById('emailQuizTargetMarket').value,
+          usp: document.getElementById('emailQuizUsp').value,
+          emailGoal: document.getElementById('emailQuizGoal').value,
+          tone: document.getElementById('emailQuizTone').value,
+          language: document.getElementById('emailQuizLanguage').value
+        };
+      }
+
+      function refreshEmailMasterPromptUI() {
+        const fw = buildEmailPromptFramework(getEmailQuizCfg());
+        document.getElementById('textareaEmailMasterPrompt').value = fw.master;
+      }
+
+      function render5EmailPartsGrid() {
+        const grid = document.getElementById('modular5EmailPartsGrid');
+        grid.innerHTML = '';
+        EMAIL_PROMPT_SECTIONS_SPEC.forEach((spec) => {
+          const box = document.createElement('div');
+          box.style.cssText = 'border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.55rem; background: #f8fafc; display: flex; flex-direction: column; gap: 0.3rem;';
+          box.innerHTML = `
+            <strong style="font-size: 0.78rem; color: #1e3a8a;">${spec.num}. ${spec.title}</strong>
+            <div style="font-size: 0.71rem; color: var(--text-muted);">${spec.instruction}</div>
+            <textarea id="email-part-${spec.id}" class="form-control" rows="${spec.id === 'e1_subject' ? 2 : 3}" style="font-size: 0.8rem;"></textarea>
+          `;
+          grid.appendChild(box);
+          const ta = box.querySelector('textarea');
+          ta.value = current5EmailParts[spec.id] || '';
+          ta.addEventListener('input', () => {
+            current5EmailParts[spec.id] = ta.value;
+            merge5EmailPartsToEditor();
+          });
+        });
+      }
+
+      function merge5EmailPartsToEditor() {
+        EMAIL_PROMPT_SECTIONS_SPEC.forEach((spec) => {
+          const el = document.getElementById(`email-part-${spec.id}`);
+          if (el) current5EmailParts[spec.id] = el.value;
+        });
+        if (current5EmailParts.e1_subject) {
+          els.subject.value = current5EmailParts.e1_subject.trim();
+        }
+        const bodyParts = ['e2_greeting', 'e3_value', 'e4_proof', 'e5_cta']
+          .map((k) => String(current5EmailParts[k] || '').trim())
+          .filter(Boolean);
+        if (bodyParts.length) {
+          els.body.value = bodyParts.join('\n\n');
+        }
+        computeClientQueue();
+      }
+
+      ['emailQuizCommodity', 'emailQuizTargetMarket', 'emailQuizUsp', 'emailQuizGoal', 'emailQuizTone', 'emailQuizLanguage'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const fn = () => {
+          if (id === 'emailQuizCommodity') els.commodity.value = el.value;
+          refreshEmailMasterPromptUI();
+        };
+        el.addEventListener('input', fn);
+        el.addEventListener('change', fn);
+      });
+
+      document.getElementById('btnCopyEmailPrompt').addEventListener('click', () => {
+        window.LocalSpinClient.clientCopyText(document.getElementById('textareaEmailMasterPrompt').value);
+        const btn = document.getElementById('btnCopyEmailPrompt');
+        const orig = btn.innerHTML;
+        btn.textContent = '✓ Prompt Tersalin!';
+        setTimeout(() => (btn.innerHTML = orig), 1600);
+      });
+
+      document.getElementById('btnParseEmailChatbot').addEventListener('click', () => {
+        const raw = document.getElementById('textareaPasteEmailChatbot').value;
+        current5EmailParts = parseChatbotInto5EmailParts(raw, getEmailQuizCfg());
+        render5EmailPartsGrid();
+        merge5EmailPartsToEditor();
+      });
+
+      document.getElementById('btnAutoFill5EmailParts').addEventListener('click', () => {
+        current5EmailParts = generateStructured5EmailParts(getEmailQuizCfg());
+        render5EmailPartsGrid();
+        merge5EmailPartsToEditor();
+      });
+
+      document.getElementById('btnMerge5EmailParts').addEventListener('click', () => {
+        merge5EmailPartsToEditor();
+      });
+
+      current5EmailParts = generateStructured5EmailParts(getEmailQuizCfg());
+      render5EmailPartsGrid();
+      refreshEmailMasterPromptUI();
+    })();
+  </script>
+</body>
+</html>
