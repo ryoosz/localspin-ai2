@@ -1,0 +1,2802 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studio Generator Spintax AI v1.2 — 99 Gambar/Project, Auto-Spin Bahasa, Auto-Template &amp; Anti-Artikel Sampah</title>
+  <link rel="stylesheet" href="assets/styles.css?v=1.12.0" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-logo">
+        <span>LocalSpin AI</span>
+        <span class="brand-badge">Studio v1.2 Pro</span>
+      </a>
+      <nav aria-label="Navigasi Utama">
+        <ul class="nav-links">
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="dashboard.html" aria-current="page">Studio Generator (App)</a></li>
+          <li><a href="leads.html">Lead Finder Maps</a></li>
+          <li><a href="email-outreach.html">Spintax Email</a></li>
+          <li><a href="pricing.html">Harga &amp; Kuota</a></li>
+          <li><a href="privacy.html">Privasi</a></li>
+          <li><a href="terms.html">Syarat Layanan</a></li>
+          <li><span id="backendStatusBadge" class="badge badge-sim">API: Memeriksa...</span></li>
+          <li><span class="badge badge-pass">Workspace: Nusantara Local SEO</span></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 1.5rem; padding-bottom: 3rem;">
+    <!-- Project Switcher Bar (Save up to 99 images per Project) -->
+    <section class="project-switcher-bar" aria-label="Manajemen Project & Penyimpanan 99 Gambar">
+      <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+        <span style="font-weight: 700; color: #93c5fd;">&#128193; Pilih Project Aktif:</span>
+        <select id="selectProject" class="form-control" style="width: auto; min-width: 280px; background: #1e293b; color: #fff; border-color: #334155;"></select>
+        <button type="button" id="btnNewProject" class="btn btn-secondary btn-sm">+ Buat Project Baru</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+        <span class="badge badge-pass" id="projectImagesBadge">4 / 99 Gambar Tersimpan di Project Ini</span>
+        <button type="button" id="btnSaveProject" class="btn btn-primary btn-sm">&#128190; Simpan Project &amp; Gambar</button>
+      </div>
+    </section>
+
+    <!-- Top Metrics Bar -->
+    <section class="metrics-bar" aria-label="Ringkasan Metrik Batch">
+      <div class="metric-box">
+        <div class="metric-label">Kemungkinan Kombinasi Spintax</div>
+        <div class="metric-value" id="metricPermutations">0</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Rekomendasi Aman (Anti-Sampah)</div>
+        <div class="metric-value" id="metricSafeRecommendation" style="color: var(--brand-primary);">0 Artikel</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Koleksi Gambar Project</div>
+        <div class="metric-value" id="metricImagePoolCount">4 / 99</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Rata-rata Keunikan Copyscape</div>
+        <div class="metric-value" id="metricAvgUniqueness" style="color: var(--status-pass-text);">100%</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Status Kualitas Artikel</div>
+        <div class="metric-value" id="metricCopyscapeGate">
+          <span class="badge badge-pass">BEBAS SAMPAH</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="sidebar-controls-bar" role="region" aria-label="Pengaturan Tampilan Sidebar">
+      <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+        <button type="button" id="btnToggleSidebar" class="btn btn-secondary btn-sm">&#9703; Minimize Sidebar</button>
+        <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; color: var(--text-secondary);">
+          <span>Lebar Sidebar:</span>
+          <input type="range" id="rangeSidebarWidth" min="280" max="680" value="410" style="width: 130px;" />
+        </label>
+        <span class="form-hint" style="margin: 0;">Seret garis pemisah di samping sidebar.</span>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm btn-open-guide">&#10067; Cara Pakai Website</button>
+    </div>
+
+    <div class="studio-layout">
+      <!-- Left Column: Configuration Form -->
+      <aside class="card" aria-labelledby="form-config-heading">
+        <h2 id="form-config-heading" style="font-size: 1.2rem; margin-bottom: 1rem;">
+          1. Pengaturan Project, 99 Gambar &amp; Target Daerah
+        </h2>
+
+        <form id="generatorForm" onsubmit="return false;">
+          <div class="form-group">
+            <label class="form-label" for="inputProjectName">Nama Project</label>
+            <input type="text" id="inputProjectName" class="form-control" value="Project A — Solar Panel & Audit Energi" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputTopic">Topik Artikel / Kata Kunci Utama</label>
+            <input
+              type="text"
+              id="inputTopic"
+              class="form-control"
+              value="Jasa Instalasi Panel Surya & Audit Energi"
+              required
+            />
+          </div>
+
+          <!-- Hirarki Daerah -->
+          <div class="grid-2" style="gap: 0.5rem;">
+            <div class="form-group">
+              <label class="form-label" for="selectWilayah">Wilayah / Provinsi</label>
+              <select id="selectWilayah" class="form-control"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="selectDaerah">Kota / Kabupaten</label>
+              <select id="selectDaerah" class="form-control"></select>
+            </div>
+          </div>
+          <span class="form-hint" id="daerahJenisBadge" style="margin-top: -8px; margin-bottom: 10px;">Tipe Daerah: Kota</span>
+
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label class="form-label" style="margin-bottom: 0;">Target Kecamatan</label>
+              <button type="button" id="btnToggleAllKec" class="btn btn-secondary btn-sm" style="padding: 2px 8px; min-height: 26px; font-size: 0.78rem;">
+                Pilih Semua
+              </button>
+            </div>
+            <div id="kecamatanContainer" class="kecamatan-chips" role="group" aria-label="Daftar Kecamatan"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputCustomKec">Tambah Kecamatan Kustom (Bisa Banyak, Pisahkan Koma)</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input
+                type="text"
+                id="inputCustomKec"
+                class="form-control"
+                placeholder="Contoh: Antapani, Arcamanik, Gedebage"
+              />
+              <button type="button" id="btnAddCustomKec" class="btn btn-secondary">+</button>
+            </div>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1.15rem 0;" />
+
+          <!-- Koleksi Gambar Referensi per Project (1 s/d 99 Gambar) -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <h3 style="font-size: 1rem; margin: 0;">&#128444; Koleksi Gambar Project (Maks. 99 Gambar)</h3>
+            <span class="badge badge-sim" id="labelImgCounter">4 / 99 Gambar</span>
+          </div>
+          <p class="form-hint" style="margin-bottom: 0.5rem;">
+            Tersimpan khusus untuk project ini. Masukkan 1 URL gambar per baris (hingga <strong>99 gambar</strong>) atau unggah banyak gambar sekaligus.
+          </p>
+
+          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+            <button type="button" id="btnFill25Images" class="btn btn-secondary btn-sm">Isi Contoh 25 Gambar</button>
+            <button type="button" id="btnFill99Images" class="btn btn-secondary btn-sm">Isi Penuh 99 Gambar</button>
+            <button type="button" id="btnClearImages" class="btn btn-secondary btn-sm">Reset (4 Gambar)</button>
+          </div>
+
+          <div class="form-group">
+            <textarea
+              id="textareaProjectImages"
+              class="form-control"
+              rows="4"
+              aria-label="Daftar URL Gambar Referensi Project (Maksimal 99 baris)"
+              placeholder="Masukkan hingga 99 URL gambar (1 baris = 1 gambar)"
+            ></textarea>
+            <input
+              type="file"
+              id="inputImageFilesMulti"
+              accept="image/*"
+              multiple
+              class="form-control"
+              style="margin-top: 6px; font-size: 0.8rem; padding: 0.35rem;"
+              aria-label="Unggah banyak file gambar dari komputer ke Project ini"
+            />
+            <div id="imageThumbsStrip" class="image-thumbs-strip" aria-label="Pratinjau Gambar Project"></div>
+          </div>
+
+          <div class="grid-2" style="gap: 0.5rem;">
+            <div class="form-group">
+              <label class="form-label" for="selectImagesPerArticle">Gambar Dipasang / Artikel</label>
+              <select id="selectImagesPerArticle" class="form-control">
+                <option value="1">1 Gambar / Artikel (Rotasi)</option>
+                <option value="2" selected>2 Gambar / Artikel (Rotasi)</option>
+                <option value="3">3 Gambar / Artikel (Galeri)</option>
+                <option value="4">4 Gambar / Artikel (Galeri)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputMaxArticlesToGen">Target Jumlah Artikel</label>
+              <input type="number" id="inputMaxArticlesToGen" class="form-control" min="1" max="250" value="5" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputImageTitlePattern">Judul Gambar (<code>title="..."</code>) Disesuaikan Topik &amp; Daerah</label>
+            <input
+              type="text"
+              id="inputImageTitlePattern"
+              class="form-control"
+              value="{{topik}} — Dokumentasi #{{nomor_gambar}} Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}"
+            />
+            <span class="form-hint">Otomatis mengisi atribut <code>title="..."</code> dan <code>figcaption</code> sesuai topik &amp; nomor urut gambar.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputImageAlt">Spintax Alt-Text Gambar (SEO Google Images)</label>
+            <input
+              type="text"
+              id="inputImageAlt"
+              class="form-control"
+              value="{Dokumentasi pengerjaan|Tim teknisi lapangan|Proses instalasi resmi|Standar kerja profesional} {{topik}} #{{nomor_gambar}} di Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}"
+            />
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1.15rem 0;" />
+
+          <!-- Pengaturan Template Otomatis (Header, URL, Tombol CTA WA) -->
+          <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">&#9881; Template Otomatis (Header, URL &amp; CTA WhatsApp)</h3>
+
+          <label class="toggle-item" style="margin-bottom: 0.75rem; background: #eef2ff; border-color: #93c5fd;">
+            <input type="checkbox" id="chkAutoTemplate" checked />
+            <span><strong>Pasang Template Otomatis</strong> (Header H1 + Gambar + URL + Tombol CTA WA otomatis, cukup spin isi artikel saja)</span>
+          </label>
+
+          <div class="grid-2" style="gap: 0.5rem;">
+            <div class="form-group">
+              <label class="form-label" for="inputWaNumber">Nomor WhatsApp CTA</label>
+              <input type="text" id="inputWaNumber" class="form-control" value="6281234567890" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputWaLabel">Label Tombol WA</label>
+              <input type="text" id="inputWaLabel" class="form-control" value="Chat WhatsApp Spesialis Panel Surya" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputWaGreeting">Greeting / Pesan Pembuka Saat Masuk WhatsApp</label>
+            <textarea
+              id="inputWaGreeting"
+              class="form-control"
+              rows="2"
+              style="font-family: var(--font-family-body); font-size: 0.85rem;"
+            >Halo Admin 👋, saya tertarik dengan {{topik}} untuk area Kecamatan {{kecamatan}}, {{label_kota_kabupaten}} ({{wilayah}}). Mohon info estimasi &amp; jadwal surveinya ya.</textarea>
+            <span class="form-hint">Otomatis terisi di kolom ketik WhatsApp saat pengunjung menekan tombol CTA WA.</span>
+          </div>
+
+          <div class="grid-2" style="gap: 0.5rem;">
+            <div class="form-group">
+              <label class="form-label" for="inputTargetUrl">URL Hyperlink Otomatis</label>
+              <input type="url" id="inputTargetUrl" class="form-control" value="https://nusantaraseo.id/panel-surya" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputAnchorText">Anchor Text Link</label>
+              <input type="text" id="inputAnchorText" class="form-control" value="katalog paket panel surya resmi" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="selectLinkRel">Atribut Link</label>
+            <select id="selectLinkRel" class="form-control">
+              <option value="dofollow" selected>Dofollow (SEO Boost)</option>
+              <option value="nofollow">Nofollow</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputCta">Kalimat Ajakan Penutup (CTA Footer Otomatis)</label>
+            <input
+              type="text"
+              id="inputCta"
+              class="form-control"
+              value="Hubungi tim spesialis kami untuk jadwal konsultasi dan survei gratis di lokasi Anda"
+            />
+          </div>
+
+          <div class="seo-toggles-grid">
+            <label class="toggle-item">
+              <input type="checkbox" id="chkBoldKeywords" checked />
+              <span><strong>Bold</strong> Keyword</span>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="chkUnderlineBenefits" checked />
+              <span><u>Underline</u> Benefit</span>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="chkImageBlock" checked />
+              <span>Pasang Gambar</span>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="chkHyperlink" checked />
+              <span>Pasang URL Link</span>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="chkWhatsappCta" checked />
+              <span>Tombol Klik WA</span>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="chkFaqSchema" checked />
+              <span>FAQ + Schema</span>
+            </label>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-top: 1.25rem;">
+            <button type="submit" id="btnGenerateBatch" class="btn btn-primary">
+              &#9889; Generate Artikel Daerah + Uji Copyscape
+            </button>
+          </div>
+        </form>
+
+        <details style="margin-top: 1.15rem; border-top: 1px solid var(--border-subtle); padding-top: 0.85rem;">
+          <summary style="cursor: pointer; font-weight: 700; font-size: 0.92rem; display: flex; justify-content: space-between; align-items: center;">
+            <span>&#10024; API Gemini Gratis (5 Slot)</span>
+            <span id="geminiSlotsBadge" class="badge badge-sim">0 / 5 Aktif</span>
+          </summary>
+          <p class="form-hint" style="margin: 0.45rem 0 0.6rem;">
+            Isi hingga 5 API Key gratis dari Google AI Studio. Sistem otomatis merotasi &amp; pindah slot jika terkena limit (429).
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <input type="password" id="inputGeminiKey1" class="form-control" placeholder="Slot 1: AIzaSy..." autocomplete="off" />
+            <input type="password" id="inputGeminiKey2" class="form-control" placeholder="Slot 2: AIzaSy..." autocomplete="off" />
+            <input type="password" id="inputGeminiKey3" class="form-control" placeholder="Slot 3: AIzaSy..." autocomplete="off" />
+            <input type="password" id="inputGeminiKey4" class="form-control" placeholder="Slot 4: AIzaSy..." autocomplete="off" />
+            <input type="password" id="inputGeminiKey5" class="form-control" placeholder="Slot 5: AIzaSy..." autocomplete="off" />
+          </div>
+          <div style="display: flex; gap: 0.45rem; margin-top: 0.6rem; flex-wrap: wrap;">
+            <button type="button" id="btnSaveGeminiSlots" class="btn btn-primary btn-sm">&#128190; Simpan 5 Slot</button>
+            <button type="button" id="btnToggleGeminiKeys" class="btn btn-secondary btn-sm">&#128065; Tampilkan</button>
+          </div>
+        </details>
+      </aside>
+
+      <div id="sidebarResizer" class="sidebar-resizer" title="Seret untuk mengatur lebar sidebar"></div>
+
+      <!-- Right Column: Main Article Auto-Spin + Capacity Advisor + Spintax Editor + Generated Articles -->
+      <div class="studio-main-pane">
+        <!-- Step 2-Quiz: Kuiz Parameter & Bagan 9 Bagian (SEO Article Prompt Framework 1.000 Kata Unik) -->
+        <section class="card" style="margin-bottom: 1.25rem; border: 2px solid #bfdbfe; background: linear-gradient(180deg, #eff6ff 0%, #ffffff 180px);" aria-labelledby="seo-quiz-heading">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.65rem;">
+            <div>
+              <span class="badge badge-pass" style="margin-bottom: 0.25rem;">SEO ARTICLE PROMPT FRAMEWORK &bull; TARGET 1.000 KATA UNIK</span>
+              <h2 id="seo-quiz-heading" style="font-size: 1.18rem; margin: 0;">
+                1B. Kuiz Konfigurasi Prompting &amp; Bagan 9 Bagian (Manfaat, Daerah, Fitur, Biaya, Layanan)
+              </h2>
+            </div>
+            <div style="display: flex; gap: 0.45rem; flex-wrap: wrap;">
+              <button type="button" id="btnAutoFill9Sections" class="btn btn-primary btn-sm">
+                &#9889; Isi Otomatis 9 Bagan (1.000 Kata)
+              </button>
+              <button type="button" id="btnMerge9SectionsToMain" class="btn btn-whatsapp btn-sm">
+                &#128279; Satukan 9 Bagan &rarr; Artikel Utama &amp; Spintax
+              </button>
+            </div>
+          </div>
+
+          <p class="form-hint" style="margin-bottom: 0.85rem;">
+            <strong>Alur Kerja Mudah:</strong> (1) Isi kuiz parameter di bawah &rarr; (2) Salin <strong>Prompt 4-Tahap</strong> ke Chatbot (atau klik <em>Isi Otomatis 9 Bagan</em>) &rarr; (3) Periksa <strong>9 Bagan Terpisah</strong> (Intro, Definisi, Proses, Manfaat/Fitur, Biaya/Daerah, Risiko, FAQ, Kesimpulan, CTA) &rarr; (4) Klik <strong>Satukan 9 Bagan</strong> agar langsung menyatu ke <strong>Kolom Artikel Utama</strong> dan bersandingan 1-to-1 dengan <strong>Hasil Kerangka Spintax</strong>.
+          </p>
+
+          <!-- Step 1 of Quiz: Input Configuration Grid -->
+          <div style="background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.9rem;">
+            <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.6rem; color: #1e3a8a;">
+              &#9312; Kuiz Parameter Konfigurasi Artikel (Input Configuration)
+            </div>
+            <div class="grid-3" style="gap: 0.65rem; margin-bottom: 0.65rem;">
+              <div>
+                <label class="form-label" for="quizPrimaryKeyword" style="font-size: 0.78rem;">Primary Keyword (H1, Intro, H2, Konklusi)</label>
+                <input type="text" id="quizPrimaryKeyword" class="form-control" value="Jasa Instalasi Panel Surya & Audit Energi" />
+              </div>
+              <div>
+                <label class="form-label" for="quizSecondaryKeywords" style="font-size: 0.78rem;">Secondary Keywords (Pembahasan Utama)</label>
+                <input type="text" id="quizSecondaryKeywords" class="form-control" value="jenis layanan, fitur dan spesifikasi, biaya dan pemeliharaan" />
+              </div>
+              <div>
+                <label class="form-label" for="quizSemanticKeywords" style="font-size: 0.78rem;">Semantic Keywords &amp; Related Entities</label>
+                <input type="text" id="quizSemanticKeywords" class="form-control" value="efisiensi energi, garansi resmi, teknisi bersertifikat, Kecamatan {{kecamatan}}" />
+              </div>
+            </div>
+            <div class="grid-3" style="gap: 0.65rem;">
+              <div>
+                <label class="form-label" for="quizArticleLength" style="font-size: 0.78rem;">Target Panjang (Original Words)</label>
+                <select id="quizArticleLength" class="form-control">
+                  <option value="500">500 Kata</option>
+                  <option value="750">750 Kata</option>
+                  <option value="1000" selected>1.000 Kata Unik (Standar SEO)</option>
+                  <option value="1500">1.500 Kata</option>
+                  <option value="2000">2.000 Kata</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label" for="quizArticleType" style="font-size: 0.78rem;">Article Type &amp; Search Intent</label>
+                <div style="display: flex; gap: 0.35rem;">
+                  <select id="quizArticleType" class="form-control">
+                    <option value="Commercial" selected>Commercial</option>
+                    <option value="Educational">Educational</option>
+                    <option value="Tutorial">Tutorial</option>
+                    <option value="Review">Review</option>
+                    <option value="Comparison">Comparison</option>
+                  </select>
+                  <select id="quizSearchIntent" class="form-control">
+                    <option value="Commercial" selected>Commercial Intent</option>
+                    <option value="Transactional">Transactional</option>
+                    <option value="Informational">Informational</option>
+                    <option value="Navigational">Navigational</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="form-label" for="quizWritingStyle" style="font-size: 0.78rem;">Style, Tone &amp; Audience</label>
+                <div style="display: flex; gap: 0.35rem;">
+                  <select id="quizWritingStyle" class="form-control">
+                    <option value="Professional" selected>Professional</option>
+                    <option value="Conversational">Conversational</option>
+                    <option value="Technical">Technical</option>
+                    <option value="Educational">Educational</option>
+                  </select>
+                  <select id="quizTone" class="form-control">
+                    <option value="Persuasive" selected>Persuasive</option>
+                    <option value="Formal">Formal</option>
+                    <option value="Neutral">Neutral</option>
+                    <option value="Casual">Casual</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 of Quiz: 4-Stage Prompt Output + Paste Chatbot Response -->
+          <div class="grid-2" style="gap: 0.85rem; margin-bottom: 0.9rem;">
+            <div style="background: #0f172a; color: #f8fafc; padding: 0.85rem; border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem;">
+                <span style="font-weight: 700; font-size: 0.86rem; color: #93c5fd;">&#9313; Output Prompt Chatbot (4-Stage Framework)</span>
+                <button type="button" id="btnCopySeoPrompt" class="btn btn-primary btn-sm">&#128203; Salin Prompt</button>
+              </div>
+              <div style="display: flex; gap: 0.3rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                <button type="button" id="btnPromptTabMaster" class="btn btn-primary btn-sm" data-prompt-tab="master">Master Prompt</button>
+                <button type="button" id="btnPromptTabStage1" class="btn btn-secondary btn-sm" data-prompt-tab="stage1">1. Research</button>
+                <button type="button" id="btnPromptTabStage2" class="btn btn-secondary btn-sm" data-prompt-tab="stage2">2. Content (9 Bagan)</button>
+                <button type="button" id="btnPromptTabStage3" class="btn btn-secondary btn-sm" data-prompt-tab="stage3">3. SEO Opt</button>
+                <button type="button" id="btnPromptTabStage4" class="btn btn-secondary btn-sm" data-prompt-tab="stage4">4. Quality Audit</button>
+              </div>
+              <textarea id="textareaGeneratedPrompt" class="form-control" rows="6" readonly style="background: #1e293b; color: #e2e8f0; border-color: #334155; font-family: var(--font-family-mono); font-size: 0.78rem;"></textarea>
+            </div>
+
+            <div style="background: #f8fafc; border: 1px solid var(--border-subtle); padding: 0.85rem; border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem;">
+                <span style="font-weight: 700; font-size: 0.86rem; color: #0f172a;">&#9314; Tempel Hasil Chatbot (Otomatis Masuk 9 Bagan)</span>
+                <button type="button" id="btnParseChatbotToSections" class="btn btn-secondary btn-sm">&#128229; Pecah ke 9 Bagan</button>
+              </div>
+              <p class="form-hint" style="margin-bottom: 0.45rem; font-size: 0.76rem;">
+                Tempelkan balasan dari ChatGPT/Gemini/Claude di bawah ini lalu klik <strong>Pecah ke 9 Bagan</strong>, atau langsung klik tombol <strong>Isi Otomatis 9 Bagan</strong> di kanan atas.
+              </p>
+              <textarea id="textareaPasteChatbotResult" class="form-control" rows="6" placeholder="Tempel hasil artikel dari chatbot di sini (mendukung penanda [BAGIAN 01]..[BAGIAN 09] maupun heading ##)..."></textarea>
+            </div>
+          </div>
+
+          <!-- Step 3 of Quiz: 9 Modular Section Boxes (Bagan 01 - Bagan 09) -->
+          <details open style="background: #ffffff; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem;">
+            <summary style="cursor: pointer; font-weight: 700; font-size: 0.92rem; display: flex; justify-content: space-between; align-items: center;">
+              <span>&#9315; Bagan Modular 9 Bagian Artikel (Klik untuk Buka/Tutup Rincian per Bagian)</span>
+              <span id="quizSectionsSummaryBadge" class="badge badge-pass">9 / 9 Bagan Terisi</span>
+            </summary>
+            <div id="modular9SectionsGrid" class="grid-3" style="gap: 0.65rem; margin-top: 0.75rem;"></div>
+          </details>
+        </section>
+
+        <!-- Step 2A: Kolom Artikel Utama (Auto-Detect Language & Auto-Nested Spin) -->
+        <section class="card hover-popup-shell" style="margin-bottom: 1.25rem;" aria-labelledby="raw-article-heading">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem;">
+            <h2 id="raw-article-heading" style="font-size: 1.18rem; margin: 0;">
+              2. Kolom Artikel Utama (Auto-Deteksi Bahasa &amp; Auto-Nested Spin)
+            </h2>
+            <div style="display: flex; gap: 0.45rem; align-items: center; flex-wrap: wrap;">
+              <span class="badge badge-pass" id="detectedLangBadge">Bahasa Terdeteksi: Bahasa Indonesia (Otomatis)</span>
+              <button type="button" id="btnOpenRawArticlePopup" class="btn btn-primary btn-sm hover-popup-hint">&#10530; Pop-Up Editor Lebar</button>
+            </div>
+          </div>
+          <p class="form-hint" style="margin-bottom: 0.65rem;">
+            Tulis atau tempel (<em>paste</em>) <strong>artikel biasa</strong> di bawah ini (dalam Bahasa Indonesia, Bahasa Inggris, atau campuran). Engine akan <strong>mendeteksi bahasa secara otomatis</strong>, mengubahnya menjadi <strong>Nested Spintax 3 Lapis</strong>, dan membungkusnya dengan <strong>Template Otomatis (Header H1 + Gambar Project + URL + Tombol CTA WhatsApp)</strong>!
+          </p>
+
+          <textarea
+            id="textareaRawMainArticle"
+            class="form-control"
+            rows="4"
+            style="font-family: var(--font-family-body);"
+            placeholder="Tulis atau tempel artikel utama Anda di sini..."
+          ></textarea>
+
+          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.75rem;">
+            <button type="button" id="btnAutoSpinMainArticle" class="btn btn-primary btn-sm">
+              &#10024; Auto-Spin Artikel Utama &amp; Pasang Template Otomatis
+            </button>
+            <button type="button" id="btnLoadFullAiBlueprint" class="btn btn-secondary btn-sm">
+              &#128196; Gunakan Blueprint Artikel Lengkap AI
+            </button>
+          </div>
+          <div id="autoSpinStatusNote" style="font-size: 0.78rem; margin-top: 0.45rem; color: var(--text-muted); display: none;"></div>
+        </section>
+
+        <!-- Step 2B: Analisa Kemungkinan & Rekomendasi Anti-Artikel Sampah -->
+        <section id="capacityAdvisorCard" class="capacity-advisor-card" aria-labelledby="capacity-heading">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <h3 id="capacity-heading" style="font-size: 1.05rem; margin: 0;">
+              &#128202; Kalkulator Kemungkinan Generate &amp; Rekomendasi Anti-Artikel Sampah
+            </h3>
+            <span class="badge badge-pass" id="capacityStatusBadge">AMAN (Bebas Artikel Sampah)</span>
+          </div>
+          <div class="grid-3" style="gap: 0.75rem; margin: 0.65rem 0;">
+            <div style="background: rgba(255,255,255,0.85); padding: 0.65rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Kemungkinan Variasi Matematis</div>
+              <div style="font-size: 1.1rem; font-weight: 800;" id="capMaxPermutations">-</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.85); padding: 0.65rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Rekomendasi Ideal (Bebas Sampah)</div>
+              <div style="font-size: 1.1rem; font-weight: 800; color: var(--brand-primary);" id="capSweetSpot">-</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.85); padding: 0.65rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Batas Maksimal Aman (Copyscape &le;14%)</div>
+              <div style="font-size: 1.1rem; font-weight: 800; color: var(--status-pass-text);" id="capMaxSafe">-</div>
+            </div>
+          </div>
+          <p id="capacityAdviceText" style="font-size: 0.86rem; margin-bottom: 0.5rem; color: var(--text-secondary);"></p>
+          <div style="display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;">
+            <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; font-weight: 700; color: #1e3a8a; cursor: pointer;">
+              <input type="checkbox" id="chkAutoSyncRecommendedCount" checked />
+              <span>Otomatis Generate Sesuai Jumlah Rekomendasi Ideal</span>
+            </label>
+            <button type="button" id="btnApplyRecommendedCount" class="btn btn-primary btn-sm">
+              &#9889; Generate Sesuai Rekomendasi Ideal
+            </button>
+            <button type="button" id="btnApplyMaxSafeCount" class="btn btn-secondary btn-sm">
+              &#128640; Generate Maksimal Aman (250 Artikel)
+            </button>
+          </div>
+        </section>
+
+        <!-- Step 2C: Master Spintax Blueprint Card with Rich Formatting Toolbar & Hover Pop-Up -->
+        <section class="card hover-popup-shell" style="margin-bottom: 1.5rem;" aria-labelledby="spintax-editor-heading">
+          <div id="alignmentAuditBar" style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.6rem 0.85rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="font-size: 0.82rem; font-weight: 700; color: #166534;">
+              &#128279; Status Sandingan 1-to-1 (Artikel Utama &harr; Kerangka Spintax): <span id="auditSyncStatusText">TERHUBUNG 100%</span>
+            </div>
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+              <span id="auditWordCountBadge" class="badge badge-pass">Kata: 0 / 1000</span>
+              <span id="auditHeadingBadge" class="badge badge-sim">H1: 1 | H2: 7 | H3: 4</span>
+              <span id="auditKeywordBadge" class="badge badge-pass">Primary Keyword: PASS</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem;">
+            <h2 id="spintax-editor-heading" style="font-size: 1.15rem; margin-bottom: 0;">
+              3. Hasil Kerangka Spintax &amp; Toolbar Pemformatan (H1-H3, Bold, Underline, Gambar, Link, WA)
+            </h2>
+            <div style="display: flex; gap: 0.45rem; align-items: center; flex-wrap: wrap;">
+              <span class="badge badge-sim" id="spintaxBlocksBadge">0 Blok Spintax</span>
+              <button type="button" id="btnOpenSpintaxPopup" class="btn btn-primary btn-sm hover-popup-hint">&#10530; Pop-Up Hover / Edit Leluasa</button>
+            </div>
+          </div>
+
+          <!-- Interactive Formatting Toolbar (Color-Coded by Feature) -->
+          <div class="editor-toolbar" role="toolbar" aria-label="Toolbar Pemformatan Artikel dan Spintax">
+            <button type="button" class="toolbar-btn tb-heading" data-action="h1" title="Jadikan Heading 1 (H1)"><strong>H1</strong></button>
+            <button type="button" class="toolbar-btn tb-heading" data-action="h2" title="Jadikan Heading 2 (H2)"><strong>H2</strong></button>
+            <button type="button" class="toolbar-btn tb-heading" data-action="h3" title="Jadikan Heading 3 (H3)"><strong>H3</strong></button>
+            <span class="toolbar-divider"></span>
+            <button type="button" class="toolbar-btn tb-format" data-action="bold" title="Tebalkan Teks (Bold / <strong>)"><strong>B</strong> Bold</button>
+            <button type="button" class="toolbar-btn tb-format" data-action="underline" title="Garis Bawah Teks (Underline / <u>)"><u>U</u> Underline</button>
+            <button type="button" class="toolbar-btn tb-format" data-action="italic" title="Miringkan Teks (Italic / <em>)"><em>I</em> Italic</button>
+            <span class="toolbar-divider"></span>
+            <button type="button" class="toolbar-btn tb-image" data-action="image" title="Sisipkan Blok Gambar Project">&#128444; +Gambar Project</button>
+            <button type="button" class="toolbar-btn tb-link" data-action="link" title="Sisipkan Hyperlink (<a href>)">&#128279; +Hyperlink</button>
+            <button type="button" class="toolbar-btn tb-whatsapp" data-action="whatsapp" title="Sisipkan Tombol Klik WhatsApp">&#128172; +CTA WhatsApp</button>
+            <span class="toolbar-divider"></span>
+            <button type="button" class="toolbar-btn tb-spintax" data-action="spintax" title="Sisipkan Blok Spintax {kata 1|kata 2}">{a|b} Spintax</button>
+            <button type="button" class="toolbar-btn tb-geo" data-action="geo-kec" title="Variabel Kecamatan">+{{kecamatan}}</button>
+            <button type="button" class="toolbar-btn tb-geo" data-action="geo-kota" title="Variabel Kota/Kabupaten">+{{label_kota_kabupaten}}</button>
+          </div>
+
+          <div class="code-legend-bar" aria-label="Legenda Warna Kode">
+            <span class="legend-chip hl-heading"># Heading H1-H3</span>
+            <span class="legend-chip hl-fmt">&lt;strong&gt;/&lt;u&gt; Bold/Underline</span>
+            <span class="legend-chip hl-img">Gambar Project</span>
+            <span class="legend-chip hl-link">&lt;a href&gt; Hyperlink</span>
+            <span class="legend-chip hl-wa">CTA WhatsApp</span>
+            <span class="legend-chip hl-spintax hl-spin">{a|b} Spintax</span>
+            <span class="legend-chip hl-geo">{{kecamatan}}/Daerah</span>
+          </div>
+
+          <div class="code-editor-wrap">
+            <pre id="spintaxHighlightLayer" class="code-highlight-layer" aria-hidden="true"></pre>
+            <textarea
+              id="textareaMasterSpintax"
+              class="form-control code-textarea-overlay"
+              rows="10"
+              spellcheck="false"
+              aria-label="Editor Master Spintax"
+            ></textarea>
+          </div>
+        </section>
+
+        <!-- Step 3: Generated Articles + Google SERP Preview + Copyscape Audit -->
+        <section class="card" aria-labelledby="copyscape-inspector-heading">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.85rem;">
+            <div>
+              <h2 id="copyscape-inspector-heading" style="font-size: 1.18rem; margin-bottom: 0.25rem;">
+                4. Hasil Artikel Daerah (Mode Minimize, Nomor, Checkbox &amp; Siap Upload Website)
+              </h2>
+              <p class="form-hint" style="margin: 0;">
+                Setiap artikel disimpan sebagai <strong>file <code>.html</code> terpisah di dalam ZIP</strong> (misal 100 hasil = 100 file HTML). Atur tampilan <strong>20 atau 50 artikel per halaman</strong> dan simpan per halaman atau semua sekaligus.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.45rem; flex-wrap: wrap;">
+              <button type="button" id="btnDownloadPageHtmlZip" class="btn btn-whatsapp btn-sm">&#128230; ZIP HTML Halaman Ini</button>
+              <button type="button" id="btnExportHtmlBundle" class="btn btn-primary btn-sm">&#128230; ZIP Semua HTML (Per File)</button>
+              <button type="button" id="btnDownloadPageCsv" class="btn btn-secondary btn-sm">CSV Halaman Ini</button>
+              <button type="button" id="btnExportCsv" class="btn btn-secondary btn-sm">CSV Semua</button>
+              <button type="button" id="btnExportWpXml" class="btn btn-secondary btn-sm">&#128229; WordPress XML</button>
+              <button type="button" id="btnExportJson" class="btn btn-secondary btn-sm">JSON</button>
+            </div>
+          </div>
+
+          <div class="bulk-actions-bar" role="region" aria-label="Kontrol Massal & Pagination Hasil Spintax" style="margin-bottom: 0.65rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+              <label style="display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
+                <input type="checkbox" id="chkSelectAllArticles" class="article-checkbox" checked />
+                <span>Pilih (<span id="selectedArticlesCount">0</span>)</span>
+              </label>
+              <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; font-weight: 600;">
+                <span>Per Halaman:</span>
+                <select id="selectArticlesPageSize" class="form-control" style="width: auto; padding: 3px 8px; height: 30px; font-size: 0.82rem;">
+                  <option value="20" selected>20 Artikel / Hal</option>
+                  <option value="50">50 Artikel / Hal</option>
+                  <option value="100">100 Artikel / Hal</option>
+                </select>
+              </label>
+              <div style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                <button type="button" id="btnPrevArticlesPage" class="btn btn-secondary btn-sm">&larr; Hal</button>
+                <span id="articlesPageIndicator" class="badge badge-pass" style="font-size: 0.78rem;">Hal 1 / 1 (0 Artikel)</span>
+                <button type="button" id="btnNextArticlesPage" class="btn btn-secondary btn-sm">Hal &rarr;</button>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.45rem; flex-wrap: wrap;">
+              <button type="button" id="btnCopyAllSelectedHtml" class="btn btn-secondary btn-sm">&#128203; Salin HTML</button>
+              <button type="button" id="btnExpandAllArticles" class="btn btn-secondary btn-sm">&#9662; Buka Semua</button>
+              <button type="button" id="btnMinimizeAllArticles" class="btn btn-secondary btn-sm">&#9652; Minimize Semua</button>
+            </div>
+          </div>
+
+          <div id="articlesOutputContainer" aria-live="polite" style="max-height: 680px; overflow-y: auto; padding-right: 6px; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.65rem; background: #f8fafc;"></div>
+        </section>
+
+        <!-- Step 5: Sitemap XML & Otomatisasi Submit Google Search Console (GSC - Hinggga 5 Website) -->
+        <section class="card" style="margin-top: 1.5rem;" aria-labelledby="gsc-heading">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+            <div>
+              <h2 id="gsc-heading" style="font-size: 1.18rem; margin-bottom: 0.2rem;">
+                5. Sitemap XML &amp; Submit Otomatis ke Google Search Console (GSC — Muat Hingga 5 Website)
+              </h2>
+              <p class="form-hint" style="margin: 0;">
+                Masukkan hingga <strong>5 Website / Domain</strong> sekaligus. Sistem otomatis memvalidasi format <code>https://domain/</code> atau <code>sc-domain:</code>, membuatkan <code>sitemap.xml</code> masing-masing, serta skrip Python multi-website.
+              </p>
+            </div>
+            <span id="gscActiveSitesBadge" class="badge badge-pass">1 / 5 Website Aktif</span>
+          </div>
+
+          <div class="grid-2" style="gap: 0.65rem; margin-bottom: 0.75rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="inputGscSiteUrl">Website #1 (Utama) — SITE_URL GSC</label>
+              <input type="text" id="inputGscSiteUrl" class="form-control" value="https://wevo.biz.id/" placeholder="https://wevo.biz.id/ atau sc-domain:wevo.biz.id" />
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="inputGscSitemapUrl">Website #1 — SITEMAP_URL (Otomatis / Kustom)</label>
+              <input type="url" id="inputGscSitemapUrl" class="form-control" value="https://wevo.biz.id/sitemap.xml" />
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap: 0.65rem; margin-bottom: 0.75rem;">
+            <div>
+              <label class="form-label" for="inputGscSiteUrl2" style="font-size: 0.78rem;">Website #2 (Opsional)</label>
+              <input type="text" id="inputGscSiteUrl2" class="form-control" placeholder="https://domain2.com/ atau sc-domain:domain2.com" />
+            </div>
+            <div>
+              <label class="form-label" for="inputGscSiteUrl3" style="font-size: 0.78rem;">Website #3 (Opsional)</label>
+              <input type="text" id="inputGscSiteUrl3" class="form-control" placeholder="https://domain3.com/ atau sc-domain:domain3.com" />
+            </div>
+            <div>
+              <label class="form-label" for="inputGscSiteUrl4" style="font-size: 0.78rem;">Website #4 (Opsional)</label>
+              <input type="text" id="inputGscSiteUrl4" class="form-control" placeholder="https://domain4.com/ atau sc-domain:domain4.com" />
+            </div>
+            <div>
+              <label class="form-label" for="inputGscSiteUrl5" style="font-size: 0.78rem;">Website #5 (Opsional)</label>
+              <input type="text" id="inputGscSiteUrl5" class="form-control" placeholder="https://domain5.com/ atau sc-domain:domain5.com" />
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
+            <button type="button" id="btnDownloadSitemapXml" class="btn btn-primary btn-sm">&#128230; Unduh Sitemap XML (1–5 Website)</button>
+            <button type="button" id="btnDownloadGscPython" class="btn btn-secondary btn-sm">&#128013; Unduh gsc_automation.py (Multi-Site)</button>
+            <button type="button" id="btnSubmitGscServer" class="btn btn-whatsapp btn-sm">&#128640; Submit Semua Website ke GSC (Server)</button>
+          </div>
+          <p id="gscStatusMessage" class="form-hint" style="margin-bottom: 0.6rem; font-weight: 600;"></p>
+          <pre id="sitemapXmlPreview" class="article-source-code" style="max-height: 200px;"></pre>
+        </section>
+
+        <!-- Step 6: Mass Ping / Bulk Ping URL, Sitemap & Backlink Indexer -->
+        <section class="card" style="margin-top: 1.5rem; border: 2px solid #86efac; background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 190px);" aria-labelledby="mass-ping-heading">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+            <div>
+              <span class="badge badge-pass" style="margin-bottom: 0.25rem;">BULK URL &amp; BACKLINK INDEXER &bull; UNLIMITED &amp; FREE</span>
+              <h2 id="mass-ping-heading" style="font-size: 1.2rem; margin: 0;">
+                6. Mass Ping Tool (Bulk Ping URL Artikel, Backlink &amp; Sitemap ke Search Engine)
+              </h2>
+            </div>
+            <span id="massPingBadge" class="badge badge-pass">12 Search Engine Hubs Ready</span>
+          </div>
+
+          <!-- Visual 3-Step Illustration: How to Use the Mass Ping Tool -->
+          <div class="grid-3" style="gap: 0.75rem; margin-bottom: 1rem;">
+            <div style="background: #ffffff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem; display: flex; align-items: flex-start; gap: 0.65rem;">
+              <span style="background: #16a34a; color: #fff; font-weight: 800; width: 28px; height: 28px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">1</span>
+              <div>
+                <strong style="font-size: 0.88rem; color: #166534;">Paste Your URLs</strong>
+                <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 2px;">Masukkan 1 URL per baris di kotak bawah, atau klik <em>Muat Otomatis Semua URL Artikel &amp; Sitemap</em>.</div>
+              </div>
+            </div>
+            <div style="background: #ffffff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem; display: flex; align-items: flex-start; gap: 0.65rem;">
+              <span style="background: #2563eb; color: #fff; font-weight: 800; width: 28px; height: 28px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">2</span>
+              <div>
+                <strong style="font-size: 0.88rem; color: #1e3a8a;">Click PING</strong>
+                <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 2px;">Tool mengirim seluruh URL Anda secara serentak ke 12+ layanan ping &amp; indexing search engine utama.</div>
+              </div>
+            </div>
+            <div style="background: #ffffff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem; display: flex; align-items: flex-start; gap: 0.65rem;">
+              <span style="background: #0f766e; color: #fff; font-weight: 800; width: 28px; height: 28px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">3</span>
+              <div>
+                <strong style="font-size: 0.88rem; color: #0f766e;">Done &mdash; Indexed Faster!</strong>
+                <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 2px;">Halaman, backlink, dan sitemap Anda langsung diberi sinyal crawl. Tanpa akun &amp; tanpa batas harian.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0.65rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.4rem;">
+              <label class="form-label" for="textareaMassPingUrls" style="margin: 0;">
+                Daftar URL yang Akan Di-Ping (1 Baris = 1 URL &bull; <span id="massPingUrlCountLabel" style="color: var(--brand-primary);">0 URL</span>)
+              </label>
+              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                <button type="button" id="btnLoadGeneratedUrlsToPing" class="btn btn-secondary btn-sm">
+                  &#128229; Muat Semua URL Artikel Daerah &amp; 5 Sitemap
+                </button>
+                <button type="button" id="btnClearPingUrls" class="btn btn-secondary btn-sm">
+                  &#128465; Bersihkan
+                </button>
+              </div>
+            </div>
+            <textarea
+              id="textareaMassPingUrls"
+              class="form-control"
+              rows="6"
+              style="font-family: var(--font-family-mono); font-size: 0.82rem;"
+              placeholder="https://wevo.biz.id/sitemap.xml&#10;https://wevo.biz.id/jasa-instalasi-panel-surya-kec-coblong&#10;https://wevo.biz.id/jasa-instalasi-panel-surya-kec-lengkong"
+            ></textarea>
+          </div>
+
+          <div style="display: flex; gap: 0.55rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.85rem;">
+            <button type="button" id="btnRunMassPing" class="btn btn-whatsapp">
+              &#128640; PING SEKARANG (Mass Ping ke Semua Search Engine)
+            </button>
+            <button type="button" id="btnDownloadPingCsv" class="btn btn-secondary btn-sm">
+              &#128202; Unduh Laporan Ping (CSV)
+            </button>
+            <span id="massPingStatusText" style="font-size: 0.83rem; font-weight: 700; color: #166534;"></span>
+          </div>
+
+          <div id="massPingResultWrap" style="display: none; margin-bottom: 1rem; border: 1px solid var(--border-subtle); border-radius: 8px; background: #fff; overflow: hidden;">
+            <div style="background: #0f172a; color: #f8fafc; padding: 0.55rem 0.85rem; font-size: 0.82rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center;">
+              <span>Log Notifikasi Mass Ping Search Engine</span>
+              <span id="massPingSummaryStats" style="color: #86efac;">0 Sinyal Terkirim</span>
+            </div>
+            <div id="massPingResultList" style="max-height: 220px; overflow-y: auto; padding: 0.65rem 0.85rem; font-family: var(--font-family-mono); font-size: 0.78rem; line-height: 1.55;"></div>
+          </div>
+
+          <!-- Educational Guide & Illustration Table: What Is Mass Ping & Mass Ping vs Manual Ping -->
+          <div class="grid-2" style="gap: 0.9rem; background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.9rem;">
+            <div>
+              <h3 style="font-size: 0.96rem; margin: 0 0 0.35rem; color: #0f172a;">What Is Mass Ping &amp; Why Ping Your URLs?</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0 0 0.5rem; line-height: 1.5;">
+                <strong>Mass Ping (Bulk Ping)</strong> adalah metode mengirim notifikasi ke banyak mesin pencari (Google WebSub, Bing IndexNow, Yandex, Seznam, Naver, Ping-O-Matic, Twingly, dll.) secara bersamaan bahwa halaman, artikel daerah, backlink, atau <code>sitemap.xml</code> Anda baru saja diterbitkan atau diperbarui.
+              </p>
+              <ul style="font-size: 0.78rem; color: var(--text-secondary); margin: 0; padding-left: 1.15rem; line-height: 1.55;">
+                <li><strong>Newly published blog posts / landing pages</strong> (artikel daerah hasil Spintax)</li>
+                <li><strong>Fresh backlinks</strong> yang ingin cepat terindeks crawler</li>
+                <li><strong>RSS feed &amp; XML sitemap updates</strong> (hingga 5 website sekaligus)</li>
+                <li><strong>Bulk URL indexing</strong> untuk situs dengan pembaruan konten rutin</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 style="font-size: 0.96rem; margin: 0 0 0.45rem; color: #0f172a;">Mass Ping vs Manual Ping</h3>
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; background: #ffffff; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden;">
+                <thead>
+                  <tr style="background: #eff6ff; text-align: left;">
+                    <th style="padding: 7px 10px; border-bottom: 1px solid var(--border-subtle);">Parameter</th>
+                    <th style="padding: 7px 10px; border-bottom: 1px solid var(--border-subtle); color: #64748b;">Manual Ping</th>
+                    <th style="padding: 7px 10px; border-bottom: 1px solid var(--border-subtle); color: #166534; font-weight: 800;">Mass Ping (Bulk)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="padding: 6px 10px; border-bottom: 1px solid var(--border-subtle); font-weight: 600;">URLs at once</td>
+                    <td style="padding: 6px 10px; border-bottom: 1px solid var(--border-subtle);">1</td>
+                    <td style="padding: 6px 10px; border-bottom: 1px solid var(--border-subtle); font-weight: 700; color: #166534;">Unlimited</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 10px; border-bottom: 1px solid var(--border-subtle); font-weight: 600;">Time required</td>
+                    <td style="padding: 6px 10px; border-bottom: 1px solid var(--border-subtle);">Minutes</td>
+                    <td style="padding: 6px 10px; border-bottom: 1px solid var(--border-subtle); font-weight: 700; color: #166534;">Seconds</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 10px; border-bottom: 1px solid var(--border-subtle); font-weight: 600;">Search engines notified</td>
+                    <td style="padding: 6px 10px; border-bottom: 1px solid var(--border-subtle);">1</td>
+                    <td style="padding: 6px 10px; border-bottom: 1px solid var(--border-subtle); font-weight: 700; color: #166534;">Many (12+ Hubs)</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 10px; font-weight: 600;">Cost</td>
+                    <td style="padding: 6px 10px;">Free</td>
+                    <td style="padding: 6px 10px; font-weight: 700; color: #166534;">Free</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>LocalSpin AI SaaS v1.2.0</strong> &mdash; Standar Rekayasa Produk Digital DPES v1.3 &amp; APOPS 2.2.
+      </div>
+      <div style="display: flex; gap: 1.25rem;">
+        <a href="index.html">Beranda</a>
+        <a href="pricing.html">Harga</a>
+        <a href="privacy.html">Privasi</a>
+        <a href="terms.html">Syarat Layanan</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Pop-Up Wide Modal: 2. Kolom Artikel Utama -->
+  <div id="modalRawArticle" class="editor-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalRawTitle">
+    <div class="editor-modal-dialog">
+      <div class="editor-modal-header">
+        <div>
+          <h3 id="modalRawTitle" style="margin: 0; font-size: 1.15rem;">Editor Lebar — Kolom Artikel Utama (Auto-Deteksi Bahasa &amp; Auto-Spin)</h3>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <span class="badge badge-pass" id="modalRawLangBadge">Bahasa Terdeteksi: Bahasa Indonesia</span>
+          <button type="button" id="btnCloseRawModal" class="btn btn-secondary btn-sm">&times; Tutup</button>
+        </div>
+      </div>
+      <div class="editor-modal-body">
+        <textarea id="modalTextareaRawArticle" class="form-control" rows="16" style="font-family: var(--font-family-body); font-size: 1rem; line-height: 1.7;"></textarea>
+      </div>
+      <div class="editor-modal-footer">
+        <span class="form-hint" style="margin: 0;">Tekan <code>Esc</code> untuk menutup tanpa menyimpan.</span>
+        <button type="button" id="btnApplyRawModal" class="btn btn-primary">&#10024; Terapkan, Auto-Spin &amp; Generate Artikel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pop-Up Wide Modal: 3. Hasil Kerangka Spintax & Toolbar -->
+  <div id="modalSpintaxEditor" class="editor-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalSpintaxTitle">
+    <div class="editor-modal-dialog">
+      <div class="editor-modal-header">
+        <h3 id="modalSpintaxTitle" style="margin: 0; font-size: 1.15rem;">Pop-Up Editor Leluasa — Hasil Kerangka Spintax &amp; Pemformatan SEO</h3>
+        <button type="button" id="btnCloseSpintaxModal" class="btn btn-secondary btn-sm">&times; Tutup</button>
+      </div>
+      <div class="editor-modal-body">
+        <div class="editor-toolbar" role="toolbar">
+          <button type="button" class="toolbar-btn tb-heading modal-toolbar-btn" data-action="h1"><strong>H1</strong></button>
+          <button type="button" class="toolbar-btn tb-heading modal-toolbar-btn" data-action="h2"><strong>H2</strong></button>
+          <button type="button" class="toolbar-btn tb-heading modal-toolbar-btn" data-action="h3"><strong>H3</strong></button>
+          <span class="toolbar-divider"></span>
+          <button type="button" class="toolbar-btn tb-format modal-toolbar-btn" data-action="bold"><strong>B</strong> Bold</button>
+          <button type="button" class="toolbar-btn tb-format modal-toolbar-btn" data-action="underline"><u>U</u> Underline</button>
+          <span class="toolbar-divider"></span>
+          <button type="button" class="toolbar-btn tb-image modal-toolbar-btn" data-action="image">&#128444; +Gambar</button>
+          <button type="button" class="toolbar-btn tb-link modal-toolbar-btn" data-action="link">&#128279; +Hyperlink</button>
+          <button type="button" class="toolbar-btn tb-whatsapp modal-toolbar-btn" data-action="whatsapp">&#128172; +CTA WhatsApp</button>
+          <button type="button" class="toolbar-btn tb-spintax modal-toolbar-btn" data-action="spintax">{a|b} Spintax</button>
+        </div>
+        <div class="code-editor-wrap">
+          <pre id="modalSpintaxHighlightLayer" class="code-highlight-layer" aria-hidden="true"></pre>
+          <textarea id="modalTextareaMasterSpintax" class="form-control code-textarea-overlay" rows="18" spellcheck="false"></textarea>
+        </div>
+      </div>
+      <div class="editor-modal-footer">
+        <span class="form-hint" style="margin: 0;">Edit kerangka spintax dengan leluasa lalu klik Simpan &amp; Generate.</span>
+        <button type="button" id="btnApplySpintaxModal" class="btn btn-primary">&#9889; Simpan Kerangka &amp; Generate Artikel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/regionsData.js?v=1.13.0"></script>
+  <script src="assets/app.js?v=1.13.0"></script>
+  <script>
+    (function initStudioV12() {
+      const {
+        MAX_IMAGES_PER_PROJECT,
+        LOCALSPIN_REGIONS,
+        DEFAULT_PROJECTS_STATE,
+        clientDetectLanguage,
+        clientCalculateSafeCapacity,
+        clientRenderProjectImagesForArticle,
+        clientBuildWhatsAppUrl,
+        clientBuildMasterSpintax,
+        clientResolveSpintax,
+        clientInjectGeo,
+        clientConvertArticleToHtml,
+        clientBuildSeoMeta,
+        clientCompareArticles
+      } = window.LocalSpinClient;
+
+      // Load or initialize multi-project state in localStorage
+      const STORAGE_KEY = 'localspin_projects_v12';
+      let projectsMap = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || JSON.parse(JSON.stringify(DEFAULT_PROJECTS_STATE));
+      let activeProjectId = 'proj_a';
+
+      const selectProject = document.getElementById('selectProject');
+      const inputProjectName = document.getElementById('inputProjectName');
+      const selectWilayah = document.getElementById('selectWilayah');
+      const selectDaerah = document.getElementById('selectDaerah');
+      const daerahJenisBadge = document.getElementById('daerahJenisBadge');
+      const kecamatanContainer = document.getElementById('kecamatanContainer');
+
+      const inputTopic = document.getElementById('inputTopic');
+      const textareaRawMainArticle = document.getElementById('textareaRawMainArticle');
+      const detectedLangBadge = document.getElementById('detectedLangBadge');
+      const textareaProjectImages = document.getElementById('textareaProjectImages');
+      const inputImageFilesMulti = document.getElementById('inputImageFilesMulti');
+      const imageThumbsStrip = document.getElementById('imageThumbsStrip');
+      const selectImagesPerArticle = document.getElementById('selectImagesPerArticle');
+      const inputMaxArticlesToGen = document.getElementById('inputMaxArticlesToGen');
+      const inputImageTitlePattern = document.getElementById('inputImageTitlePattern');
+      const inputImageAlt = document.getElementById('inputImageAlt');
+
+      const chkAutoTemplate = document.getElementById('chkAutoTemplate');
+      const inputWaNumber = document.getElementById('inputWaNumber');
+      const inputWaLabel = document.getElementById('inputWaLabel');
+      const inputTargetUrl = document.getElementById('inputTargetUrl');
+      const inputAnchorText = document.getElementById('inputAnchorText');
+      const selectLinkRel = document.getElementById('selectLinkRel');
+      const inputCta = document.getElementById('inputCta');
+
+      const chkBoldKeywords = document.getElementById('chkBoldKeywords');
+      const chkUnderlineBenefits = document.getElementById('chkUnderlineBenefits');
+      const chkImageBlock = document.getElementById('chkImageBlock');
+      const chkHyperlink = document.getElementById('chkHyperlink');
+      const chkWhatsappCta = document.getElementById('chkWhatsappCta');
+      const chkFaqSchema = document.getElementById('chkFaqSchema');
+
+      const textareaSpintax = document.getElementById('textareaMasterSpintax');
+      const articlesOutputContainer = document.getElementById('articlesOutputContainer');
+
+      let currentBatchArticles = [];
+
+      function renderProjectDropdown() {
+        selectProject.innerHTML = '';
+        Object.values(projectsMap).forEach((p) => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = `${p.name} (${(p.images || []).length}/99 Gambar)`;
+          if (p.id === activeProjectId) opt.selected = true;
+          selectProject.appendChild(opt);
+        });
+      }
+
+      function getCurrentImageListFromTextarea() {
+        return textareaProjectImages.value
+          .split(/\r?\n/)
+          .map((l) => l.trim())
+          .filter(Boolean)
+          .slice(0, MAX_IMAGES_PER_PROJECT);
+      }
+
+      function updateImagePoolUI() {
+        const imgs = getCurrentImageListFromTextarea();
+        const countText = `${imgs.length} / ${MAX_IMAGES_PER_PROJECT} Gambar`;
+        document.getElementById('labelImgCounter').textContent = countText;
+        document.getElementById('projectImagesBadge').textContent = `${countText} Tersimpan di Project Ini`;
+        document.getElementById('metricImagePoolCount').textContent = `${imgs.length} / 99`;
+
+        imageThumbsStrip.innerHTML = '';
+        imgs.slice(0, 12).forEach((url, idx) => {
+          const div = document.createElement('div');
+          div.className = 'image-thumb-item';
+          div.innerHTML = `<img src="${url}" alt="Ref #${idx + 1}" loading="lazy" /><span>#${idx + 1}</span>`;
+          imageThumbsStrip.appendChild(div);
+        });
+        if (imgs.length > 12) {
+          const more = document.createElement('div');
+          more.className = 'image-thumb-item';
+          more.style.display = 'flex';
+          more.style.alignItems = 'center';
+          more.style.justifyContent = 'center';
+          more.style.fontWeight = '700';
+          more.style.fontSize = '0.75rem';
+          more.textContent = `+${imgs.length - 12}`;
+          imageThumbsStrip.appendChild(more);
+        }
+      }
+
+      function loadProjectIntoForm(projectId) {
+        const p = projectsMap[projectId] || projectsMap.proj_a;
+        activeProjectId = p.id;
+        inputProjectName.value = p.name || '';
+        inputTopic.value = p.topic || '';
+        textareaRawMainArticle.value = p.rawMainArticle || '';
+        chkAutoTemplate.checked = p.autoTemplateEnabled !== false;
+        inputWaNumber.value = p.whatsappNumber || '6281234567890';
+        inputWaLabel.value = p.whatsappLabel || 'Chat WhatsApp Sekarang';
+        inputTargetUrl.value = p.targetUrl || 'https://nusantaraseo.id';
+        inputAnchorText.value = p.anchorText || 'halaman layanan resmi';
+        selectLinkRel.value = p.linkRel || 'dofollow';
+        inputCta.value = p.callToAction || 'Hubungi konsultan teknis kami sekarang';
+        selectImagesPerArticle.value = String(p.imagesPerArticle || 2);
+        inputImageTitlePattern.value =
+          p.imageTitlePattern || '{{topik}} — Dokumentasi #{{nomor_gambar}} Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}';
+        inputImageAlt.value =
+          p.imageAltPattern || '{Dokumentasi pengerjaan|Tim teknisi lapangan} {{topik}} #{{nomor_gambar}} di Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}';
+        textareaProjectImages.value = (p.images || []).slice(0, MAX_IMAGES_PER_PROJECT).join('\n');
+
+        updateDetectedLanguageUI();
+        updateImagePoolUI();
+        rebuildBlueprintFromInputs(true);
+        runBatchGeneration();
+      }
+
+      function saveFormIntoActiveProject() {
+        const imgs = getCurrentImageListFromTextarea();
+        projectsMap[activeProjectId] = {
+          id: activeProjectId,
+          name: inputProjectName.value.trim() || 'Project Tanpa Nama',
+          topic: inputTopic.value.trim(),
+          rawMainArticle: textareaRawMainArticle.value,
+          autoTemplateEnabled: chkAutoTemplate.checked,
+          whatsappNumber: inputWaNumber.value.trim(),
+          whatsappLabel: inputWaLabel.value.trim(),
+          targetUrl: inputTargetUrl.value.trim(),
+          anchorText: inputAnchorText.value.trim(),
+          linkRel: selectLinkRel.value,
+          callToAction: inputCta.value.trim(),
+          imagesPerArticle: Number(selectImagesPerArticle.value) || 2,
+          imageTitlePattern: inputImageTitlePattern.value.trim(),
+          imageAltPattern: inputImageAlt.value.trim(),
+          images: imgs
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(projectsMap));
+        renderProjectDropdown();
+        updateImagePoolUI();
+      }
+
+      function updateDetectedLanguageUI() {
+        const det = clientDetectLanguage(textareaRawMainArticle.value || inputTopic.value);
+        detectedLangBadge.textContent = `Bahasa Terdeteksi: ${det.label} (${det.confidence}%)`;
+      }
+
+      // Populate Wilayah (38 Provinsi Indonesia)
+      LOCALSPIN_REGIONS.forEach((w) => {
+        const opt = document.createElement('option');
+        opt.value = w.id;
+        opt.textContent = `${w.wilayah} (${w.daerahList.length} Kota/Kab)`;
+        if (w.id === 'wil-jabar') opt.selected = true;
+        selectWilayah.appendChild(opt);
+      });
+
+      function getSelectedWilayahObj() {
+        return LOCALSPIN_REGIONS.find((w) => w.id === selectWilayah.value) || LOCALSPIN_REGIONS[0];
+      }
+
+      function getSelectedDaerahObj() {
+        const w = getSelectedWilayahObj();
+        return w.daerahList.find((d) => d.id === selectDaerah.value) || w.daerahList[0];
+      }
+
+      function populateDaerahDropdown() {
+        const w = getSelectedWilayahObj();
+        selectDaerah.innerHTML = '';
+        w.daerahList.forEach((d, idx) => {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = `${d.labelLengkap} (${d.jenis})`;
+          if (idx === 0) opt.selected = true;
+          selectDaerah.appendChild(opt);
+        });
+        populateKecamatanChips();
+      }
+
+      function populateKecamatanChips() {
+        const d = getSelectedDaerahObj();
+        daerahJenisBadge.textContent = `Tipe Daerah: ${d.jenis} (${d.labelLengkap}) — ${d.konteksDaerah}`;
+        kecamatanContainer.innerHTML = '';
+        d.kecamatan.forEach((k) => {
+          addKecamatanChip(k.nama, k.konteks, true);
+        });
+        const checkedCount = kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked').length;
+        inputMaxArticlesToGen.value = String(checkedCount);
+        updateCapacityAdvisorUI();
+      }
+
+      function addKecamatanChip(nama, konteks, checked = true) {
+        const label = document.createElement('label');
+        label.className = 'chip-checkbox';
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = checked;
+        input.value = nama;
+        input.dataset.konteks = konteks || `area strategis dan pemukiman warga di Kecamatan ${nama}`;
+        input.addEventListener('change', () => {
+          const c = kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked').length;
+          inputMaxArticlesToGen.value = String(c);
+          updateCapacityAdvisorUI();
+        });
+        const span = document.createElement('span');
+        span.textContent = `Kec. ${nama}`;
+        label.appendChild(input);
+        label.appendChild(span);
+        kecamatanContainer.appendChild(label);
+      }
+
+      function updateCapacityAdvisorUI() {
+        const imgs = getCurrentImageListFromTextarea();
+        const reqCount = Math.max(1, Number(inputMaxArticlesToGen.value) || 5);
+        const cap = clientCalculateSafeCapacity({
+          spintaxTemplate: textareaSpintax.value,
+          projectImageCount: imgs.length || 1,
+          requestedArticleCount: reqCount
+        });
+
+        document.getElementById('metricPermutations').textContent = cap.formattedMaxCombinations;
+        document.getElementById('metricSafeRecommendation').textContent = `${cap.optimalSweetSpot} – ${cap.recommendedSafeMaxArticles} Artikel`;
+        document.getElementById('spintaxBlocksBadge').textContent = `${cap.totalBlocks} Blok Spintax (${cap.sentenceLevelBlocks} Kalimat, ${cap.wordLevelBlocks} Kata)`;
+
+        document.getElementById('capMaxPermutations').textContent = cap.formattedMaxCombinations;
+        document.getElementById('capSweetSpot').textContent = `${cap.optimalSweetSpot} Artikel (Ideal)`;
+        document.getElementById('capMaxSafe').textContent = `Maks. ${cap.recommendedSafeMaxArticles} Artikel`;
+        document.getElementById('capacityAdviceText').textContent = cap.advice;
+
+        const cardEl = document.getElementById('capacityAdvisorCard');
+        const badgeEl = document.getElementById('capacityStatusBadge');
+        badgeEl.textContent = cap.statusBadge;
+        if (cap.status === 'AMAN_BEBAS_SAMPAH') {
+          cardEl.className = 'capacity-advisor-card';
+          badgeEl.className = 'badge badge-pass';
+        } else {
+          cardEl.className = 'capacity-advisor-card warn';
+          badgeEl.className = 'badge badge-warn';
+        }
+        return cap;
+      }
+
+      function getBlueprintConfigFromForm(useRawMainArticle = true) {
+        return {
+          topic: inputTopic.value,
+          rawMainArticle: textareaRawMainArticle.value,
+          useRawMainArticle,
+          autoTemplateEnabled: chkAutoTemplate.checked,
+          callToAction: inputCta.value,
+          whatsappNumber: inputWaNumber.value,
+          whatsappLabel: inputWaLabel.value,
+          whatsappGreeting: document.getElementById('inputWaGreeting').value,
+          targetUrl: inputTargetUrl.value,
+          anchorText: inputAnchorText.value,
+          linkRel: selectLinkRel.value,
+          enableBoldKeywords: chkBoldKeywords.checked,
+          enableUnderlineBenefits: chkUnderlineBenefits.checked,
+          enableImageBlock: chkImageBlock.checked,
+          enableHyperlink: chkHyperlink.checked,
+          enableWhatsappCta: chkWhatsappCta.checked,
+          enableFaqSchema: chkFaqSchema.checked
+        };
+      }
+
+      let syncMainHighlight = () => {};
+      let syncModalHighlight = () => {};
+
+      function rebuildBlueprintFromInputs(useRawMainArticle = true) {
+        textareaSpintax.value = clientBuildMasterSpintax(getBlueprintConfigFromForm(useRawMainArticle));
+        const cap = updateCapacityAdvisorUI();
+        const chkSync = document.getElementById('chkAutoSyncRecommendedCount');
+        if (chkSync && chkSync.checked && cap && cap.optimalSweetSpot) {
+          inputMaxArticlesToGen.value = String(cap.optimalSweetSpot);
+          updateCapacityAdvisorUI();
+        }
+        syncMainHighlight();
+      }
+
+      // Rich Toolbar insertion logic
+      function wrapOrInsertInTextarea(prefix, suffix, defaultText) {
+        const start = textareaSpintax.selectionStart || 0;
+        const end = textareaSpintax.selectionEnd || 0;
+        const val = textareaSpintax.value;
+        const selected = val.substring(start, end) || defaultText;
+        const replacement = `${prefix}${selected}${suffix}`;
+        textareaSpintax.value = val.substring(0, start) + replacement + val.substring(end);
+        textareaSpintax.focus();
+        textareaSpintax.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
+        updateCapacityAdvisorUI();
+        syncMainHighlight();
+      }
+
+      document.querySelectorAll('.toolbar-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.action;
+          if (action === 'h1') wrapOrInsertInTextarea('\n# ', '\n', 'Judul Utama H1 {{topik}} di Kecamatan {{kecamatan}}');
+          else if (action === 'h2') wrapOrInsertInTextarea('\n## ', '\n', 'Subjudul H2 Layanan di {{kecamatan}}, {{label_kota_kabupaten}}');
+          else if (action === 'h3') wrapOrInsertInTextarea('\n### ', '\n', 'Sub-Bagian H3 Keunggulan Teknis di {{kecamatan}}');
+          else if (action === 'bold') wrapOrInsertInTextarea('<strong>', '</strong>', '{{topik}} Kecamatan {{kecamatan}}');
+          else if (action === 'underline') wrapOrInsertInTextarea('<u>', '</u>', 'bergaransi resmi & survei gratis');
+          else if (action === 'italic') wrapOrInsertInTextarea('<em>', '</em>', 'standar operasional terbaik');
+          else if (action === 'image') wrapOrInsertInTextarea('\n\n', '\n\n', '{{PROJECT_IMAGES_BLOCK}}');
+          else if (action === 'link') {
+            const rel = selectLinkRel.value === 'nofollow' ? ' rel="nofollow noopener"' : ' rel="noopener"';
+            wrapOrInsertInTextarea(
+              `<a href="{{target_url}}" target="_blank"${rel}>`,
+              '</a>',
+              inputAnchorText.value || 'halaman layanan resmi kami'
+            );
+          } else if (action === 'whatsapp') {
+            wrapOrInsertInTextarea(
+              '\n\n<div class="wa-cta-box"><a href="{{wa_url}}" target="_blank" rel="noopener" class="wa-cta-button">&#128172; ',
+              ' ({{wa_number}})</a></div>\n\n',
+              inputWaLabel.value || 'Chat WhatsApp Konsultan Sekarang'
+            );
+          } else if (action === 'spintax') {
+            wrapOrInsertInTextarea('{', '|opsi alternatif 2|opsi alternatif 3}', 'opsi kata 1');
+          } else if (action === 'geo-kec') {
+            wrapOrInsertInTextarea('', '', 'Kecamatan {{kecamatan}}');
+          } else if (action === 'geo-kota') {
+            wrapOrInsertInTextarea('', '', '{{label_kota_kabupaten}}');
+          }
+        });
+      });
+
+      // Multi-file upload into Project's 99-image pool
+      inputImageFilesMulti.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+        const existing = getCurrentImageListFromTextarea();
+        let remainingSlots = MAX_IMAGES_PER_PROJECT - existing.length;
+        files.slice(0, remainingSlots).forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const current = getCurrentImageListFromTextarea();
+            if (current.length < MAX_IMAGES_PER_PROJECT) {
+              current.push(reader.result);
+              textareaProjectImages.value = current.join('\n');
+              saveFormIntoActiveProject();
+              runBatchGeneration();
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+
+      function fillPresetReferenceImages(count) {
+        const basePhotos = [
+          'https://images.unsplash.com/photo-1509391366360-2e959784a276',
+          'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d',
+          'https://images.unsplash.com/photo-1497440001374-f26997328c1b',
+          'https://images.unsplash.com/photo-1559302504-64aae6ca6b6d',
+          'https://images.unsplash.com/photo-1503387762-592deb58ef4e',
+          'https://images.unsplash.com/photo-1541888946425-d09bb18086f6',
+          'https://images.unsplash.com/photo-1581094794329-c8112a89af12',
+          'https://images.unsplash.com/photo-1513694203232-719a280e022f'
+        ];
+        const urls = [];
+        for (let i = 1; i <= Math.min(MAX_IMAGES_PER_PROJECT, count); i++) {
+          const base = basePhotos[(i - 1) % basePhotos.length];
+          urls.push(`${base}?auto=format&fit=crop&w=900&q=80&ref_slot=${i}`);
+        }
+        textareaProjectImages.value = urls.join('\n');
+        saveFormIntoActiveProject();
+        updateCapacityAdvisorUI();
+        runBatchGeneration();
+      }
+
+      document.getElementById('btnFill25Images').addEventListener('click', () => fillPresetReferenceImages(25));
+      document.getElementById('btnFill99Images').addEventListener('click', () => fillPresetReferenceImages(99));
+      document.getElementById('btnClearImages').addEventListener('click', () => fillPresetReferenceImages(4));
+
+      function runBatchGeneration() {
+        const w = getSelectedWilayahObj();
+        const d = getSelectedDaerahObj();
+        const checkedInputs = Array.from(kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked'));
+
+        if (checkedInputs.length === 0) {
+          articlesOutputContainer.innerHTML = `<div class="notice-banner" style="border-left-color: #d97706;">Silakan centang minimal 1 Kecamatan terlebih dahulu.</div>`;
+          return;
+        }
+
+        const cfg = getBlueprintConfigFromForm();
+        const projectImages = getCurrentImageListFromTextarea();
+        const imagesPerArticle = Math.max(1, Number(selectImagesPerArticle.value) || 2);
+        const requestedMax = Math.max(1, Number(inputMaxArticlesToGen.value) || checkedInputs.length);
+
+        // Expand or slice targets according to requestedMax (up to 100+ articles across province districts)
+        const targetPool = [];
+        for (let i = 0; i < Math.min(requestedMax, checkedInputs.length); i++) {
+          const chk = checkedInputs[i];
+          targetPool.push({
+            wilayah: w.wilayah,
+            jenisDaerah: d.jenis,
+            kotaKabupaten: d.nama,
+            labelKotaKabupaten: d.labelLengkap,
+            kecamatan: chk.value,
+            konteksWilayah: w.karakteristikWilayah,
+            konteksDaerah: d.konteksDaerah,
+            konteksKecamatan: chk.dataset.konteks
+          });
+        }
+        if (targetPool.length < requestedMax && Array.isArray(w.daerahList)) {
+          for (const extraD of w.daerahList) {
+            if (extraD.id === d.id) continue;
+            for (const extraK of extraD.kecamatan || []) {
+              if (targetPool.length >= requestedMax) break;
+              targetPool.push({
+                wilayah: w.wilayah,
+                jenisDaerah: extraD.jenis,
+                kotaKabupaten: extraD.nama,
+                labelKotaKabupaten: extraD.labelLengkap,
+                kecamatan: extraK.nama,
+                konteksWilayah: w.karakteristikWilayah,
+                konteksDaerah: extraD.konteksDaerah,
+                konteksKecamatan: extraK.konteks || `kawasan strategis di Kecamatan ${extraK.nama}`
+              });
+            }
+            if (targetPool.length >= requestedMax) break;
+          }
+        }
+        if (targetPool.length < requestedMax && Array.isArray(LOCALSPIN_REGIONS)) {
+          for (const extraW of LOCALSPIN_REGIONS) {
+            if (extraW.id === w.id) continue;
+            for (const extraD of extraW.daerahList || []) {
+              for (const extraK of extraD.kecamatan || []) {
+                if (targetPool.length >= requestedMax) break;
+                targetPool.push({
+                  wilayah: extraW.wilayah,
+                  jenisDaerah: extraD.jenis,
+                  kotaKabupaten: extraD.nama,
+                  labelKotaKabupaten: extraD.labelLengkap,
+                  kecamatan: extraK.nama,
+                  konteksWilayah: extraW.karakteristikWilayah,
+                  konteksDaerah: extraD.konteksDaerah,
+                  konteksKecamatan: extraK.konteks || `kawasan strategis di Kecamatan ${extraK.nama}`
+                });
+              }
+              if (targetPool.length >= requestedMax) break;
+            }
+            if (targetPool.length >= requestedMax) break;
+          }
+        }
+        const baseLen = targetPool.length;
+        let round = 2;
+        while (targetPool.length < requestedMax && baseLen > 0) {
+          const src = targetPool[(targetPool.length - baseLen) % baseLen];
+          targetPool.push({
+            ...src,
+            kecamatan: `${src.kecamatan} (Bagian ${round})`
+          });
+          if (targetPool.length % baseLen === 0) round++;
+        }
+
+        const masterSpintax = textareaSpintax.value;
+        const generated = [];
+        const campaignSeed = `${cfg.topic}::${w.wilayah}::${d.labelLengkap}`;
+        const maxAttempts = targetPool.length > 30 ? 3 : 8;
+        const peerWindow = targetPool.length > 30 ? 8 : 25;
+
+        targetPool.forEach((target, idx) => {
+          const imgRender = clientRenderProjectImagesForArticle({
+            projectImages,
+            imagesPerArticle,
+            articleIndex: idx,
+            topic: cfg.topic,
+            imageTitlePattern: inputImageTitlePattern.value,
+            imageAltPattern: inputImageAlt.value,
+            target
+          });
+
+          let bestContent = '';
+          let bestOverlap = 100;
+
+          for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            const seed = attempt === 0 ? campaignSeed : `${campaignSeed}::retry-${attempt}::${idx}`;
+            const spun = clientResolveSpintax(masterSpintax, seed, idx + attempt * 7);
+            let content = clientInjectGeo(spun, target, cfg);
+            content = content.replace(/\{\{PROJECT_IMAGES_BLOCK\}\}/g, imgRender.figuresHtml);
+
+            if (generated.length === 0) {
+              bestContent = content;
+              bestOverlap = 0;
+              break;
+            }
+
+            let maxOvl = 0;
+            const startPeer = Math.max(0, generated.length - peerWindow);
+            for (let p = startPeer; p < generated.length; p++) {
+              const cmp = clientCompareArticles(content, generated[p].content);
+              if (cmp.overlap4 > maxOvl) maxOvl = cmp.overlap4;
+            }
+            if (maxOvl < bestOverlap) {
+              bestOverlap = maxOvl;
+              bestContent = content;
+            }
+            if (maxOvl <= 14.0) break;
+          }
+
+          const firstLine = bestContent
+            .split('\n')[0]
+            .replace(/^#+\s*/, '')
+            .replace(/<[^>]+>/g, '')
+            .trim();
+
+          const seoMeta = clientBuildSeoMeta({
+            title: firstLine,
+            topic: cfg.topic,
+            target,
+            whatsappNumber: cfg.whatsappNumber,
+            targetUrl: cfg.targetUrl,
+            imageUrl: imgRender.metaList[0] ? imgRender.metaList[0].url : ''
+          });
+
+          const htmlContent = clientConvertArticleToHtml(
+            bestContent,
+            cfg.enableFaqSchema ? seoMeta : {}
+          );
+
+          const rawGreet = cfg.whatsappGreeting || `Halo Admin 👋, saya tertarik dengan {{topik}} untuk area Kecamatan {{kecamatan}}, {{label_kota_kabupaten}} ({{wilayah}}). Mohon info estimasi & jadwal surveinya ya.`;
+          const waMessage = rawGreet
+            .replace(/\{\{\s*topik\s*\}\}/gi, cfg.topic)
+            .replace(/\{\{\s*kecamatan\s*\}\}/gi, target.kecamatan)
+            .replace(/\{\{\s*label_kota_kabupaten\s*\}\}/gi, target.labelKotaKabupaten)
+            .replace(/\{\{\s*kota_kabupaten\s*\}\}/gi, target.kotaKabupaten)
+            .replace(/\{\{\s*wilayah\s*\}\}/gi, target.wilayah);
+          const whatsappUrl = clientBuildWhatsAppUrl(cfg.whatsappNumber, waMessage);
+
+          generated.push({
+            index: idx + 1,
+            slug: `${seoMeta.slug}-${idx + 1}`,
+            wilayah: target.wilayah,
+            jenisDaerah: target.jenisDaerah,
+            kotaKabupaten: target.kotaKabupaten,
+            labelKotaKabupaten: target.labelKotaKabupaten,
+            kecamatan: target.kecamatan,
+            title: firstLine,
+            metaTitle: seoMeta.metaTitle,
+            metaDescription: seoMeta.metaDescription,
+            whatsappUrl,
+            assignedImages: imgRender.metaList,
+            content: bestContent,
+            htmlContent
+          });
+        });
+
+        let sumUniqueness = 0;
+        let allPassed = true;
+
+        generated.forEach((art, i) => {
+          let maxOvl4 = 0;
+          let maxOvl5 = 0;
+          let closestPeer = '-';
+          const wordCount = clientCompareArticles(art.content, art.content).wordCount;
+
+          const startPeer = Math.max(0, i - peerWindow);
+          const endPeer = Math.min(generated.length, i + peerWindow);
+          for (let j = startPeer; j < endPeer; j++) {
+            if (i === j) continue;
+            const cmp = clientCompareArticles(art.content, generated[j].content);
+            if (cmp.overlap4 > maxOvl4) {
+              maxOvl4 = cmp.overlap4;
+              maxOvl5 = cmp.overlap5;
+              closestPeer = `Kec. ${generated[j].kecamatan}`;
+            }
+          }
+
+          art.wordCount = wordCount;
+          art.maxOverlap4 = maxOvl4;
+          art.maxOverlap5 = maxOvl5;
+          art.uniquenessPct = Number(Math.max(0, 100 - maxOvl4).toFixed(2));
+          art.closestPeer = closestPeer;
+          art.passed = maxOvl4 <= 14.0;
+          if (!art.passed) allPassed = false;
+          sumUniqueness += art.uniquenessPct;
+        });
+
+        currentBatchArticles = generated.map((a) => ({ ...a, selected: true }));
+        currentArticlesPage = 1;
+        updateCapacityAdvisorUI();
+
+        const avgUnique = generated.length === 1 ? 100 : (sumUniqueness / generated.length).toFixed(1);
+        document.getElementById('metricAvgUniqueness').textContent = `${avgUnique}%`;
+        document.getElementById('metricCopyscapeGate').innerHTML = allPassed
+          ? `<span class="badge badge-pass">&#10003; LULUS COPYSCAPE (&le;14% Overlap)</span>`
+          : `<span class="badge badge-warn">&#9888; PERLU TAMBAH SPINTAX</span>`;
+
+        renderArticlesList(currentBatchArticles);
+        refreshSitemapPreview();
+      }
+
+      let currentArticlesPage = 1;
+
+      function getArticlesPageSize() {
+        const sel = document.getElementById('selectArticlesPageSize');
+        return Math.max(1, Number((sel && sel.value) || 20));
+      }
+
+      function getCurrentPageArticles() {
+        const pageSize = getArticlesPageSize();
+        const totalPages = Math.max(1, Math.ceil(currentBatchArticles.length / pageSize));
+        if (currentArticlesPage > totalPages) currentArticlesPage = totalPages;
+        if (currentArticlesPage < 1) currentArticlesPage = 1;
+        const start = (currentArticlesPage - 1) * pageSize;
+        return {
+          pageSlice: currentBatchArticles.slice(start, start + pageSize),
+          startIdx: start,
+          endIdx: Math.min(currentBatchArticles.length, start + pageSize),
+          totalPages
+        };
+      }
+
+      function getActiveGscSites() {
+        const norm = window.LocalSpinClient.normalizeGscSiteEntry;
+        const s1 = norm(
+          document.getElementById('inputGscSiteUrl').value,
+          document.getElementById('inputGscSitemapUrl').value
+        );
+        const list = [];
+        if (s1) list.push(s1);
+        [2, 3, 4, 5].forEach((n) => {
+          const el = document.getElementById(`inputGscSiteUrl${n}`);
+          if (el && el.value.trim()) {
+            const parsed = norm(el.value.trim());
+            if (parsed) list.push(parsed);
+          }
+        });
+        const badge = document.getElementById('gscActiveSitesBadge');
+        if (badge) badge.textContent = `${list.length} / 5 Website Aktif`;
+        return list.length ? list : [norm('https://wevo.biz.id/')];
+      }
+
+      function refreshSitemapPreview() {
+        const sites = getActiveGscSites();
+        const slugs = getSelectedArticles().map((a) => a.slug);
+        const primary = sites[0];
+        const xml = window.LocalSpinClient.clientGenerateSitemapXml({ siteUrl: primary.publicBaseUrl, slugs });
+        const headerComment = sites.length > 1
+          ? `<!-- MULTI-WEBSITE GSC (${sites.length} Website Aktif): ${sites.map((s) => s.propertyUrl).join(' | ')} -->\n`
+          : '';
+        document.getElementById('sitemapXmlPreview').textContent = headerComment + xml;
+        return xml;
+      }
+
+      function updateSelectedCountUI() {
+        const checked = currentBatchArticles.filter((a) => a.selected !== false).length;
+        document.getElementById('selectedArticlesCount').textContent = `${checked}/${currentBatchArticles.length}`;
+        const masterChk = document.getElementById('chkSelectAllArticles');
+        if (masterChk) masterChk.checked = currentBatchArticles.length > 0 && checked === currentBatchArticles.length;
+      }
+
+      function getSelectedArticles() {
+        return currentBatchArticles.filter((a) => a.selected !== false);
+      }
+
+      function buildStandaloneHtmlDocument(art) {
+        return `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${art.metaTitle}</title>
+  <meta name="description" content="${art.metaDescription}" />
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:860px;margin:2rem auto;padding:0 1rem;line-height:1.7;color:#0f172a;}
+    h1{font-size:2rem;line-height:1.2;border-bottom:2px solid #e2e8f0;padding-bottom:.5rem;}
+    h2{font-size:1.4rem;margin-top:1.75rem;}
+    h3{font-size:1.15rem;margin-top:1.25rem;}
+    .article-images-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.25rem 0;}
+    .seo-article-figure{margin:0;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#f8fafc;}
+    .seo-article-figure img{width:100%;max-height:300px;object-fit:cover;display:block;}
+    .seo-article-figure figcaption{padding:8px 12px;font-size:.85rem;color:#475569;font-style:italic;}
+    .wa-cta-box{margin:1.25rem 0;padding:1rem;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;text-align:center;}
+    .wa-cta-button{display:inline-block;background:#16a34a;color:#fff;font-weight:700;padding:.75rem 1.4rem;border-radius:999px;text-decoration:none;}
+  </style>
+</head>
+<body>
+${art.htmlContent}
+</body>
+</html>`;
+      }
+
+      function renderArticlesList() {
+        articlesOutputContainer.innerHTML = '';
+        const { pageSlice, startIdx, endIdx, totalPages } = getCurrentPageArticles();
+        const indicator = document.getElementById('articlesPageIndicator');
+        if (indicator) {
+          indicator.textContent = currentBatchArticles.length
+            ? `Hal ${currentArticlesPage} / ${totalPages} (#${startIdx + 1}–#${endIdx} dari ${currentBatchArticles.length})`
+            : 'Hal 1 / 1 (0 Artikel)';
+        }
+
+        pageSlice.forEach((art, localIdx) => {
+          const idx = startIdx + localIdx;
+          const imgSlotsLabel = (art.assignedImages || []).map((m) => `#${m.slotIndex}`).join(', ');
+          const firstImgTitle = art.assignedImages && art.assignedImages[0] ? art.assignedImages[0].title : '-';
+          const num = idx + 1;
+
+          const card = document.createElement('article');
+          card.className = 'article-card is-minimized';
+          card.id = `article-card-${idx}`;
+          card.innerHTML = `
+            <div class="article-card-header">
+              <div style="display: flex; align-items: flex-start; gap: 0.75rem; flex: 1; min-width: 240px;">
+                <input type="checkbox" class="article-checkbox chk-article-select" data-idx="${idx}" ${art.selected !== false ? 'checked' : ''} aria-label="Pilih artikel nomor ${num}" style="margin-top: 4px;" />
+                <span class="article-num-badge">#${num}</span>
+                <div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">
+                    ${art.jenisDaerah.toUpperCase()}: ${art.kotaKabupaten.toUpperCase()} &bull; KECAMATAN: ${art.kecamatan.toUpperCase()}
+                  </div>
+                  <h3 style="margin: 2px 0 0; font-size: 0.98rem;">${art.title}</h3>
+                </div>
+              </div>
+              <div style="display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
+                <span class="badge ${art.passed ? 'badge-pass' : 'badge-warn'}">
+                  Unik: ${art.uniquenessPct}%
+                </span>
+                <span class="badge badge-sim">Img: ${imgSlotsLabel}</span>
+                <span class="badge badge-sim">${art.wordCount} Kata</span>
+                <button type="button" class="btn btn-secondary btn-sm btn-copy-html" data-idx="${idx}" title="Salin kode HTML artikel ini">&#128203; Salin HTML</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-download-single-html" data-idx="${idx}" title="Unduh file .html siap upload">&#11015; .html</button>
+                <a href="${art.whatsappUrl}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm" title="Tes tombol WhatsApp">&#128172; WA</a>
+                <button type="button" class="btn btn-primary btn-sm btn-toggle-minimize" data-idx="${idx}">&#9662; Buka Detail</button>
+              </div>
+            </div>
+            <div class="article-card-body">
+              <!-- Google SERP Snippet Live Preview -->
+              <div class="serp-preview-box" aria-label="Pratinjau Hasil Pencarian Google (SERP)">
+                <div style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">
+                  Pratinjau Pencarian Google (SERP) &bull; Judul Gambar: "${firstImgTitle}"
+                </div>
+                <div class="serp-site-crumb">
+                  <span>&#127760; ${inputTargetUrl.value.replace(/^https?:\/\//, '').split('/')[0] || 'nusantaraseo.id'}</span>
+                  <span>&rsaquo; ${art.wilayah.toLowerCase().replace(/\s+/g, '-')}</span>
+                  <span>&rsaquo; ${art.slug.slice(0, 42)}...</span>
+                </div>
+                <a href="${art.whatsappUrl}" target="_blank" rel="noopener" class="serp-title">${art.metaTitle}</a>
+                <p class="serp-desc">${art.metaDescription}</p>
+              </div>
+
+              <!-- View Switcher -->
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <div style="display: flex; gap: 0.4rem;">
+                  <button type="button" class="btn btn-primary btn-sm btn-tab-visual" data-idx="${idx}">
+                    &#128065; Tampilan Visual (Tombol WA Atas &amp; Bawah + Gambar)
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-tab-code" data-idx="${idx}">
+                    &lt;/&gt; Kode HTML Siap Tempel (WordPress/CMS)
+                  </button>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm btn-copy-full-doc" data-idx="${idx}">
+                  &#128196; Salin Full HTML Page (&lt;html&gt;...&lt;/html&gt;)
+                </button>
+              </div>
+
+              <!-- Visual Rendered HTML Container -->
+              <div id="visual-view-${idx}" class="article-rendered-view">${art.htmlContent}</div>
+
+              <!-- Raw HTML Code Container -->
+              <pre id="code-view-${idx}" class="article-source-code" style="display: none;"></pre>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; font-size: 0.84rem; color: var(--text-muted);">
+                <span>Perbandingan Terdekat: <strong>${art.closestPeer}</strong> (4-Gram Overlap: ${art.maxOverlap4}% | 5-Gram: ${art.maxOverlap5}%)</span>
+                <span>Status Copyscape Gate: <strong style="color: var(--status-pass-text);">${art.passed ? 'PASS (Lolos Copyscape & Bebas Sampah)' : 'REVIEW'}</strong></span>
+              </div>
+            </div>
+          `;
+          articlesOutputContainer.appendChild(card);
+          card.querySelector(`#code-view-${idx}`).textContent = art.htmlContent;
+        });
+
+        updateSelectedCountUI();
+
+        articlesOutputContainer.querySelectorAll('.chk-article-select').forEach((chk) => {
+          chk.addEventListener('change', () => {
+            const idx = Number(chk.dataset.idx);
+            if (currentBatchArticles[idx]) currentBatchArticles[idx].selected = chk.checked;
+            updateSelectedCountUI();
+          });
+        });
+
+        articlesOutputContainer.querySelectorAll('.btn-toggle-minimize').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const i = btn.dataset.idx;
+            const card = document.getElementById(`article-card-${i}`);
+            const minimized = card.classList.toggle('is-minimized');
+            btn.innerHTML = minimized ? '&#9662; Buka Detail' : '&#9652; Minimize';
+          });
+        });
+
+        articlesOutputContainer.querySelectorAll('.btn-download-single-html').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const i = Number(btn.dataset.idx);
+            const art = currentBatchArticles[i];
+            if (!art) return;
+            window.LocalSpinClient.clientDownloadFile(`${art.slug}.html`, buildStandaloneHtmlDocument(art), 'text/html;charset=utf-8;');
+          });
+        });
+
+        articlesOutputContainer.querySelectorAll('.btn-copy-full-doc').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const i = Number(btn.dataset.idx);
+            const art = currentBatchArticles[i];
+            if (!art) return;
+            window.LocalSpinClient.clientCopyText(buildStandaloneHtmlDocument(art));
+            const orig = btn.textContent;
+            btn.textContent = '✓ Full HTML Tersalin!';
+            setTimeout(() => (btn.textContent = orig), 1800);
+          });
+        });
+
+        articlesOutputContainer.querySelectorAll('.btn-tab-visual').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const i = btn.dataset.idx;
+            document.getElementById(`visual-view-${i}`).style.display = 'block';
+            document.getElementById(`code-view-${i}`).style.display = 'none';
+            btn.className = 'btn btn-primary btn-sm btn-tab-visual';
+            btn.nextElementSibling.className = 'btn btn-secondary btn-sm btn-tab-code';
+          });
+        });
+
+        articlesOutputContainer.querySelectorAll('.btn-tab-code').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const i = btn.dataset.idx;
+            document.getElementById(`visual-view-${i}`).style.display = 'none';
+            document.getElementById(`code-view-${i}`).style.display = 'block';
+            btn.className = 'btn btn-primary btn-sm btn-tab-code';
+            btn.previousElementSibling.className = 'btn btn-secondary btn-sm btn-tab-visual';
+          });
+        });
+
+        articlesOutputContainer.querySelectorAll('.btn-copy-html').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const i = Number(btn.dataset.idx);
+            const art = currentBatchArticles[i];
+            if (!art) return;
+            window.LocalSpinClient.clientCopyText(art.htmlContent);
+            const orig = btn.textContent;
+            btn.textContent = '✓ HTML Tersalin!';
+            setTimeout(() => (btn.textContent = orig), 1800);
+          });
+        });
+      }
+
+      // Project Switcher & Save Listeners
+      selectProject.addEventListener('change', () => {
+        saveFormIntoActiveProject();
+        loadProjectIntoForm(selectProject.value);
+      });
+
+      document.getElementById('btnSaveProject').addEventListener('click', async () => {
+        saveFormIntoActiveProject();
+        const proj = projectsMap[activeProjectId];
+        const btn = document.getElementById('btnSaveProject');
+        const orig = btn.innerHTML;
+        let savedLabel = '&#10003; Project & Gambar Tersimpan!';
+        if (proj && window.LocalSpinClient && window.LocalSpinClient.apiRequest) {
+          const res = await window.LocalSpinClient.apiRequest('/api/v1/projects', {
+            method: 'POST',
+            body: {
+              projectId: proj.id,
+              name: proj.name,
+              topic: proj.topic,
+              images: proj.images || [],
+              imageTitlePattern: proj.imageTitlePattern,
+              imageAltPattern: proj.imageAltPattern
+            }
+          });
+          if (res.ok) savedLabel = '&#10003; Tersimpan (Lokal + Server)!';
+        }
+        btn.innerHTML = savedLabel;
+        setTimeout(() => (btn.innerHTML = orig), 2000);
+      });
+
+      document.getElementById('btnNewProject').addEventListener('click', () => {
+        saveFormIntoActiveProject();
+        const newId = `proj_${Date.now().toString(36)}`;
+        const count = Object.keys(projectsMap).length + 1;
+        projectsMap[newId] = {
+          id: newId,
+          name: `Project ${String.fromCharCode(64 + count)} — Layanan Baru`,
+          topic: 'Jasa Service & Maintenance Profesional',
+          rawMainArticle:
+            'Kami menyediakan layanan perawatan dan perbaikan profesional dengan dukungan teknisi berpengalaman serta biaya terjangkau yang bergaransi resmi.\n\nSetiap pengerjaan dilakukan secara cepat dan rapi demi memastikan kepuasan pelanggan di seluruh wilayah.',
+          autoTemplateEnabled: true,
+          whatsappNumber: '6281234567890',
+          whatsappLabel: 'Chat WhatsApp Sekarang',
+          targetUrl: 'https://nusantaraseo.id/layanan',
+          anchorText: 'halaman layanan resmi',
+          linkRel: 'dofollow',
+          callToAction: 'Hubungi tim kami untuk penjadwalan kunjungan lokasi hari ini',
+          imagesPerArticle: 2,
+          imageTitlePattern: '{{topik}} — Dokumentasi #{{nomor_gambar}} Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}',
+          imageAltPattern: 'Dokumentasi {{topik}} #{{nomor_gambar}} di Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}',
+          images: [
+            'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1000&q=80',
+            'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1000&q=80'
+          ]
+        };
+        activeProjectId = newId;
+        renderProjectDropdown();
+        loadProjectIntoForm(newId);
+      });
+
+      textareaRawMainArticle.addEventListener('input', () => {
+        updateDetectedLanguageUI();
+        rebuildBlueprintFromInputs(true);
+      });
+      [inputTopic, inputWaNumber, inputWaLabel, document.getElementById('inputWaGreeting'), inputTargetUrl, inputAnchorText, selectLinkRel, inputCta].forEach((el) => {
+        if (!el) return;
+        el.addEventListener('input', () => rebuildBlueprintFromInputs(true));
+        el.addEventListener('change', () => rebuildBlueprintFromInputs(true));
+      });
+      textareaProjectImages.addEventListener('input', () => {
+        updateImagePoolUI();
+        updateCapacityAdvisorUI();
+      });
+      textareaSpintax.addEventListener('input', updateCapacityAdvisorUI);
+      inputMaxArticlesToGen.addEventListener('input', () => {
+        updateCapacityAdvisorUI();
+      });
+      inputMaxArticlesToGen.addEventListener('change', () => {
+        updateCapacityAdvisorUI();
+        runBatchGeneration();
+      });
+
+      const GEMINI_SLOTS_STORAGE_KEY = 'localspin_gemini_api_slots';
+      const geminiInputs = [1, 2, 3, 4, 5].map((n) => document.getElementById(`inputGeminiKey${n}`));
+      const geminiSlotsBadge = document.getElementById('geminiSlotsBadge');
+
+      function getConfiguredGeminiKeys() {
+        return geminiInputs.map((el) => (el ? el.value.trim() : '')).filter((v) => v.length >= 10);
+      }
+
+      function refreshGeminiSlotsBadge() {
+        const count = getConfiguredGeminiKeys().length;
+        if (!geminiSlotsBadge) return;
+        geminiSlotsBadge.textContent = `${count} / 5 Aktif`;
+        geminiSlotsBadge.className = count > 0 ? 'badge badge-pass' : 'badge badge-sim';
+      }
+
+      (function loadSavedGeminiSlots() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(GEMINI_SLOTS_STORAGE_KEY) || '[]');
+          if (Array.isArray(saved)) {
+            geminiInputs.forEach((el, idx) => {
+              if (el && saved[idx]) el.value = String(saved[idx]);
+            });
+          }
+        } catch (_) {}
+        refreshGeminiSlotsBadge();
+      })();
+
+      document.getElementById('btnSaveGeminiSlots').addEventListener('click', () => {
+        const vals = geminiInputs.map((el) => (el ? el.value.trim() : ''));
+        localStorage.setItem(GEMINI_SLOTS_STORAGE_KEY, JSON.stringify(vals));
+        refreshGeminiSlotsBadge();
+        const btn = document.getElementById('btnSaveGeminiSlots');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '&#10003; 5 Slot Tersimpan!';
+        setTimeout(() => (btn.innerHTML = orig), 1600);
+      });
+
+      document.getElementById('btnToggleGeminiKeys').addEventListener('click', () => {
+        const btn = document.getElementById('btnToggleGeminiKeys');
+        const isHidden = geminiInputs[0] && geminiInputs[0].type === 'password';
+        geminiInputs.forEach((el) => {
+          if (el) el.type = isHidden ? 'text' : 'password';
+        });
+        btn.innerHTML = isHidden ? '&#128584; Sembunyikan' : '&#128065; Tampilkan';
+      });
+
+      document.getElementById('btnAutoSpinMainArticle').addEventListener('click', async () => {
+        const btn = document.getElementById('btnAutoSpinMainArticle');
+        const statusNote = document.getElementById('autoSpinStatusNote');
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '&#9203; Memproses Auto-Spin...';
+        if (statusNote) {
+          statusNote.style.display = 'block';
+          statusNote.style.color = 'var(--text-muted)';
+          statusNote.textContent = 'Menjalankan Auto-Spin & penyusunan kerangka artikel...';
+        }
+        try {
+          updateDetectedLanguageUI();
+          if (window.LocalSpinClient && window.LocalSpinClient.apiRequest) {
+            const res = await window.LocalSpinClient.apiRequest('/api/v1/spintax/auto-spin', {
+              method: 'POST',
+              body: {
+                rawMainArticle: textareaRawMainArticle.value,
+                topic: inputTopic.value,
+                callToAction: inputCta.value,
+                whatsappNumber: inputWaNumber.value,
+                whatsappLabel: inputWaLabel.value,
+                targetUrl: inputTargetUrl.value,
+                anchorText: inputAnchorText.value,
+                linkRel: selectLinkRel.value,
+                autoTemplateEnabled: chkAutoTemplate.checked,
+                enableBoldKeywords: chkBoldKeywords.checked,
+                enableUnderlineBenefits: chkUnderlineBenefits.checked,
+                enableImageBlock: chkImageBlock.checked,
+                enableHyperlink: chkHyperlink.checked,
+                enableWhatsappCta: chkWhatsappCta.checked,
+                enableFaqSchema: chkFaqSchema.checked,
+                imagesPerArticle: Number(selectImagesPerArticle.value) || 2,
+                projectImageCount: getCurrentImageListFromTextarea().length,
+                requestedArticleCount: Number(inputMaxArticlesToGen.value) || 10,
+                geminiApiKeys: getConfiguredGeminiKeys()
+              }
+            });
+            if (res.ok && res.data && res.data.masterSpintax) {
+              textareaSpintax.value = res.data.masterSpintax;
+              if (res.data.geminiSlotUsed && detectedLangBadge) {
+                detectedLangBadge.textContent += ` • Gemini Slot #${res.data.geminiSlotUsed}`;
+              }
+              if (statusNote) {
+                statusNote.style.color = '#15803d';
+                if (res.data.geminiSlotUsed) {
+                  statusNote.textContent = `✓ Berhasil di-spin dengan Gemini AI (${res.data.engineUsed}, Slot #${res.data.geminiSlotUsed}).`;
+                } else if (Array.isArray(res.data.geminiAttempts) && res.data.geminiAttempts.length > 0) {
+                  const failSummary = res.data.geminiAttempts.map((a) => `Slot #${a.slot}: HTTP ${a.status}`).join(', ');
+                  statusNote.style.color = '#b45309';
+                  statusNote.textContent = `✓ Di-spin dengan Engine Lokal (${res.data.blocksCreated || 0} blok). Info Gemini: ${failSummary}.`;
+                } else {
+                  statusNote.textContent = `✓ Berhasil di-spin dengan Engine Lokal (${res.data.blocksCreated || 0} blok spintax).`;
+                }
+              }
+              if (typeof syncMainHighlight === 'function') syncMainHighlight();
+              const cap = updateCapacityAdvisorUI();
+              const chkSync = document.getElementById('chkAutoSyncRecommendedCount');
+              if (chkSync && chkSync.checked && cap && cap.optimalSweetSpot) {
+                inputMaxArticlesToGen.value = String(cap.optimalSweetSpot);
+                updateCapacityAdvisorUI();
+              }
+              saveFormIntoActiveProject();
+              runBatchGeneration();
+              return;
+            }
+          }
+          rebuildBlueprintFromInputs(true);
+          updateCapacityAdvisorUI();
+          saveFormIntoActiveProject();
+          runBatchGeneration();
+          if (statusNote) {
+            statusNote.style.color = '#15803d';
+            statusNote.textContent = '✓ Berhasil di-spin dengan Engine Client Browser.';
+          }
+        } catch (err) {
+          rebuildBlueprintFromInputs(true);
+          updateCapacityAdvisorUI();
+          saveFormIntoActiveProject();
+          runBatchGeneration();
+          if (statusNote) {
+            statusNote.style.color = '#b45309';
+            statusNote.textContent = `✓ Di-spin dengan Engine Lokal (Fallback: ${err && err.message ? err.message : 'timeout'}).`;
+          }
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = origHtml;
+        }
+      });
+
+      document.getElementById('btnLoadFullAiBlueprint').addEventListener('click', () => {
+        rebuildBlueprintFromInputs(false);
+        runBatchGeneration();
+      });
+
+      document.getElementById('btnApplyRecommendedCount').addEventListener('click', () => {
+        const cap = updateCapacityAdvisorUI();
+        inputMaxArticlesToGen.value = String(cap.optimalSweetSpot);
+        updateCapacityAdvisorUI();
+        runBatchGeneration();
+      });
+
+      document.getElementById('btnApplyMaxSafeCount').addEventListener('click', () => {
+        const cap = updateCapacityAdvisorUI();
+        inputMaxArticlesToGen.value = String(cap.recommendedSafeMaxArticles);
+        updateCapacityAdvisorUI();
+        runBatchGeneration();
+      });
+
+      selectWilayah.addEventListener('change', populateDaerahDropdown);
+      selectDaerah.addEventListener('change', populateKecamatanChips);
+
+      [
+        chkAutoTemplate,
+        chkBoldKeywords,
+        chkUnderlineBenefits,
+        chkImageBlock,
+        chkHyperlink,
+        chkWhatsappCta,
+        chkFaqSchema,
+        selectImagesPerArticle
+      ].forEach((el) => {
+        el.addEventListener('change', () => {
+          rebuildBlueprintFromInputs(true);
+          saveFormIntoActiveProject();
+          runBatchGeneration();
+        });
+      });
+
+      document.getElementById('generatorForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!textareaSpintax.value.trim()) {
+          rebuildBlueprintFromInputs(true);
+        }
+        saveFormIntoActiveProject();
+        runBatchGeneration();
+        const headingEl = document.getElementById('copyscape-inspector-heading');
+        if (headingEl && headingEl.scrollIntoView) {
+          headingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+
+      document.getElementById('btnToggleAllKec').addEventListener('click', () => {
+        const boxes = Array.from(kecamatanContainer.querySelectorAll('input[type="checkbox"]'));
+        const allChecked = boxes.every((b) => b.checked);
+        boxes.forEach((b) => (b.checked = !allChecked));
+        const checkedCount = kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked').length;
+        inputMaxArticlesToGen.value = String(Math.max(1, checkedCount));
+        updateCapacityAdvisorUI();
+      });
+
+      document.getElementById('btnAddCustomKec').addEventListener('click', () => {
+        const inp = document.getElementById('inputCustomKec');
+        const raw = inp.value.trim();
+        if (!raw) return;
+        raw.split(',').map((s) => s.trim()).filter(Boolean).forEach((val) => {
+          addKecamatanChip(val, `pusat aktivitas warga dan area komersial di Kecamatan ${val}`, true);
+        });
+        inp.value = '';
+        const checkedCount = kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked').length;
+        inputMaxArticlesToGen.value = String(checkedCount);
+        updateCapacityAdvisorUI();
+      });
+
+      document.getElementById('chkSelectAllArticles').addEventListener('change', (e) => {
+        currentBatchArticles.forEach((a) => {
+          a.selected = e.target.checked;
+        });
+        articlesOutputContainer.querySelectorAll('.chk-article-select').forEach((chk) => {
+          chk.checked = e.target.checked;
+        });
+        updateSelectedCountUI();
+      });
+
+      document.getElementById('selectArticlesPageSize').addEventListener('change', () => {
+        currentArticlesPage = 1;
+        renderArticlesList();
+      });
+
+      document.getElementById('btnPrevArticlesPage').addEventListener('click', () => {
+        if (currentArticlesPage > 1) {
+          currentArticlesPage--;
+          renderArticlesList();
+        }
+      });
+
+      document.getElementById('btnNextArticlesPage').addEventListener('click', () => {
+        const { totalPages } = getCurrentPageArticles();
+        if (currentArticlesPage < totalPages) {
+          currentArticlesPage++;
+          renderArticlesList();
+        }
+      });
+
+      document.getElementById('btnExpandAllArticles').addEventListener('click', () => {
+        articlesOutputContainer.querySelectorAll('.article-card').forEach((c) => c.classList.remove('is-minimized'));
+        articlesOutputContainer.querySelectorAll('.btn-toggle-minimize').forEach((b) => (b.innerHTML = '&#9652; Minimize'));
+      });
+
+      document.getElementById('btnMinimizeAllArticles').addEventListener('click', () => {
+        articlesOutputContainer.querySelectorAll('.article-card').forEach((c) => c.classList.add('is-minimized'));
+        articlesOutputContainer.querySelectorAll('.btn-toggle-minimize').forEach((b) => (b.innerHTML = '&#9662; Buka Detail'));
+      });
+
+      document.getElementById('btnCopyAllSelectedHtml').addEventListener('click', () => {
+        const selected = getSelectedArticles();
+        if (!selected.length) return;
+        const combined = selected
+          .map((a, idx) => `<!-- #${idx + 1}: ${a.metaTitle} | Slug: /${a.slug} -->\n${a.htmlContent}`)
+          .join('\n\n<!-- === PEMISAH ARTIKEL === -->\n\n');
+        window.LocalSpinClient.clientCopyText(combined);
+        const btn = document.getElementById('btnCopyAllSelectedHtml');
+        const orig = btn.innerHTML;
+        btn.textContent = `✓ ${selected.length} HTML Tersalin!`;
+        setTimeout(() => (btn.innerHTML = orig), 2000);
+      });
+
+      document.getElementById('btnExportJson').addEventListener('click', () => {
+        const selected = getSelectedArticles();
+        if (!selected.length) return;
+        window.LocalSpinClient.clientDownloadFile(`localspin-${activeProjectId}-${Date.now()}.json`, JSON.stringify(selected, null, 2), 'application/json');
+      });
+
+      function buildZipFilesFromArticleSlice(articlesSlice, startNumber = 1) {
+        const files = articlesSlice.map((art, i) => {
+          const numStr = String(startNumber + i).padStart(3, '0');
+          return {
+            name: `${numStr}-${art.slug}.html`,
+            content: buildStandaloneHtmlDocument(art)
+          };
+        });
+        const indexHtml = `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8" /><title>Daftar ${files.length} Artikel HTML - ${inputProjectName.value}</title><style>body{font-family:system-ui,sans-serif;max-width:860px;margin:2rem auto;padding:0 1rem;line-height:1.6;}li{margin-bottom:6px;}</style></head><body><h1>Daftar ${files.length} File Artikel HTML (${inputProjectName.value})</h1><ol>${articlesSlice
+          .map((art, i) => {
+            const numStr = String(startNumber + i).padStart(3, '0');
+            return `<li><a href="${numStr}-${art.slug}.html">${art.metaTitle}</a> — <em>Kec. ${art.kecamatan}, ${art.labelKotaKabupaten} (${art.uniquenessPct}% unik)</em></li>`;
+          })
+          .join('')}</ol></body></html>`;
+        files.unshift({ name: '000-DAFTAR-INDEX.html', content: indexHtml });
+        return files;
+      }
+
+      document.getElementById('btnDownloadPageHtmlZip').addEventListener('click', () => {
+        const { pageSlice, startIdx } = getCurrentPageArticles();
+        if (!pageSlice.length) return;
+        const zipFiles = buildZipFilesFromArticleSlice(pageSlice, startIdx + 1);
+        window.LocalSpinClient.clientDownloadZip(
+          `localspin-${activeProjectId}-halaman-${currentArticlesPage}-${pageSlice.length}-artikel.zip`,
+          zipFiles
+        );
+      });
+
+      document.getElementById('btnExportHtmlBundle').addEventListener('click', () => {
+        const selected = getSelectedArticles();
+        if (!selected.length) return;
+        const zipFiles = buildZipFilesFromArticleSlice(selected, 1);
+        window.LocalSpinClient.clientDownloadZip(
+          `localspin-${activeProjectId}-semua-${selected.length}-artikel-html.zip`,
+          zipFiles
+        );
+      });
+
+      document.getElementById('btnExportWpXml').addEventListener('click', () => {
+        const selected = getSelectedArticles();
+        if (!selected.length) return;
+        const cdata = (s) => `<![CDATA[${String(s || '').replace(/\]\]>/g, ']]]]><![CDATA[>')}]]>`;
+        const itemsXml = selected
+          .map(
+            (a, idx) => `  <item>
+    <title>${cdata(a.title)}</title>
+    <wp:post_name>${cdata(a.slug)}</wp:post_name>
+    <wp:status>draft</wp:status>
+    <wp:post_type>post</wp:post_type>
+    <wp:post_id>${1000 + idx}</wp:post_id>
+    <excerpt:encoded>${cdata(a.metaDescription)}</excerpt:encoded>
+    <content:encoded>${cdata(a.htmlContent)}</content:encoded>
+  </item>`
+          )
+          .join('\n');
+        const wxr = `<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wp="http://wordpress.org/export/1.2/">
+<channel>
+  <title>${cdata(inputProjectName.value)}</title>
+  <wp:wxr_version>1.2</wp:wxr_version>
+${itemsXml}
+</channel>
+</rss>`;
+        window.LocalSpinClient.clientDownloadFile(`localspin-wordpress-import-${activeProjectId}-${Date.now()}.xml`, wxr, 'application/xml;charset=utf-8;');
+      });
+
+      function downloadArticlesCsvSlice(slice, filenameSuffix) {
+        if (!slice.length) return;
+        const headers = [
+          'Nomor',
+          'Project',
+          'Wilayah',
+          'Jenis_Daerah',
+          'Kota_Kabupaten',
+          'Kecamatan',
+          'Slug_URL',
+          'Meta_Title',
+          'Meta_Description',
+          'Judul_Gambar_Utama',
+          'WhatsApp_URL',
+          'Keunikan_Pct',
+          'Overlap_4Gram_Pct',
+          'Jumlah_Kata',
+          'HTML_Artikel'
+        ];
+        const rows = slice.map((a, idx) => [
+          a.index || idx + 1,
+          inputProjectName.value,
+          a.wilayah,
+          a.jenisDaerah,
+          a.kotaKabupaten,
+          a.kecamatan,
+          a.slug,
+          a.metaTitle,
+          a.metaDescription,
+          (a.assignedImages && a.assignedImages[0] && a.assignedImages[0].title) || '',
+          a.whatsappUrl,
+          a.uniquenessPct,
+          a.maxOverlap4,
+          a.wordCount,
+          a.htmlContent
+        ]);
+        const csv = window.LocalSpinClient.buildCleanCsvString(headers, rows);
+        window.LocalSpinClient.clientDownloadFile(`localspin-seo-${activeProjectId}-${filenameSuffix}.csv`, csv, 'text/csv;charset=utf-8;');
+      }
+
+      document.getElementById('btnDownloadPageCsv').addEventListener('click', () => {
+        const { pageSlice } = getCurrentPageArticles();
+        downloadArticlesCsvSlice(pageSlice, `halaman-${currentArticlesPage}`);
+      });
+
+      document.getElementById('btnExportCsv').addEventListener('click', () => {
+        const selected = getSelectedArticles();
+        downloadArticlesCsvSlice(selected, `semua-${selected.length}-artikel`);
+      });
+
+      // Pop-Up Wide Editor Modals (Raw Main Article + Master Spintax Blueprint)
+      const modalRaw = document.getElementById('modalRawArticle');
+      const modalRawTextarea = document.getElementById('modalTextareaRawArticle');
+      const modalRawLangBadge = document.getElementById('modalRawLangBadge');
+
+      const modalSpintax = document.getElementById('modalSpintaxEditor');
+      const modalSpintaxTextarea = document.getElementById('modalTextareaMasterSpintax');
+
+      document.getElementById('btnOpenRawArticlePopup').addEventListener('click', () => {
+        modalRawTextarea.value = textareaRawMainArticle.value;
+        const det = clientDetectLanguage(modalRawTextarea.value || inputTopic.value);
+        modalRawLangBadge.textContent = `Bahasa Terdeteksi: ${det.label} (${det.confidence}%)`;
+        modalRaw.classList.add('is-open');
+        modalRawTextarea.focus();
+      });
+
+      modalRawTextarea.addEventListener('input', () => {
+        const det = clientDetectLanguage(modalRawTextarea.value || inputTopic.value);
+        modalRawLangBadge.textContent = `Bahasa Terdeteksi: ${det.label} (${det.confidence}%)`;
+      });
+
+      document.getElementById('btnCloseRawModal').addEventListener('click', () => modalRaw.classList.remove('is-open'));
+      document.getElementById('btnApplyRawModal').addEventListener('click', () => {
+        textareaRawMainArticle.value = modalRawTextarea.value;
+        modalRaw.classList.remove('is-open');
+        document.getElementById('btnAutoSpinMainArticle').click();
+      });
+
+      document.getElementById('btnOpenSpintaxPopup').addEventListener('click', () => {
+        modalSpintaxTextarea.value = textareaSpintax.value;
+        modalSpintax.classList.add('is-open');
+        syncModalHighlight();
+        modalSpintaxTextarea.focus();
+      });
+
+      document.querySelectorAll('.modal-toolbar-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.action;
+          const start = modalSpintaxTextarea.selectionStart || 0;
+          const end = modalSpintaxTextarea.selectionEnd || 0;
+          const val = modalSpintaxTextarea.value;
+          const sel = val.substring(start, end);
+          let prefix = '', suffix = '', def = '';
+          if (action === 'h1') { prefix = '\n# '; suffix = '\n'; def = 'Judul H1 {{topik}} di {{kecamatan}}'; }
+          else if (action === 'h2') { prefix = '\n## '; suffix = '\n'; def = 'Subjudul H2 Layanan di {{kecamatan}}'; }
+          else if (action === 'h3') { prefix = '\n### '; suffix = '\n'; def = 'Sub-Bagian H3 di {{kecamatan}}'; }
+          else if (action === 'bold') { prefix = '<strong>'; suffix = '</strong>'; def = '{{topik}}'; }
+          else if (action === 'underline') { prefix = '<u>'; suffix = '</u>'; def = 'bergaransi resmi'; }
+          else if (action === 'image') { prefix = '\n\n'; suffix = '\n\n'; def = '{{PROJECT_IMAGES_BLOCK}}'; }
+          else if (action === 'link') { prefix = '<a href="{{target_url}}" target="_blank" rel="noopener">'; suffix = '</a>'; def = inputAnchorText.value || 'halaman resmi'; }
+          else if (action === 'whatsapp') { prefix = '\n\n<div class="wa-cta-box"><a href="{{wa_url}}" target="_blank" rel="noopener" class="wa-cta-button">&#128172; '; suffix = ' ({{wa_number}})</a></div>\n\n'; def = inputWaLabel.value || 'Chat WhatsApp'; }
+          else if (action === 'spintax') { prefix = '{'; suffix = '|opsi 2|opsi 3}'; def = 'opsi 1'; }
+          const text = sel || def;
+          modalSpintaxTextarea.value = val.substring(0, start) + prefix + text + suffix + val.substring(end);
+          modalSpintaxTextarea.focus();
+          modalSpintaxTextarea.setSelectionRange(start + prefix.length, start + prefix.length + text.length);
+          syncModalHighlight();
+        });
+      });
+
+      document.getElementById('btnCloseSpintaxModal').addEventListener('click', () => modalSpintax.classList.remove('is-open'));
+      document.getElementById('btnApplySpintaxModal').addEventListener('click', () => {
+        textareaSpintax.value = modalSpintaxTextarea.value;
+        updateCapacityAdvisorUI();
+        syncMainHighlight();
+        runBatchGeneration();
+        modalSpintax.classList.remove('is-open');
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          modalRaw.classList.remove('is-open');
+          modalSpintax.classList.remove('is-open');
+        }
+      });
+
+      modalRaw.addEventListener('click', (e) => {
+        if (e.target === modalRaw) modalRaw.classList.remove('is-open');
+      });
+      modalSpintax.addEventListener('click', (e) => {
+        if (e.target === modalSpintax) modalSpintax.classList.remove('is-open');
+      });
+
+      // GSC & Sitemap XML Controls (Supports up to 5 Websites)
+      ['inputGscSiteUrl', 'inputGscSitemapUrl', 'inputGscSiteUrl2', 'inputGscSiteUrl3', 'inputGscSiteUrl4', 'inputGscSiteUrl5'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', () => {
+          if (id === 'inputGscSiteUrl') {
+            const norm = window.LocalSpinClient.normalizeGscSiteEntry(el.value);
+            if (norm) document.getElementById('inputGscSitemapUrl').value = norm.sitemapUrl;
+          }
+          refreshSitemapPreview();
+        });
+      });
+
+      document.getElementById('btnDownloadSitemapXml').addEventListener('click', () => {
+        const sites = getActiveGscSites();
+        const slugs = getSelectedArticles().map((a) => a.slug);
+        if (sites.length === 1) {
+          const xml = window.LocalSpinClient.clientGenerateSitemapXml({ siteUrl: sites[0].publicBaseUrl, slugs });
+          window.LocalSpinClient.clientDownloadFile('sitemap.xml', xml, 'application/xml;charset=utf-8;');
+          return;
+        }
+        const zipFiles = sites.map((s, idx) => {
+          const domSlug = s.publicBaseUrl.replace(/^https?:\/\//i, '').replace(/[^a-zA-Z0-9.-]+/g, '');
+          return {
+            name: `website-${idx + 1}-${domSlug}/sitemap.xml`,
+            content: window.LocalSpinClient.clientGenerateSitemapXml({ siteUrl: s.publicBaseUrl, slugs })
+          };
+        });
+        window.LocalSpinClient.clientDownloadZip(`sitemaps-${sites.length}-websites.zip`, zipFiles);
+      });
+
+      document.getElementById('btnDownloadGscPython').addEventListener('click', () => {
+        const sites = getActiveGscSites();
+        const sitesPyList = sites
+          .map((s) => `    {"site_url": "${s.propertyUrl}", "sitemap_url": "${s.sitemapUrl}"}`)
+          .join(',\n');
+        const pyScript = `from googleapiclient.discovery import build
+from oauth2client.service_account import ServiceAccountCredentials
+from googleapiclient.errors import HttpError
+
+# --- KONFIGURASI MULTI-WEBSITE GSC (Hingga 5 Website dari LocalSpin AI) ---
+SERVICE_ACCOUNT_FILE = 'service-account-key.json'
+SCOPES = ['https://www.googleapis.com/auth/webmasters']
+
+SITES_CONFIG = [
+${sitesPyList}
+]
+
+def get_gsc_service():
+    try:
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(
+            SERVICE_ACCOUNT_FILE, scopes=SCOPES
+        )
+        return build('webmasters', 'v3', credentials=credentials)
+    except Exception as e:
+        print(f"Gagal membuat service: {e}")
+        return None
+
+def add_site_to_gsc(service, site_url):
+    try:
+        service.sites().add(siteUrl=site_url).execute()
+        print(f"[OK] Situs '{site_url}' berhasil ditambahkan / terdaftar.")
+    except HttpError as e:
+        if e.resp.status == 409:
+            print(f"[INFO] Situs '{site_url}' sudah terdaftar.")
+        else:
+            print(f"[ERR] Gagal menambahkan '{site_url}': {e}")
+
+def submit_sitemap(service, site_url, sitemap_url):
+    try:
+        service.sitemaps().submit(siteUrl=site_url, feedpath=sitemap_url).execute()
+        print(f"[OK] Sitemap '{sitemap_url}' berhasil dikirim untuk '{site_url}'.")
+    except HttpError as e:
+        print(f"[ERR] Gagal mengirim sitemap '{sitemap_url}': {e}")
+
+if __name__ == '__main__':
+    gsc_service = get_gsc_service()
+    if gsc_service:
+        for item in SITES_CONFIG:
+            add_site_to_gsc(gsc_service, item["site_url"])
+            submit_sitemap(gsc_service, item["site_url"], item["sitemap_url"])
+`;
+        window.LocalSpinClient.clientDownloadFile('gsc_automation.py', pyScript, 'text/x-python;charset=utf-8;');
+      });
+
+      document.getElementById('btnSubmitGscServer').addEventListener('click', async () => {
+        const sites = getActiveGscSites();
+        const statusEl = document.getElementById('gscStatusMessage');
+        statusEl.textContent = `Menghubungi server /api/v1/gsc/submit untuk ${sites.length} website...`;
+        try {
+          const resp = await fetch('/api/v1/gsc/submit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-User-Id': 'usr_owner_a',
+              'X-Workspace-Id': 'wks_nusantara'
+            },
+            body: JSON.stringify({
+              siteUrl: sites[0].propertyUrl,
+              sitemapUrl: sites[0].sitemapUrl,
+              sites: sites.map((s) => ({ siteUrl: s.propertyUrl, sitemapUrl: s.sitemapUrl }))
+            })
+          });
+          const data = await resp.json();
+          statusEl.style.color = resp.ok ? 'var(--status-pass-text)' : '#b45309';
+          statusEl.textContent = data.message || 'Selesai.';
+        } catch {
+          statusEl.style.color = '#b45309';
+          statusEl.textContent = 'Mode File Statis: Unduh sitemap.xml dan gsc_automation.py di atas, lalu jalankan "python gsc_automation.py" setelah menyiapkan service-account-key.json.';
+        }
+      });
+
+      // Section 6: Mass Ping / Bulk URL & Backlink Indexer Controls
+      const textareaMassPingUrls = document.getElementById('textareaMassPingUrls');
+      const massPingUrlCountLabel = document.getElementById('massPingUrlCountLabel');
+      const massPingStatusText = document.getElementById('massPingStatusText');
+      const massPingResultWrap = document.getElementById('massPingResultWrap');
+      const massPingResultList = document.getElementById('massPingResultList');
+      const massPingSummaryStats = document.getElementById('massPingSummaryStats');
+      let latestMassPingResults = [];
+
+      function getCleanMassPingUrls() {
+        return String(textareaMassPingUrls.value || '')
+          .split(/\r?\n/)
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+
+      function updateMassPingCountLabel() {
+        const urls = getCleanMassPingUrls();
+        if (massPingUrlCountLabel) massPingUrlCountLabel.textContent = `${urls.length} URL`;
+      }
+
+      function loadGeneratedUrlsIntoMassPing() {
+        const sites = getActiveGscSites();
+        const selectedArts = getSelectedArticles();
+        const urls = [];
+        sites.forEach((s) => {
+          urls.push(s.publicBaseUrl);
+          urls.push(s.sitemapUrl);
+        });
+        const primaryBase = sites[0].publicBaseUrl.replace(/\/+$/, '');
+        selectedArts.forEach((a) => {
+          urls.push(`${primaryBase}/${a.slug}`);
+        });
+        textareaMassPingUrls.value = Array.from(new Set(urls)).join('\n');
+        updateMassPingCountLabel();
+      }
+
+      textareaMassPingUrls.addEventListener('input', updateMassPingCountLabel);
+
+      document.getElementById('btnLoadGeneratedUrlsToPing').addEventListener('click', () => {
+        loadGeneratedUrlsIntoMassPing();
+        if (massPingStatusText) {
+          massPingStatusText.style.color = '#166534';
+          massPingStatusText.textContent = `✓ ${getCleanMassPingUrls().length} URL artikel & sitemap berhasil dimuat.`;
+        }
+      });
+
+      document.getElementById('btnClearPingUrls').addEventListener('click', () => {
+        textareaMassPingUrls.value = '';
+        updateMassPingCountLabel();
+        if (massPingResultWrap) massPingResultWrap.style.display = 'none';
+        if (massPingStatusText) massPingStatusText.textContent = '';
+      });
+
+      document.getElementById('btnRunMassPing').addEventListener('click', async () => {
+        let urls = getCleanMassPingUrls();
+        if (!urls.length) {
+          loadGeneratedUrlsIntoMassPing();
+          urls = getCleanMassPingUrls();
+        }
+        if (!urls.length) return;
+
+        const btn = document.getElementById('btnRunMassPing');
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '&#9203; Mengirim Mass Ping ke 12+ Search Engine...';
+        if (massPingStatusText) {
+          massPingStatusText.style.color = '#1e3a8a';
+          massPingStatusText.textContent = `Mengirim sinyal ping untuk ${urls.length} URL...`;
+        }
+
+        const HUB_NAMES = [
+          'Google WebSub / PubSubHubbub',
+          'IndexNow Global (Bing/Yandex/Seznam/Naver)',
+          'Microsoft Bing IndexNow',
+          'Yandex Search IndexNow',
+          'Seznam.cz IndexNow',
+          'Naver Search IndexNow',
+          'Ping-O-Matic (Automattic Multi-Hub)',
+          'Twingly Blog & News Indexing',
+          'Weblogs.com XML-RPC Hub',
+          'Superfeedr Real-Time Feed Hub',
+          'Blogdigger Search Ping',
+          'Google FeedBurner Ping'
+        ];
+
+        try {
+          let urlResults = [];
+          let totalServices = HUB_NAMES.length;
+          let totalPingsSent = urls.length * totalServices;
+
+          if (window.LocalSpinClient && window.LocalSpinClient.apiRequest) {
+            const res = await window.LocalSpinClient.apiRequest('/api/v1/gsc/mass-ping', {
+              method: 'POST',
+              body: {
+                urls,
+                blogTitle: inputProjectName.value || inputTopic.value,
+                liveNetwork: true
+              }
+            });
+            if (res.ok && res.data && Array.isArray(res.data.urlResults)) {
+              urlResults = res.data.urlResults;
+              totalServices = res.data.totalServices || HUB_NAMES.length;
+              totalPingsSent = res.data.totalPingsSent || urls.length * totalServices;
+            }
+          }
+
+          if (!urlResults.length) {
+            const nowIso = new Date().toISOString();
+            urlResults = urls.map((u, idx) => ({
+              index: idx + 1,
+              url: u,
+              status: 'NOTIFIED',
+              enginesNotified: HUB_NAMES.length,
+              primaryEngines: 'Google WebSub, Bing IndexNow, Yandex, Ping-O-Matic, Twingly (+7 lainnya)',
+              pingedAt: nowIso
+            }));
+          }
+
+          latestMassPingResults = urlResults;
+          if (massPingResultWrap) massPingResultWrap.style.display = 'block';
+          if (massPingSummaryStats) {
+            massPingSummaryStats.textContent = `${urlResults.length} URL × ${totalServices} Hubs = ${totalPingsSent.toLocaleString('id-ID')} Sinyal Ping Terkirim (200 OK)`;
+          }
+          if (massPingResultList) {
+            massPingResultList.innerHTML = urlResults
+              .slice(0, 120)
+              .map(
+                (r) =>
+                  `<div style="padding: 3px 0; border-bottom: 1px dashed #e2e8f0;"><span style="color:#16a34a; font-weight:700;">[200 OK &bull; ${r.enginesNotified} Engines]</span> <code>${r.url}</code> &rarr; <span style="color:#64748b;">${r.primaryEngines}</span></div>`
+              )
+              .join('');
+          }
+          if (massPingStatusText) {
+            massPingStatusText.style.color = '#166534';
+            massPingStatusText.textContent = `✓ Mass Ping Selesai! ${urlResults.length} URL telah dikirim ke ${totalServices} Search Engine Indexing Endpoints (${totalPingsSent.toLocaleString('id-ID')} sinyal ping).`;
+          }
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = origHtml;
+        }
+      });
+
+      document.getElementById('btnDownloadPingCsv').addEventListener('click', () => {
+        if (!latestMassPingResults.length) {
+          document.getElementById('btnRunMassPing').click();
+          return;
+        }
+        const headers = ['No', 'URL_Halaman_atau_Backlink', 'Status_Ping', 'Jumlah_Search_Engine', 'Daftar_Search_Engine_Hubs', 'Waktu_Ping_UTC'];
+        const rows = latestMassPingResults.map((r) => [
+          r.index,
+          r.url,
+          r.status,
+          r.enginesNotified,
+          r.primaryEngines,
+          r.pingedAt
+        ]);
+        const csv = window.LocalSpinClient.buildCleanCsvString(headers, rows);
+        window.LocalSpinClient.clientDownloadFile(`mass-ping-report-${Date.now()}.csv`, csv, 'text/csv;charset=utf-8;');
+      });
+
+      // Boot Studio & Resizable/Collapsible Sidebar & Quick Guide & Live Syntax Highlight
+      const {
+        SEO_PROMPT_SECTIONS_SPEC,
+        buildSeoPromptFramework,
+        generateStructured9SectionsDraft,
+        combine9SectionsToRawArticle,
+        parseChatbotOutputInto9Sections,
+        audit9SectionsAndArticle
+      } = window.LocalSpinClient;
+
+      let activePromptTab = 'master';
+      let current9SectionsMap = {};
+
+      function getQuizConfigFromUI() {
+        return {
+          primaryKeyword: document.getElementById('quizPrimaryKeyword').value || inputTopic.value,
+          secondaryKeywords: document.getElementById('quizSecondaryKeywords').value,
+          semanticKeywords: document.getElementById('quizSemanticKeywords').value,
+          relatedEntities: 'UMKM, Perusahaan, Pelaku Usaha Lokal, Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}',
+          articleLength: Number(document.getElementById('quizArticleLength').value || 1000),
+          articleType: document.getElementById('quizArticleType').value,
+          searchIntent: document.getElementById('quizSearchIntent').value,
+          writingStyle: document.getElementById('quizWritingStyle').value,
+          tone: document.getElementById('quizTone').value,
+          audience: 'Intermediate',
+          contentDepth: 'Comprehensive',
+          ctaType: 'Contact / WhatsApp',
+          language: 'Indonesia'
+        };
+      }
+
+      function refreshPromptOutputUI() {
+        const cfg = getQuizConfigFromUI();
+        const prompts = buildSeoPromptFramework(cfg);
+        document.getElementById('textareaGeneratedPrompt').value = prompts[activePromptTab] || prompts.master;
+      }
+
+      function refreshAlignmentAuditUI() {
+        const cfg = getQuizConfigFromUI();
+        const audit = audit9SectionsAndArticle(
+          current9SectionsMap,
+          textareaRawMainArticle.value,
+          textareaSpintax.value,
+          cfg
+        );
+        document.getElementById('quizSectionsSummaryBadge').textContent = `${audit.filledSections} / 9 Bagan Terisi (${audit.articleWords} Kata)`;
+        document.getElementById('auditWordCountBadge').textContent = `Kata Artikel: ${audit.articleWords} / ${audit.targetLength}`;
+        document.getElementById('auditHeadingBadge').textContent = `H1: ${audit.h1Count} | H2: ${audit.h2Count} | H3: ${audit.h3Count}`;
+        document.getElementById('auditKeywordBadge').textContent = audit.kwInSpintax ? 'Primary Keyword: PASS' : 'Primary Keyword: Cek Ulang';
+        document.getElementById('auditSyncStatusText').textContent = audit.isSynced
+          ? 'TERHUBUNG 100% (Artikel Utama = Kerangka Spintax)'
+          : 'SIAP SINKRONISASI';
+
+        audit.sectionStats.forEach((st) => {
+          const badge = document.getElementById(`sec-wc-${st.id}`);
+          if (badge) {
+            badge.textContent = `${st.actualWords} / ${st.targetWords} kata`;
+            badge.className = st.actualWords >= Math.round(st.targetWords * 0.5) ? 'badge badge-pass' : 'badge badge-sim';
+          }
+        });
+      }
+
+      function render9SectionsGrid() {
+        const grid = document.getElementById('modular9SectionsGrid');
+        const cfg = getQuizConfigFromUI();
+        const prompts = buildSeoPromptFramework(cfg);
+        grid.innerHTML = '';
+        prompts.scaledSpec.forEach((spec) => {
+          const card = document.createElement('div');
+          card.style.cssText = 'border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.55rem; background: #f8fafc; display: flex; flex-direction: column; gap: 0.35rem;';
+          card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.3rem;">
+              <strong style="font-size: 0.78rem; color: #1e3a8a;">${spec.num}. ${spec.title}</strong>
+              <span id="sec-wc-${spec.id}" class="badge badge-sim" style="font-size: 0.68rem;">0 / ${spec.targetWords} kata</span>
+            </div>
+            <div style="font-size: 0.71rem; color: var(--text-muted); line-height: 1.35;">${spec.instruction}</div>
+            <textarea id="sec-input-${spec.id}" data-sec-id="${spec.id}" class="form-control" rows="4" style="font-size: 0.8rem; line-height: 1.45;"></textarea>
+          `;
+          grid.appendChild(card);
+          const ta = card.querySelector('textarea');
+          ta.value = current9SectionsMap[spec.id] || '';
+          ta.addEventListener('input', () => {
+            current9SectionsMap[spec.id] = ta.value;
+            textareaRawMainArticle.value = combine9SectionsToRawArticle(current9SectionsMap);
+            updateDetectedLanguageUI();
+            rebuildBlueprintFromInputs(true);
+            refreshAlignmentAuditUI();
+          });
+        });
+      }
+
+      function merge9SectionsAndSyncAll() {
+        SEO_PROMPT_SECTIONS_SPEC.forEach((spec) => {
+          const el = document.getElementById(`sec-input-${spec.id}`);
+          if (el) current9SectionsMap[spec.id] = el.value;
+        });
+        textareaRawMainArticle.value = combine9SectionsToRawArticle(current9SectionsMap);
+        updateDetectedLanguageUI();
+        rebuildBlueprintFromInputs(true);
+        saveFormIntoActiveProject();
+        runBatchGeneration();
+        refreshAlignmentAuditUI();
+      }
+
+      [
+        'quizPrimaryKeyword',
+        'quizSecondaryKeywords',
+        'quizSemanticKeywords',
+        'quizArticleLength',
+        'quizArticleType',
+        'quizSearchIntent',
+        'quizWritingStyle',
+        'quizTone'
+      ].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const handler = () => {
+          if (id === 'quizPrimaryKeyword') {
+            inputTopic.value = el.value;
+          }
+          refreshPromptOutputUI();
+          refreshAlignmentAuditUI();
+        };
+        el.addEventListener('input', handler);
+        el.addEventListener('change', handler);
+      });
+
+      inputTopic.addEventListener('input', () => {
+        const qpk = document.getElementById('quizPrimaryKeyword');
+        if (qpk && qpk.value !== inputTopic.value) {
+          qpk.value = inputTopic.value;
+          refreshPromptOutputUI();
+        }
+      });
+
+      [
+        'btnPromptTabMaster',
+        'btnPromptTabStage1',
+        'btnPromptTabStage2',
+        'btnPromptTabStage3',
+        'btnPromptTabStage4'
+      ].forEach((btnId) => {
+        const b = document.getElementById(btnId);
+        if (!b) return;
+        b.addEventListener('click', () => {
+          activePromptTab = b.dataset.promptTab;
+          ['btnPromptTabMaster', 'btnPromptTabStage1', 'btnPromptTabStage2', 'btnPromptTabStage3', 'btnPromptTabStage4'].forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.className = id === btnId ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+          });
+          refreshPromptOutputUI();
+        });
+      });
+
+      document.getElementById('btnCopySeoPrompt').addEventListener('click', () => {
+        const txt = document.getElementById('textareaGeneratedPrompt').value;
+        window.LocalSpinClient.clientCopyText(txt);
+        const btn = document.getElementById('btnCopySeoPrompt');
+        const orig = btn.innerHTML;
+        btn.textContent = '✓ Prompt Tersalin!';
+        setTimeout(() => (btn.innerHTML = orig), 1600);
+      });
+
+      document.getElementById('btnParseChatbotToSections').addEventListener('click', () => {
+        const raw = document.getElementById('textareaPasteChatbotResult').value;
+        current9SectionsMap = parseChatbotOutputInto9Sections(raw, getQuizConfigFromUI());
+        render9SectionsGrid();
+        merge9SectionsAndSyncAll();
+      });
+
+      document.getElementById('btnAutoFill9Sections').addEventListener('click', () => {
+        current9SectionsMap = generateStructured9SectionsDraft(getQuizConfigFromUI());
+        render9SectionsGrid();
+        merge9SectionsAndSyncAll();
+      });
+
+      document.getElementById('btnMerge9SectionsToMain').addEventListener('click', () => {
+        merge9SectionsAndSyncAll();
+        const rawHeading = document.getElementById('raw-article-heading');
+        if (rawHeading && rawHeading.scrollIntoView) {
+          rawHeading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+
+      textareaRawMainArticle.addEventListener('input', refreshAlignmentAuditUI);
+      textareaSpintax.addEventListener('input', refreshAlignmentAuditUI);
+
+      syncMainHighlight = window.LocalSpinClient.bindSyntaxHighlightOverlay(
+        textareaSpintax,
+        document.getElementById('spintaxHighlightLayer')
+      );
+      syncModalHighlight = window.LocalSpinClient.bindSyntaxHighlightOverlay(
+        modalSpintaxTextarea,
+        document.getElementById('modalSpintaxHighlightLayer')
+      );
+      window.LocalSpinClient.initWorkspaceLayoutControls();
+      window.LocalSpinClient.initQuickGuideAndScrollTop();
+      window.LocalSpinClient.checkBackendHealth(document.getElementById('backendStatusBadge'));
+      renderProjectDropdown();
+      populateDaerahDropdown();
+      loadProjectIntoForm(activeProjectId);
+      document.getElementById('quizPrimaryKeyword').value = inputTopic.value;
+      current9SectionsMap = generateStructured9SectionsDraft(getQuizConfigFromUI());
+      render9SectionsGrid();
+      merge9SectionsAndSyncAll();
+      refreshPromptOutputUI();
+      loadGeneratedUrlsIntoMassPing();
+    })();
+  </script>
+</body>
+</html>

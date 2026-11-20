@@ -1,0 +1,17 @@
+{
+  "name": "localspin-ai-saas",
+  "version": "1.4.0",
+  "description": "SaaS Generator Artikel Spintax AI & Target Daerah (Wilayah, Kota, Kabupaten, Kecamatan) dengan Verifikasi Keunikan 4-Gram Shingle Copyscape",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test tests/verification.test.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "private": true,
+  "dependencies": {
+    "mongodb": "^7.9.0"
+  }
+}

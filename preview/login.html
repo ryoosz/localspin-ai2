@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Masuk &amp; Registrasi Workspace — LocalSpin AI SaaS</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-logo">
+        <span>LocalSpin AI</span>
+        <span class="brand-badge">Auth</span>
+      </a>
+      <nav aria-label="Navigasi Utama">
+        <ul class="nav-links">
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="dashboard.html">Studio Generator (App)</a></li>
+          <li><a href="leads.html">Lead Finder Maps</a></li>
+          <li><a href="email-outreach.html">Spintax Email</a></li>
+          <li><a href="pricing.html">Harga &amp; Kuota</a></li>
+          <li><a href="privacy.html">Privasi</a></li>
+          <li><a href="terms.html">Syarat Layanan</a></li>
+          <li><a href="login.html" aria-current="page">Masuk Akun</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 3rem 1rem; max-width: 560px;">
+    <div class="notice-banner">
+      <strong>Status Komponen (DPES v1.3 T2.2):</strong> Halaman login ini adalah <strong>SIMULASI PREVIEW UI</strong> saat dibuka sebagai file statis. Pada backend Node.js (`src/db/database.js`), autentikasi password menggunakan hash <code>scrypt</code> dan isolasi role per <code>workspace_id</code>.
+    </div>
+
+    <div class="card">
+      <h1 style="font-size: 1.6rem; margin-bottom: 0.5rem;">Masuk ke Workspace LocalSpin AI</h1>
+      <p style="color: var(--text-secondary);">Kelola kampanye artikel SEO lokal lintas Wilayah, Kota, Kabupaten, dan Kecamatan.</p>
+
+      <form onsubmit="event.preventDefault(); window.location.href='dashboard.html';">
+        <div class="form-group">
+          <label class="form-label" for="email">Alamat Email</label>
+          <input type="email" id="email" class="form-control" value="founder@nusantaraseo.id" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">Kata Sandi</label>
+          <input type="password" id="password" class="form-control" value="DemoPass#2026" required />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+          Masuk ke Studio Workspace (Simulasi &rarr; Buka App)
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div><strong>LocalSpin AI SaaS v1.0.0</strong></div>
+      <div style="display: flex; gap: 1.25rem;">
+        <a href="index.html">Beranda</a>
+        <a href="privacy.html">Privasi</a>
+        <a href="terms.html">Syarat Layanan</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
