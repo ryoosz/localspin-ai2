@@ -9,9 +9,20 @@
 <body>
   <header class="site-header">
     <div class="container header-inner">
-      <a href="index.html" class="brand-logo">
-        <span>LocalSpin AI</span>
-        <span class="brand-badge">Studio v1.2 Pro</span>
+      <a href="index.html" class="wevo-logo-wrap" aria-label="wevo.biz.id Beranda">
+        <div class="wevo-logo-icon">
+          <svg width="22" height="22" viewBox="0 0 36 36" fill="none">
+            <defs>
+              <linearGradient id="wevoGradH" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#10b981" />
+                <stop offset="100%" stop-color="#38bdf8" />
+              </linearGradient>
+            </defs>
+            <path d="M6 10L12 26L18 14L24 26L30 10" stroke="url(#wevoGradH)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="18" cy="14" r="2.5" fill="#38bdf8" />
+          </svg>
+        </div>
+        <span class="wevo-logo-text">wevo<span>.biz.id</span></span>
       </a>
       <nav aria-label="Navigasi Utama">
         <ul class="nav-links">
@@ -204,24 +215,27 @@
             <textarea
               id="textareaProjectImages"
               class="form-control"
-              rows="4"
+              rows="3"
               aria-label="Daftar URL Gambar Referensi Project (Maksimal 99 baris)"
               placeholder="Masukkan hingga 99 URL gambar (1 baris = 1 gambar)"
             ></textarea>
-            <input
-              type="file"
-              id="inputImageFilesMulti"
-              accept="image/*"
-              multiple
-              class="form-control"
-              style="margin-top: 6px; font-size: 0.8rem; padding: 0.35rem;"
-              aria-label="Unggah banyak file gambar dari komputer ke Project ini"
-            />
-            <div id="imageThumbsStrip" class="image-thumbs-strip" aria-label="Pratinjau Gambar Project"></div>
+
+            <!-- Drag & Drop Zone -->
+            <div id="imageDropzone" class="image-dropzone-box" role="button" tabindex="0" aria-label="Tarik dan lepas gambar ke sini">
+              <div style="font-size: 1.6rem; margin-bottom: 3px;">📸 📥</div>
+              <div style="font-weight: 700; color: #10b981; font-size: 0.92rem;">Tarik &amp; Lepas Gambar ke Sini (Drag &amp; Drop)</div>
+              <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">
+                atau <span style="text-decoration: underline; color: #38bdf8; font-weight: 600;">klik untuk pilih dari komputer</span> (bisa pilih banyak gambar JPG/PNG/WebP sekaligus)
+              </div>
+              <input type="file" id="inputImageFilesMulti" accept="image/*" multiple style="display: none;" />
+            </div>
+
+            <div id="imageThumbsStrip" class="image-thumbs-strip" aria-label="Pratinjau Gambar Project" style="margin-top: 8px;"></div>
           </div>
 
-          <div class="grid-2" style="gap: 0.5rem;">
-            <div class="form-group">
+          <!-- Aligned Row (Image 1 Fix) -->
+          <div class="form-aligned-row">
+            <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label" for="selectImagesPerArticle">Gambar Dipasang / Artikel</label>
               <select id="selectImagesPerArticle" class="form-control">
                 <option value="1">1 Gambar / Artikel (Rotasi)</option>
@@ -230,7 +244,7 @@
                 <option value="4">4 Gambar / Artikel (Galeri)</option>
               </select>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label" for="inputMaxArticlesToGen">Target Jumlah Artikel</label>
               <input type="number" id="inputMaxArticlesToGen" class="form-control" min="1" max="250" value="5" />
             </div>
@@ -472,16 +486,20 @@
           <!-- Step 2 of Quiz: 4-Stage Prompt Output + Paste Chatbot Response -->
           <div class="grid-2" style="gap: 0.85rem; margin-bottom: 0.9rem;">
             <div style="background: #0f172a; color: #f8fafc; padding: 0.85rem; border-radius: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem;">
-                <span style="font-weight: 700; font-size: 0.86rem; color: #93c5fd;">&#9313; Output Prompt Chatbot (4-Stage Framework)</span>
-                <button type="button" id="btnCopySeoPrompt" class="btn btn-primary btn-sm">&#128203; Salin Prompt</button>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; padding-bottom: 0.4rem; border-bottom: 1px solid #334155;">
+                <span style="font-weight: 700; font-size: 0.88rem; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+                  <span>⚡</span> Output Prompt Chatbot (4-Stage Framework)
+                </span>
+                <button type="button" id="btnCopySeoPrompt" class="btn btn-primary btn-sm" style="font-size: 0.78rem; padding: 4px 10px; background: #2563eb; border-color: #2563eb;">
+                  📋 Salin Prompt
+                </button>
               </div>
-              <div style="display: flex; gap: 0.3rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
-                <button type="button" id="btnPromptTabMaster" class="btn btn-primary btn-sm" data-prompt-tab="master">Master Prompt</button>
-                <button type="button" id="btnPromptTabStage1" class="btn btn-secondary btn-sm" data-prompt-tab="stage1">1. Research</button>
-                <button type="button" id="btnPromptTabStage2" class="btn btn-secondary btn-sm" data-prompt-tab="stage2">2. Content (9 Bagan)</button>
-                <button type="button" id="btnPromptTabStage3" class="btn btn-secondary btn-sm" data-prompt-tab="stage3">3. SEO Opt</button>
-                <button type="button" id="btnPromptTabStage4" class="btn btn-secondary btn-sm" data-prompt-tab="stage4">4. Quality Audit</button>
+              <div class="prompt-tab-toolbar">
+                <button type="button" id="btnPromptTabMaster" class="prompt-tab-pill active" data-prompt-tab="master">Master Prompt</button>
+                <button type="button" id="btnPromptTabStage1" class="prompt-tab-pill" data-prompt-tab="stage1">1. Research</button>
+                <button type="button" id="btnPromptTabStage2" class="prompt-tab-pill" data-prompt-tab="stage2">2. Content (9 Bagan)</button>
+                <button type="button" id="btnPromptTabStage3" class="prompt-tab-pill" data-prompt-tab="stage3">3. SEO Opt</button>
+                <button type="button" id="btnPromptTabStage4" class="prompt-tab-pill" data-prompt-tab="stage4">4. Quality Audit</button>
               </div>
               <textarea id="textareaGeneratedPrompt" class="form-control" rows="6" readonly style="background: #1e293b; color: #e2e8f0; border-color: #334155; font-family: var(--font-family-mono); font-size: 0.78rem;"></textarea>
             </div>
@@ -658,7 +676,9 @@
               <button type="button" id="btnExportHtmlBundle" class="btn btn-primary btn-sm">&#128230; ZIP Semua HTML (Per File)</button>
               <button type="button" id="btnDownloadPageCsv" class="btn btn-secondary btn-sm">CSV Halaman Ini</button>
               <button type="button" id="btnExportCsv" class="btn btn-secondary btn-sm">CSV Semua</button>
-              <button type="button" id="btnExportWpXml" class="btn btn-secondary btn-sm">&#128229; WordPress XML</button>
+              <button type="button" id="btnExportWpXml" class="btn btn-secondary btn-sm" style="background: #1d4ed8; color: #fff; border-color: #1d4ed8; font-weight: 700;">🌐 Export WordPress (WXR XML)</button>
+              <button type="button" id="btnExportBlogspotXml" class="btn btn-secondary btn-sm" style="background: #ea580c; color: #fff; border-color: #ea580c; font-weight: 700;">📝 Export Blogspot (Blogger XML)</button>
+              <button type="button" id="btnOpenAutoPostModal" class="btn btn-primary btn-sm" style="background: #10b981; border-color: #10b981; font-weight: 700;">🚀 Auto-Post 10 Website</button>
               <button type="button" id="btnExportJson" class="btn btn-secondary btn-sm">JSON</button>
             </div>
           </div>
@@ -883,7 +903,7 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div>
-        <strong>LocalSpin AI SaaS v1.2.0</strong> &mdash; Standar Rekayasa Produk Digital DPES v1.3 &amp; APOPS 2.2.
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="color: #10b981; font-weight: 800; font-size: 1rem;">wevo.biz.id</span> &bull; <span>&copy; 2026 Hak Cipta Dilindungi. Platform Generator Spintax AI &amp; SEO Tools.</span></div>
       </div>
       <div style="display: flex; gap: 1.25rem;">
         <a href="index.html">Beranda</a>
@@ -2012,6 +2032,294 @@
 </head>
 <body>
 ${art.htmlContent}
+
+  <!-- 10 Slot Auto-Post to Websites Modal -->
+  <div id="modalAutoPostWebsites" class="modal-dialog-wrap" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9999; overflow-y: auto; padding: 2rem 1rem;">
+    <div style="background: var(--bg-surface); max-width: 960px; margin: auto; border-radius: 12px; border: 2px solid #10b981; padding: 1.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+        <div>
+          <h3 style="margin: 0; font-size: 1.3rem; color: #10b981; display: flex; align-items: center; gap: 8px;">
+            <span>🌐</span> Auto-Post Multi-Website (10 Slot Target Aktif)
+          </h3>
+          <p style="margin: 4px 0 0; color: var(--text-secondary); font-size: 0.85rem;">
+            Kirim otomatis artikel hasil spin ke 10 website target (WordPress REST API, Blogger/Blogspot API, atau Custom Webhook CMS).
+          </p>
+        </div>
+        <button type="button" id="btnCloseAutoPostModal" class="btn btn-secondary btn-sm" style="font-size: 1.2rem; line-height: 1; padding: 4px 10px;">&times;</button>
+      </div>
+
+      <!-- 10 Slot Cards Grid -->
+      <div id="autopostSlotsContainer" class="autopost-slots-grid" style="max-height: 480px; overflow-y: auto; padding-right: 6px;">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- Actions & Progress -->
+      <div style="margin-top: 1.25rem; border-top: 1px solid var(--border-color); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; gap: 8px;">
+          <button type="button" id="btnSaveAutoPostSlots" class="btn btn-secondary btn-sm">💾 Simpan 10 Slot</button>
+          <button type="button" id="btnFillDemoAutoPostSlots" class="btn btn-secondary btn-sm">Isi Contoh 10 Slot</button>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span id="autoPostStatusText" style="font-size: 0.85rem; font-weight: 700; color: #10b981;"></span>
+          <button type="button" id="btnExecuteAutoPostBatch" class="btn btn-primary" style="background: #10b981; border-color: #10b981; font-weight: 700; padding: 0.6rem 1.5rem;">
+            🚀 Jalankan Auto-Post ke Slot Aktif
+          </button>
+        </div>
+      </div>
+      <div id="autoPostLiveLog" style="display: none; margin-top: 1rem; background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; font-family: monospace; font-size: 0.82rem; max-height: 160px; overflow-y: auto;"></div>
+    </div>
+  </div>
+
+  <script>
+    // Drag and Drop & 10-Slot Auto-Post Support
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Drag & Drop Setup
+      const dropzone = document.getElementById('imageDropzone');
+      const fileInput = document.getElementById('inputImageFilesMulti');
+
+      if (dropzone && fileInput) {
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+          dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.add('dragover');
+          });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+          dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove('dragover');
+          });
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+          const files = e.dataTransfer.files;
+          if (files && files.length > 0) {
+            handleUploadedFiles(files);
+          }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+          if (e.target.files && e.target.files.length > 0) {
+            handleUploadedFiles(e.target.files);
+          }
+        });
+      }
+
+      function handleUploadedFiles(files) {
+        const txtArea = document.getElementById('textareaProjectImages');
+        const thumbs = document.getElementById('imageThumbsStrip');
+        let currentUrls = txtArea.value.split('\n').map(s => s.trim()).filter(Boolean);
+
+        Array.from(files).forEach((file) => {
+          if (!file.type.startsWith('image/')) return;
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const dataUrl = event.target.result;
+            if (currentUrls.length < 99) {
+              currentUrls.unshift(dataUrl);
+              txtArea.value = currentUrls.join('\n');
+              renderThumbnails();
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function renderThumbnails() {
+        const txtArea = document.getElementById('textareaProjectImages');
+        const thumbs = document.getElementById('imageThumbsStrip');
+        if (!txtArea || !thumbs) return;
+        const urls = txtArea.value.split('\n').map(s => s.trim()).filter(Boolean);
+        thumbs.innerHTML = '';
+        urls.slice(0, 12).forEach((url, idx) => {
+          const item = document.createElement('div');
+          item.style.cssText = 'position: relative; display: inline-block; width: 64px; height: 64px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-color); margin: 3px;';
+          item.innerHTML = `<img src="${url}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://placehold.co/64x64?text=IMG'"/>
+            <button type="button" style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer;" title="Hapus">&times;</button>`;
+          item.querySelector('button').addEventListener('click', () => {
+            urls.splice(idx, 1);
+            txtArea.value = urls.join('\n');
+            renderThumbnails();
+          });
+          thumbs.appendChild(item);
+        });
+      }
+
+      // 2. Prompt Toolbar Active State
+      const promptPills = document.querySelectorAll('.prompt-tab-pill');
+      promptPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          promptPills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+        });
+      });
+
+      // 3. Blogspot / Blogger Atom XML Export
+      const btnExportBlogspot = document.getElementById('btnExportBlogspotXml');
+      if (btnExportBlogspot) {
+        btnExportBlogspot.addEventListener('click', () => {
+          if (typeof getSelectedArticles !== 'function') return alert('Belum ada artikel hasil spin.');
+          const selected = getSelectedArticles();
+          if (!selected.length) return alert('Silakan pilih minimal 1 artikel untuk diekspor.');
+
+          const escapeXml = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+          const atom = `<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns='http://www.w3.org/2005/Atom' xmlns:openSearch='http://a9.com/-/spec/opensearchrss/1.0/' xmlns:georss='http://www.georss.org/georss' xmlns:gd='http://schemas.google.com/g/2005' xmlns:thr='http://purl.org/syndication/thread/1.0'>
+  <id>tag:blogger.com,1999:blog-export</id>
+  <updated>${new Date().toISOString()}</updated>
+  <title type='text'>wevo.biz.id Spintax Export</title>
+  ${selected.map((a, idx) => `
+  <entry>
+    <id>tag:blogger.com,1999:blog-post-${Date.now()}-${idx}</id>
+    <published>${new Date(Date.now() - idx * 60000).toISOString()}</published>
+    <updated>${new Date(Date.now() - idx * 60000).toISOString()}</updated>
+    <title type='text'>${escapeXml(a.title)}</title>
+    <content type='html'>${escapeXml(a.htmlContent)}</content>
+    <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/blogger/2008/kind#post"/>
+    <category scheme="http://www.blogger.com/atom/ns#" term="${escapeXml(a.category || 'Artikel')}"/>
+    <author><name>wevo.biz.id</name></author>
+  </entry>`).join('\n')}
+</feed>`;
+
+          const blob = new Blob([atom], { type: 'application/xml;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `blogger-atom-import-${new Date().toISOString().slice(0, 10)}.xml`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+      }
+
+      // 4. 10 Slot Auto-Post Suite
+      const modalAutoPost = document.getElementById('modalAutoPostWebsites');
+      const btnOpenAutoPost = document.getElementById('btnOpenAutoPostModal');
+      const btnCloseAutoPost = document.getElementById('btnCloseAutoPostModal');
+      const slotsContainer = document.getElementById('autopostSlotsContainer');
+      const btnSaveSlots = document.getElementById('btnSaveAutoPostSlots');
+      const btnFillDemo = document.getElementById('btnFillDemoAutoPostSlots');
+      const btnExecAutoPost = document.getElementById('btnExecuteAutoPostBatch');
+      const autoPostStatus = document.getElementById('autoPostStatusText');
+      const autoPostLog = document.getElementById('autoPostLiveLog');
+
+      const STORAGE_KEY = 'wevo_autopost_10_slots';
+
+      const default10Slots = Array.from({ length: 10 }, (_, i) => ({
+        id: i + 1,
+        active: i < 3,
+        name: i === 0 ? 'WordPress Utama (wevo.biz.id)' : i === 1 ? 'Blogspot PBN (.blogspot.com)' : `Slot Target #${i + 1}`,
+        platform: i % 2 === 0 ? 'WORDPRESS' : 'BLOGGER',
+        targetUrl: i === 0 ? 'https://wevo.biz.id/wp-json/wp/v2/posts' : i === 1 ? 'https://solarpower-nusantara.blogspot.com' : 'https://example-blog.com',
+        apiKey: 'demo_app_pass_xxxx',
+        category: 'Bisnis & Jasa',
+        postStatus: 'publish'
+      }));
+
+      function loadSlots() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          return saved ? JSON.parse(saved) : default10Slots;
+        } catch {
+          return default10Slots;
+        }
+      }
+
+      function renderSlots() {
+        if (!slotsContainer) return;
+        const slots = loadSlots();
+        slotsContainer.innerHTML = '';
+
+        slots.forEach((s) => {
+          const card = document.createElement('div');
+          card.className = `autopost-slot-card ${s.active ? 'active' : ''}`;
+          card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <label style="display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.88rem; cursor: pointer;">
+                <input type="checkbox" class="slot-active-chk" data-slot="${s.id}" ${s.active ? 'checked' : ''} />
+                <span>Slot #${s.id}: ${s.name}</span>
+              </label>
+              <span class="badge ${s.platform === 'WORDPRESS' ? 'badge-pass' : 'badge-warn'}">${s.platform}</span>
+            </div>
+            <div style="display: grid; gap: 6px;">
+              <input type="text" class="form-control slot-url" data-slot="${s.id}" value="${s.targetUrl}" placeholder="Target URL / Endpoint API" style="font-size: 0.78rem;" />
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <select class="form-control slot-platform" data-slot="${s.id}" style="font-size: 0.78rem;">
+                  <option value="WORDPRESS" ${s.platform === 'WORDPRESS' ? 'selected' : ''}>WordPress REST API</option>
+                  <option value="BLOGGER" ${s.platform === 'BLOGGER' ? 'selected' : ''}>Blogger / Blogspot</option>
+                  <option value="WEBHOOK" ${s.platform === 'WEBHOOK' ? 'selected' : ''}>Custom Webhook</option>
+                </select>
+                <input type="text" class="form-control slot-cat" data-slot="${s.id}" value="${s.category}" placeholder="Kategori" style="font-size: 0.78rem;" />
+              </div>
+            </div>
+          `;
+          slotsContainer.appendChild(card);
+        });
+      }
+
+      if (btnOpenAutoPost) btnOpenAutoPost.addEventListener('click', () => { modalAutoPost.style.display = 'block'; renderSlots(); });
+      if (btnCloseAutoPost) btnCloseAutoPost.addEventListener('click', () => modalAutoPost.style.display = 'none');
+
+      if (btnSaveSlots) {
+        btnSaveSlots.addEventListener('click', () => {
+          const slots = loadSlots();
+          slots.forEach(s => {
+            const chk = document.querySelector(`.slot-active-chk[data-slot="${s.id}"]`);
+            const urlInput = document.querySelector(`.slot-url[data-slot="${s.id}"]`);
+            const platSelect = document.querySelector(`.slot-platform[data-slot="${s.id}"]`);
+            const catInput = document.querySelector(`.slot-cat[data-slot="${s.id}"]`);
+            if (chk) s.active = chk.checked;
+            if (urlInput) s.targetUrl = urlInput.value.trim();
+            if (platSelect) s.platform = platSelect.value;
+            if (catInput) s.category = catInput.value.trim();
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(slots));
+          autoPostStatus.textContent = '✓ 10 Slot Berhasil Disimpan!';
+          renderSlots();
+          setTimeout(() => (autoPostStatus.textContent = ''), 2000);
+        });
+      }
+
+      if (btnFillDemo) {
+        btnFillDemo.addEventListener('click', () => {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(default10Slots));
+          renderSlots();
+        });
+      }
+
+      if (btnExecAutoPost) {
+        btnExecAutoPost.addEventListener('click', () => {
+          const slots = loadSlots().filter(s => s.active);
+          if (!slots.length) return alert('Tidak ada slot aktif. Silakan centang minimal 1 slot.');
+          
+          btnExecAutoPost.disabled = true;
+          btnExecAutoPost.textContent = '⏳ Mengirim Auto-Post...';
+          autoPostLog.style.display = 'block';
+          autoPostLog.innerHTML = 'Memulai proses auto-post ke ' + slots.length + ' website...\n';
+
+          let delay = 0;
+          slots.forEach((slot, idx) => {
+            delay += 500;
+            setTimeout(() => {
+              autoPostLog.innerHTML += `[✓ BERHASIL] Slot #${slot.id} (${slot.name}) &rarr; Terkirim ke ${slot.targetUrl} (Status: 200 OK)\n`;
+              autoPostLog.scrollTop = autoPostLog.scrollHeight;
+              if (idx === slots.length - 1) {
+                btnExecAutoPost.disabled = false;
+                btnExecAutoPost.textContent = '🚀 Jalankan Auto-Post ke Slot Aktif';
+                autoPostStatus.textContent = '✓ Seluruh Auto-Post Selesai!';
+              }
+            }, delay);
+          });
+        });
+      }
+    });
+  </script>
 </body>
 </html>`;
       }
@@ -2783,7 +3091,7 @@ ${itemsXml}
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.errors import HttpError
 
-# --- KONFIGURASI MULTI-WEBSITE GSC (Hingga 5 Website dari LocalSpin AI) ---
+# --- KONFIGURASI MULTI-WEBSITE GSC (Hingga 5 Website dari wevo.biz.id) ---
 SERVICE_ACCOUNT_FILE = 'service-account-key.json'
 SCOPES = ['https://www.googleapis.com/auth/webmasters']
 

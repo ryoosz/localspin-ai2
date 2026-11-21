@@ -46,7 +46,9 @@ const {
   generateCloneSubmissionPlan
 } = require('./domain/competitorBacklinkEngine');
 const {
+  DEAD_WEB_PLATFORMS,
   ZOMBIE_PLATFORMS,
+  huntDeadWebsites,
   huntZombieBlogs,
   checkSearchEngineIndex,
   submitIndexingService,
@@ -58,7 +60,8 @@ const {
   inspectRedirectChain,
   checkNoindexMeta,
   check404Errors,
-  extractSitemapUrlsFromXml
+  extractSitemapUrlsFromXml,
+  dispatchAutoPostEcosystem
 } = require('./domain/seoToolsProEngine');
 const {
   MAX_IMAGES_PER_PROJECT,
@@ -876,23 +879,40 @@ function createAppServer({ dbPath = ':memory:' } = {}) {
         const plan = generateCloneSubmissionPlan({
           competitorDomain: body.competitorDomain || '',
           yourWebsiteUrl: body.yourWebsiteUrl || 'https://wevo.biz.id',
-          brandName: body.brandName || 'LocalSpin AI Solutions',
+          brandName: body.brandName || 'wevo.biz.id Solutions',
           topic: body.topic || 'Jasa Layanan Profesional',
           selectedTargets: body.selectedTargets || []
         });
         return sendJson(res, 200, { message: 'Rencana alur kloning backlink kompetitor siap.', ...plan }, requestId);
       }
 
-      // 10L. SEO Tools: Zombie Blog Hunter (Expired Web 2.0 with High Authority)
-      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/zombie-hunter') {
+      // 10K-2. Multi-Website Auto-Post Dispatcher (Instant, Fixed Drip, Random Anti-Footprint Drip + Atomic Sitemap Overwrite)
+      if (req.method === 'POST' && pathname === '/api/v1/autopost/dispatch') {
         const body = await parseJsonBody(req);
-        const result = huntZombieBlogs({
+        const dispatchResult = dispatchAutoPostEcosystem({
+          slots: Array.isArray(body.slots) ? body.slots : [],
+          articles: Array.isArray(body.articles) ? body.articles : [],
+          mode: body.mode || 'instant',
+          intervalMinutes: Number(body.intervalMinutes) || 15,
+          updateSitemap: body.updateSitemap !== false,
+          triggerMassPing: body.triggerMassPing !== false,
+          triggerGsc: body.triggerGsc !== false,
+          siteUrl: body.siteUrl || 'https://wevo.biz.id',
+          baseDir: __dirname
+        });
+        return sendJson(res, 200, { message: 'Proses auto-post dan sinkronisasi ekosistem selesai.', ...dispatchResult }, requestId);
+      }
+
+      // 10L. SEO Tools: Website Zombie & Dead-Web Hunter (Linkmortem + Crawlora Engine)
+      if (req.method === 'POST' && (pathname === '/api/v1/seo-tools/dead-web-hunter' || pathname === '/api/v1/seo-tools/zombie-hunter')) {
+        const body = await parseJsonBody(req);
+        const result = huntDeadWebsites({
           keyword: body.keyword || 'panel surya',
-          platform: body.platform || 'BLOGSPOT',
+          platform: body.platform || 'ALL',
           minDa: Number(body.minDa) || 20,
           limit: Number(body.limit) || 8
         });
-        return sendJson(res, 200, { message: 'Pencarian blog zombie berotoritas selesai.', ...result }, requestId);
+        return sendJson(res, 200, { message: 'Pencarian website zombie & dead-web berotoritas selesai.', ...result }, requestId);
       }
 
       // 10M. SEO Tools: Multi-Engine Index Checker (Google, Bing, Yandex)
@@ -974,7 +994,7 @@ function createAppServer({ dbPath = ':memory:' } = {}) {
       if (req.method === 'POST' && pathname === '/api/v1/seo-tools/free/redirect-checker') {
         const body = await parseJsonBody(req);
         const targetUrl = body.url || body.targetUrl || 'http://wevo.biz.id';
-        const chain = inspectRedirectChain(targetUrl);
+        const chain = await inspectRedirectChain(targetUrl);
         return sendJson(res, 200, { message: 'Pemeriksaan redirect chain selesai.', ...chain }, requestId);
       }
 
@@ -984,7 +1004,7 @@ function createAppServer({ dbPath = ':memory:' } = {}) {
         const targetUrl = body.url || 'https://wevo.biz.id';
         const htmlContent = body.htmlContent || '';
         const headersMeta = body.headers || {};
-        const check = checkNoindexMeta({ url: targetUrl, htmlContent, headers: headersMeta });
+        const check = await checkNoindexMeta({ url: targetUrl, htmlContent, headers: headersMeta });
         return sendJson(res, 200, { message: 'Pemeriksaan status noindex selesai.', ...check }, requestId);
       }
 
@@ -992,7 +1012,7 @@ function createAppServer({ dbPath = ':memory:' } = {}) {
       if (req.method === 'POST' && pathname === '/api/v1/seo-tools/free/404-checker') {
         const body = await parseJsonBody(req);
         const urls = Array.isArray(body.urls) ? body.urls : (body.urls ? String(body.urls).split(/[\r\n]+/) : ['https://wevo.biz.id/halaman-aktif', 'https://wevo.biz.id/halaman-lama-404']);
-        const check = check404Errors({ urls });
+        const check = await check404Errors({ urls });
         return sendJson(res, 200, { message: 'Pemeriksaan broken link 404 selesai.', ...check }, requestId);
       }
 

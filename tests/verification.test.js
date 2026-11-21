@@ -618,17 +618,44 @@ test('L2 & L3 - SEO Tools Suite: Zombie Blog Hunter, Multi-Engine Indexing, Drip
   const { createAppServer } = require('../src/server');
   const { dispatch } = createAppServer({ dbPath: ':memory:' });
 
-  // 1. Zombie Blog Hunter API
+  // 1. Dead-Web & Website Zombie Hunter API (Linkmortem & Crawlora Engine)
   const zombieRes = await dispatch({
     method: 'POST',
-    url: '/api/v1/seo-tools/zombie-hunter',
-    body: { keyword: 'jasa kanopi', platform: 'BLOGSPOT', minDa: 25, limit: 6 }
+    url: '/api/v1/seo-tools/dead-web-hunter',
+    body: { keyword: 'jasa kanopi', platform: 'ALL', minDa: 25, limit: 6 }
   });
   assert.equal(zombieRes.status, 200);
   const zombieData = await zombieRes.json();
-  assert.equal(zombieData.zombieBlogs.length, 6);
-  assert.ok(zombieData.zombieBlogs[0].domainAuthority >= 20);
-  assert.ok(zombieData.zombieBlogs[0].name.includes('blogspot.com'));
+  assert.equal(zombieData.websites.length, 6);
+  assert.ok(zombieData.websites[0].domainAuthority >= 20);
+  assert.ok(zombieData.websites[0].deadwebStatus);
+  assert.ok(zombieData.websites[0].waybackArchiveUrl.includes('web.archive.org'));
+
+  // 1-B. Multi-Website Auto-Post Dispatcher (Instant, Fixed Drip, Random Anti-Footprint Drip + Atomic Sitemap Overwrite)
+  const autoPostRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/autopost/dispatch',
+    body: {
+      slots: [
+        { id: 1, name: 'WP Main', platform: 'WORDPRESS', targetUrl: 'https://wevo.biz.id/wp-json/wp/v2/posts', active: true },
+        { id: 2, name: 'Blogger PBN', platform: 'BLOGGER', targetUrl: 'https://pbn.blogspot.com', active: true },
+        { id: 3, name: 'Custom Webhook', platform: 'WEBHOOK', targetUrl: 'https://cms.wevo.biz.id/hook', active: true }
+      ],
+      articles: [
+        { title: 'Jasa Pemasangan Kanopi Modern', slug: 'jasa-pemasangan-kanopi-modern', htmlContent: '<p>Konten artikel.</p>' }
+      ],
+      mode: 'drip_random',
+      updateSitemap: true,
+      triggerMassPing: true,
+      triggerGsc: true,
+      siteUrl: 'https://wevo.biz.id'
+    }
+  });
+  assert.equal(autoPostRes.status, 200);
+  const autoPostData = await autoPostRes.json();
+  assert.equal(autoPostData.postMode, 'drip_random');
+  assert.equal(autoPostData.totalSlotsDispatched, 3);
+  assert.equal(autoPostData.sitemapUpdated, true);
 
   // 2. Multi-Engine Index Checker (Google, Bing, Yandex)
   const indexCheckRes = await dispatch({

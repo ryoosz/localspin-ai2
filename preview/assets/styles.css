@@ -1291,3 +1291,208 @@ body[data-layout="stacked"] .studio-layout > aside {
 .btn-hero-spin:active {
   transform: translateY(0);
 }
+
+/* ========================================================
+   WEVO.BIZ.ID BRANDING & MODERN COMPONENT SUITE
+   ======================================================== */
+.wevo-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: var(--font-family-sans);
+}
+.wevo-logo-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(6, 182, 212, 0.2) 100%);
+  border: 1.5px solid #10b981;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+  flex-shrink: 0;
+}
+.wevo-logo-text {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+}
+.wevo-logo-text span {
+  color: #10b981;
+}
+
+/* Drag and drop image area */
+.image-dropzone-box {
+  border: 2px dashed #10b981;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.04);
+  padding: 1.25rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+.image-dropzone-box:hover,
+.image-dropzone-box.dragover {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  transform: scale(1.01);
+}
+
+/* 4-Stage prompt toolbar (Fixed wrap from user screenshot) */
+.prompt-tab-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0.65rem;
+}
+.prompt-tab-pill {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.prompt-tab-pill:hover {
+  background: #334155;
+  color: #f8fafc;
+  border-color: #38bdf8;
+}
+.prompt-tab-pill.active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #3b82f6;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.45);
+}
+
+/* Aligned input pair (Image 1 fix) */
+.form-aligned-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 0.85rem;
+}
+.form-aligned-row .form-label {
+  min-height: 2.2rem;
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 0.35rem;
+}
+.form-aligned-row .form-control {
+  height: 42px;
+}
+
+/* 10 Slot Autopost card */
+.autopost-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+.autopost-slot-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+.autopost-slot-card.active {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+/* SEO Audit Visual Results (No more raw JSON) */
+.seo-audit-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-top: 1rem;
+}
+.seo-hop-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+
+/* Form input alignment pair (Image 1 fix) */
+.form-aligned-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 0.85rem;
+}
+.form-aligned-row .form-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-bottom: 0;
+}
+.form-aligned-row .form-label {
+  min-height: 2.4rem;
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 0.35rem;
+  line-height: 1.25;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.form-aligned-row .form-control {
+  height: 42px;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* 4-Stage prompt toolbar (Image 2 fix) */
+.prompt-tab-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0.65rem;
+  background: rgba(15, 23, 42, 0.75);
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+}
+.prompt-tab-pill {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1 1 auto;
+  text-align: center;
+  white-space: nowrap;
+}
+.prompt-tab-pill:hover {
+  background: #334155;
+  color: #ffffff;
+  border-color: #475569;
+}
+.prompt-tab-pill.active {
+  background: #2563eb !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.45);
+}
