@@ -1496,3 +1496,61 @@ body[data-layout="stacked"] .studio-layout > aside {
   font-weight: 700;
   box-shadow: 0 0 10px rgba(37, 99, 235, 0.45);
 }
+
+
+/* Expansive Wide Container for Studio App */
+.container {
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+@media (min-width: 1200px) {
+  .studio-layout {
+    grid-template-columns: var(--sidebar-width, 420px) 10px 1fr;
+    gap: 0 14px;
+    align-items: start;
+  }
+  .metrics-bar {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+/* Ensure prompt tabs and buttons never shrink awkwardly */
+.prompt-tab-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0.65rem;
+  background: rgba(15, 23, 42, 0.75);
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+}
+.prompt-tab-pill {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1 1 auto;
+  text-align: center;
+  white-space: nowrap;
+}
+.prompt-tab-pill:hover {
+  background: #334155;
+  color: #ffffff;
+  border-color: #475569;
+}
+.prompt-tab-pill.active {
+  background: #2563eb !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.45);
+}

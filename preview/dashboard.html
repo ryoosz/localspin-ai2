@@ -1095,8 +1095,54 @@
 
   <script src="assets/regionsData.js?v=1.13.0"></script>
   <script src="assets/app.js?v=1.13.0"></script>
+  <!-- 10 Slot Auto-Post to Websites Modal -->
+  <div id="modalAutoPostWebsites" class="modal-dialog-wrap" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9999; overflow-y: auto; padding: 2rem 1rem;">
+    <div style="background: var(--bg-surface); max-width: 960px; margin: auto; border-radius: 12px; border: 2px solid #10b981; padding: 1.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+        <div>
+          <h3 style="margin: 0; font-size: 1.3rem; color: #10b981; display: flex; align-items: center; gap: 8px;">
+            <span>🌐</span> Auto-Post Multi-Website (10 Slot Target Aktif)
+          </h3>
+          <p style="margin: 4px 0 0; color: var(--text-secondary); font-size: 0.85rem;">
+            Kirim otomatis artikel hasil spin ke 10 website target (WordPress REST API, Blogger/Blogspot API, atau Custom Webhook CMS).
+          </p>
+        </div>
+        <button type="button" id="btnCloseAutoPostModal" class="btn btn-secondary btn-sm" style="font-size: 1.2rem; line-height: 1; padding: 4px 10px;">&times;</button>
+      </div>
+
+      <!-- 10 Slot Cards Grid -->
+      <div id="autopostSlotsContainer" class="autopost-slots-grid" style="max-height: 480px; overflow-y: auto; padding-right: 6px;">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- Actions & Progress -->
+      <div style="margin-top: 1.25rem; border-top: 1px solid var(--border-color); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; gap: 8px;">
+          <button type="button" id="btnSaveAutoPostSlots" class="btn btn-secondary btn-sm">💾 Simpan 10 Slot</button>
+          <button type="button" id="btnFillDemoAutoPostSlots" class="btn btn-secondary btn-sm">Isi Contoh 10 Slot</button>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span id="autoPostStatusText" style="font-size: 0.85rem; font-weight: 700; color: #10b981;"></span>
+          <button type="button" id="btnExecuteAutoPostBatch" class="btn btn-primary" style="background: #10b981; border-color: #10b981; font-weight: 700; padding: 0.6rem 1.5rem;">
+            🚀 Jalankan Auto-Post ke Slot Aktif
+          </button>
+        </div>
+      </div>
+      <div id="autoPostLiveLog" style="display: none; margin-top: 1rem; background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; font-family: monospace; font-size: 0.82rem; max-height: 160px; overflow-y: auto;"></div>
+    </div>
+  </div>
+
   <script>
     (function initStudioV12() {
+      function getWorkspaceSettings() {
+        try {
+          const saved = localStorage.getItem('wevo_workspace_settings');
+          return saved ? JSON.parse(saved) : { pacingSpeed: 60, theme: 'emerald-dark', density: 'spacious', layout: 'columns' };
+        } catch (_) {
+          return { pacingSpeed: 60, theme: 'emerald-dark', density: 'spacious', layout: 'columns' };
+        }
+      }
+
       const {
         MAX_IMAGES_PER_PROJECT,
         LOCALSPIN_REGIONS,
@@ -1115,7 +1161,7 @@
 
       // Load or initialize multi-project state in localStorage
       const STORAGE_KEY = 'localspin_projects_v12';
-      let projectsMap = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || JSON.parse(JSON.stringify(DEFAULT_PROJECTS_STATE));
+      let projectsMap = JSON.parse(localStorage.getItem(AUTOPOST_STORAGE_KEY) || 'null') || JSON.parse(JSON.stringify(DEFAULT_PROJECTS_STATE));
       let activeProjectId = 'proj_a';
 
       const selectProject = document.getElementById('selectProject');
@@ -1421,7 +1467,7 @@
           imageAltPattern: inputImageAlt.value.trim(),
           images: imgs
         };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(projectsMap));
+        localStorage.setItem(AUTOPOST_STORAGE_KEY, JSON.stringify(projectsMap));
         renderProjectDropdown();
         updateImagePoolUI();
       }
@@ -2032,47 +2078,12 @@
 </head>
 <body>
 ${art.htmlContent}
+</body>
+</html>`;
+      }
 
-  <!-- 10 Slot Auto-Post to Websites Modal -->
-  <div id="modalAutoPostWebsites" class="modal-dialog-wrap" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9999; overflow-y: auto; padding: 2rem 1rem;">
-    <div style="background: var(--bg-surface); max-width: 960px; margin: auto; border-radius: 12px; border: 2px solid #10b981; padding: 1.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
-        <div>
-          <h3 style="margin: 0; font-size: 1.3rem; color: #10b981; display: flex; align-items: center; gap: 8px;">
-            <span>🌐</span> Auto-Post Multi-Website (10 Slot Target Aktif)
-          </h3>
-          <p style="margin: 4px 0 0; color: var(--text-secondary); font-size: 0.85rem;">
-            Kirim otomatis artikel hasil spin ke 10 website target (WordPress REST API, Blogger/Blogspot API, atau Custom Webhook CMS).
-          </p>
-        </div>
-        <button type="button" id="btnCloseAutoPostModal" class="btn btn-secondary btn-sm" style="font-size: 1.2rem; line-height: 1; padding: 4px 10px;">&times;</button>
-      </div>
-
-      <!-- 10 Slot Cards Grid -->
-      <div id="autopostSlotsContainer" class="autopost-slots-grid" style="max-height: 480px; overflow-y: auto; padding-right: 6px;">
-        <!-- Injected via JS -->
-      </div>
-
-      <!-- Actions & Progress -->
-      <div style="margin-top: 1.25rem; border-top: 1px solid var(--border-color); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-        <div style="display: flex; gap: 8px;">
-          <button type="button" id="btnSaveAutoPostSlots" class="btn btn-secondary btn-sm">💾 Simpan 10 Slot</button>
-          <button type="button" id="btnFillDemoAutoPostSlots" class="btn btn-secondary btn-sm">Isi Contoh 10 Slot</button>
-        </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <span id="autoPostStatusText" style="font-size: 0.85rem; font-weight: 700; color: #10b981;"></span>
-          <button type="button" id="btnExecuteAutoPostBatch" class="btn btn-primary" style="background: #10b981; border-color: #10b981; font-weight: 700; padding: 0.6rem 1.5rem;">
-            🚀 Jalankan Auto-Post ke Slot Aktif
-          </button>
-        </div>
-      </div>
-      <div id="autoPostLiveLog" style="display: none; margin-top: 1rem; background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; font-family: monospace; font-size: 0.82rem; max-height: 160px; overflow-y: auto;"></div>
-    </div>
-  </div>
-
-  <script>
-    // Drag and Drop & 10-Slot Auto-Post Support
-    document.addEventListener('DOMContentLoaded', () => {
+      // === Integrated Drag & Drop, Auto-Post 10-Slot & Export Logic ===
+      
       // 1. Drag & Drop Setup
       const dropzone = document.getElementById('imageDropzone');
       const fileInput = document.getElementById('inputImageFilesMulti');
@@ -2209,7 +2220,7 @@ ${art.htmlContent}
       const autoPostStatus = document.getElementById('autoPostStatusText');
       const autoPostLog = document.getElementById('autoPostLiveLog');
 
-      const STORAGE_KEY = 'wevo_autopost_10_slots';
+      const AUTOPOST_STORAGE_KEY = 'wevo_autopost_10_slots';
 
       const default10Slots = Array.from({ length: 10 }, (_, i) => ({
         id: i + 1,
@@ -2224,7 +2235,7 @@ ${art.htmlContent}
 
       function loadSlots() {
         try {
-          const saved = localStorage.getItem(STORAGE_KEY);
+          const saved = localStorage.getItem(AUTOPOST_STORAGE_KEY);
           return saved ? JSON.parse(saved) : default10Slots;
         } catch {
           return default10Slots;
@@ -2279,7 +2290,7 @@ ${art.htmlContent}
             if (platSelect) s.platform = platSelect.value;
             if (catInput) s.category = catInput.value.trim();
           });
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(slots));
+          localStorage.setItem(AUTOPOST_STORAGE_KEY, JSON.stringify(slots));
           autoPostStatus.textContent = '✓ 10 Slot Berhasil Disimpan!';
           renderSlots();
           setTimeout(() => (autoPostStatus.textContent = ''), 2000);
@@ -2288,7 +2299,7 @@ ${art.htmlContent}
 
       if (btnFillDemo) {
         btnFillDemo.addEventListener('click', () => {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(default10Slots));
+          localStorage.setItem(AUTOPOST_STORAGE_KEY, JSON.stringify(default10Slots));
           renderSlots();
         });
       }
@@ -2318,11 +2329,8 @@ ${art.htmlContent}
           });
         });
       }
-    });
-  </script>
-</body>
-</html>`;
-      }
+    
+
 
       function renderArticlesList() {
         if (!currentBatchArticles || currentBatchArticles.length === 0) {
@@ -3518,6 +3526,47 @@ if __name__ == '__main__':
         modalSpintaxTextarea,
         document.getElementById('modalSpintaxHighlightLayer')
       );
+      
+      // Workspace Settings Modal Binding
+      const modalWorkspace = document.getElementById('modalWorkspaceSettings');
+      const btnOpenWs = document.getElementById('btnOpenWorkspaceSettings');
+      const btnCloseWs = document.getElementById('btnCloseSettingsModal');
+      const btnCancelWs = document.getElementById('btnCancelSettingsModal');
+      const btnSaveWs = document.getElementById('btnSaveSettingsModal');
+
+      if (btnOpenWs && modalWorkspace) {
+        btnOpenWs.addEventListener('click', () => {
+          modalWorkspace.style.display = 'flex';
+          const ws = getWorkspaceSettings();
+          const rTheme = document.querySelector(`input[name="radioTheme"][value="${ws.theme || 'emerald-dark'}"]`);
+          if (rTheme) rTheme.checked = true;
+          const rDens = document.querySelector(`input[name="radioDensity"][value="${ws.density || 'spacious'}"]`);
+          if (rDens) rDens.checked = true;
+          const rLay = document.querySelector(`input[name="radioLayout"][value="${ws.layout || 'columns'}"]`);
+          if (rLay) rLay.checked = true;
+        });
+      }
+      if (btnCloseWs && modalWorkspace) {
+        btnCloseWs.addEventListener('click', () => { modalWorkspace.style.display = 'none'; });
+      }
+      if (btnCancelWs && modalWorkspace) {
+        btnCancelWs.addEventListener('click', () => { modalWorkspace.style.display = 'none'; });
+      }
+      if (btnSaveWs && modalWorkspace) {
+        btnSaveWs.addEventListener('click', () => {
+          const theme = document.querySelector('input[name="radioTheme"]:checked')?.value || 'emerald-dark';
+          const density = document.querySelector('input[name="radioDensity"]:checked')?.value || 'spacious';
+          const layout = document.querySelector('input[name="radioLayout"]:checked')?.value || 'columns';
+          const pacingSpeed = Number(document.getElementById('pacingSpeedInput')?.value) || 60;
+          const cfg = { theme, density, layout, pacingSpeed };
+          localStorage.setItem('wevo_workspace_settings', JSON.stringify(cfg));
+          document.body.setAttribute('data-theme', theme);
+          document.body.setAttribute('data-density', density);
+          document.body.setAttribute('data-layout', layout);
+          modalWorkspace.style.display = 'none';
+        });
+      }
+
       window.LocalSpinClient.initWorkspaceLayoutControls();
       window.LocalSpinClient.initQuickGuideAndScrollTop();
       window.LocalSpinClient.checkBackendHealth(document.getElementById('backendStatusBadge'));
