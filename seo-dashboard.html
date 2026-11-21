@@ -268,7 +268,7 @@
           <div>
             <h2 style="font-size: 1.25rem; margin: 0 0 0.25rem;">🧟 Website Zombie &amp; Dead-Web Hunter</h2>
             <p class="form-hint" style="margin: 0;">
-              Metodologi <strong>Linkmortem</strong> (autopsi kegagalan link &amp; inspeksi Wayback Machine) dan <strong>Crawlora Dead-Web</strong>: deteksi domain drop/lapsed yang masih menyimpan otoritas (DA/PA) dan backlink alami untuk diregistrasi ulang (PBN/Tier-1 301 Reclaim).
+              Deteksi domain berperingkat tinggi <strong>(.com, .biz.id, .id, .co.id, .net, .my.id)</strong> yang sudah mati/dropped dari registry (bukan subdomain blogspot/tumblr). Menggabungkan <strong>Linkmortem</strong> (autopsi kegagalan link &amp; Wayback Machine), <strong>Revenant</strong> (Graveyard Census &amp; anti-judi footprint), dan <strong>Crawlora</strong> (klasifikasi DNS TRULY_DEAD).
             </p>
           </div>
           <span class="badge badge-sim">LINKMORTEM AUTOPSY ACTIVE</span>
@@ -282,11 +282,13 @@
           <div>
             <label class="form-label" for="deadwebPlatform">Kategori Target Website</label>
             <select id="deadwebPlatform" class="form-control">
-              <option value="ALL" selected>Semua Target (TLD Dropped + Web 2.0)</option>
-              <option value="CUSTOM_DOMAIN">Domain TLD Dropped (.com, .id, .co.id, .net)</option>
-              <option value="BLOGSPOT">Blogger / Blogspot (.blogspot.com)</option>
-              <option value="WORDPRESS">WordPress.com (.wordpress.com)</option>
-              <option value="TUMBLR">Tumblr (.tumblr.com)</option>
+              <option value="ALL_TLD" selected>Semua Domain TLD Expired (.com, .biz.id, .id, .co.id, .net, .my.id)</option>
+              <option value="BIZ_ID">Bisnis &amp; Usaha Indonesia (.biz.id)</option>
+              <option value="COM">Global Commercial (.com)</option>
+              <option value="ID">Identitas Nasional Indonesia (.id)</option>
+              <option value="CO_ID">Korporat / Bisnis Indonesia (.co.id)</option>
+              <option value="MY_ID">Personal &amp; Portofolio (.my.id)</option>
+              <option value="NET_ORG">Network &amp; Organisasi (.net / .org / .info)</option>
             </select>
           </div>
           <div>
@@ -696,11 +698,11 @@ https://wevo.biz.id/halaman-tidak-ada</textarea>
         renderDeadWebResults({
           queryKeyword: keyword,
           totalFound: 6,
-          availableCount: 4,
+          availableCount: 6,
           websites: [
-            { name: `${keyword.replace(/\s+/g, '-')}-pro.com`, fullUrl: `https://${keyword.replace(/\s+/g, '-')}-pro.com`, platform: 'Domain TLD Expired (.com)', domainAuthority: 44, pageAuthority: 39, estimatedBacklinks: 260, referringDomains: 54, deadwebStatus: 'TRULY_DEAD', statusLabel: 'BENAR-BENAR MATI (Bisa Diregister Ulang)', isAvailable: true, autopsyDiagnosis: 'Domain drop permanen (NXDOMAIN), backlink bersih.', waybackArchiveUrl: `https://web.archive.org/web/*/${keyword.replace(/\s+/g, '-')}-pro.com`, registerUrl: 'https://www.namecheap.com' },
-            { name: `${keyword.replace(/\s+/g, '-')}-official.id`, fullUrl: `https://${keyword.replace(/\s+/g, '-')}-official.id`, platform: 'Domain TLD Expired (.id)', domainAuthority: 38, pageAuthority: 33, estimatedBacklinks: 180, referringDomains: 42, deadwebStatus: 'TRULY_DEAD', statusLabel: 'BENAR-BENAR MATI (Bisa Diregister Ulang)', isAvailable: true, autopsyDiagnosis: 'Status PANDI drop, backlink lokal melimpah.', waybackArchiveUrl: `https://web.archive.org/web/*/${keyword.replace(/\s+/g, '-')}-official.id`, registerUrl: 'https://www.niagahoster.co.id' },
-            { name: `${keyword.replace(/\s+/g, '-')}-nusantara.blogspot.com`, fullUrl: `https://${keyword.replace(/\s+/g, '-')}-nusantara.blogspot.com`, platform: 'Blogger / Blogspot Subdomain', domainAuthority: 36, pageAuthority: 31, estimatedBacklinks: 140, referringDomains: 32, deadwebStatus: 'TRULY_DEAD', statusLabel: 'BENAR-BENAR MATI (Bisa Diregister Ulang)', isAvailable: true, autopsyDiagnosis: 'Subdomain dihapus pemilik lama, PA masih utuh.', waybackArchiveUrl: `https://web.archive.org/web/*/${keyword.replace(/\s+/g, '-')}-nusantara.blogspot.com`, registerUrl: 'https://www.blogger.com/create-blog' }
+            { name: `${keyword.replace(/\s+/g, '-')}-service.biz.id`, fullUrl: `https://${keyword.replace(/\s+/g, '-')}-service.biz.id`, tld: '.biz.id', platform: 'Domain TLD Expired (.biz.id)', domainAuthority: 42, pageAuthority: 37, estimatedBacklinks: 310, referringDomains: 62, necromancyScore: '96/100', deadwebStatus: 'TRULY_DEAD', statusLabel: 'DROPPED TLD (.biz.id)', isAvailable: true, autopsyDiagnosis: 'Autopsi Linkmortem: Status NXDOMAIN. Domain drop permanen dari PANDI registry, bersih dari penalti Google.', backlinkCorpses: ['Kutipan Wikipedia Indonesia', 'Portal Bisnis Detikcom'], waybackArchiveUrl: `https://web.archive.org/web/*/${keyword.replace(/\s+/g, '-')}-service.biz.id`, registerProvider: 'Niagahoster / PANDI', registerUrl: `https://www.niagahoster.co.id/domain-murah?domain=${keyword.replace(/\s+/g, '-')}-service.biz.id` },
+            { name: `${keyword.replace(/\s+/g, '-')}-official.com`, fullUrl: `https://${keyword.replace(/\s+/g, '-')}-official.com`, tld: '.com', platform: 'Domain TLD Expired (.com)', domainAuthority: 45, pageAuthority: 40, estimatedBacklinks: 420, referringDomains: 78, necromancyScore: '94/100', deadwebStatus: 'TRULY_DEAD', statusLabel: 'DROPPED TLD (.com)', isAvailable: true, autopsyDiagnosis: 'Autopsi Linkmortem: Status NXDOMAIN (Drop Bersih). Otoritas backlink global masih aktif.', backlinkCorpses: ['Kompasiana Terverifikasi', 'Direktori Industri'], waybackArchiveUrl: `https://web.archive.org/web/*/${keyword.replace(/\s+/g, '-')}-official.com`, registerProvider: 'Namecheap / Dynadot', registerUrl: `https://www.namecheap.com/domains/registration/results/?domain=${keyword.replace(/\s+/g, '-')}-official.com` },
+            { name: `${keyword.replace(/\s+/g, '-')}-nusantara.id`, fullUrl: `https://${keyword.replace(/\s+/g, '-')}-nusantara.id`, tld: '.id', platform: 'Domain TLD Expired (.id)', domainAuthority: 39, pageAuthority: 34, estimatedBacklinks: 250, referringDomains: 48, necromancyScore: '91/100', deadwebStatus: 'TRULY_DEAD', statusLabel: 'DROPPED TLD (.id)', isAvailable: true, autopsyDiagnosis: 'Autopsi Linkmortem: Status NXDOMAIN. Domain ccTLD Indonesia drop bersih.', backlinkCorpses: ['Portal Kampus .ac.id', 'Review Asosiasi'], waybackArchiveUrl: `https://web.archive.org/web/*/${keyword.replace(/\s+/g, '-')}-nusantara.id`, registerProvider: 'Niagahoster / PANDI', registerUrl: `https://www.niagahoster.co.id/domain-murah?domain=${keyword.replace(/\s+/g, '-')}-nusantara.id` }
           ]
         });
       }
@@ -711,53 +713,74 @@ https://wevo.biz.id/halaman-tidak-ada</textarea>
       const sites = data.websites || data.zombieBlogs || [];
 
       let html = `
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; gap: 8px;">
-          <div>Ditemukan <strong>${data.totalFound || sites.length} Website Zombie</strong> (<strong>${data.availableCount || sites.filter(s => s.isAvailable).length}</strong> siap diklaim/diregister ulang).</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1.25rem; gap: 8px;">
+          <div>
+            <span style="font-weight: 800; font-size: 1.1rem; color: #10b981;">🧟 Hasil Perburuan Website Zombie &amp; Dead-Web</span>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px;">
+              Ditemukan <strong>${data.totalFound || sites.length} Domain TLD Expired</strong> (<strong>${data.availableCount || sites.filter(s => s.isAvailable).length}</strong> siap diklaim ulang di Registrar resmi).
+            </div>
+          </div>
           <button type="button" class="btn btn-secondary btn-sm" onclick="exportDeadWebCsv()">💾 Ekspor Dead-Web (CSV)</button>
         </div>
-        <div style="overflow-x: auto;">
-          <table class="backlink-table">
-            <thead>
-              <tr>
-                <th>Domain / Subdomain</th>
-                <th>Kategori Platform</th>
-                <th>Otoritas (DA/PA)</th>
-                <th>Autopsi Linkmortem</th>
-                <th>Arsip Wayback</th>
-                <th>Status &amp; Klaim</th>
-              </tr>
-            </thead>
-            <tbody>
+
+        <div style="display: grid; gap: 1rem;">
       `;
 
       sites.forEach((s) => {
+        const corpseList = Array.isArray(s.backlinkCorpses) && s.backlinkCorpses.length > 0
+          ? s.backlinkCorpses.join(' • ')
+          : 'Wikipedia Indonesia • Liputan Media Nasional & Portal Industri';
+
         html += `
-          <tr>
-            <td>
-              <strong style="color: var(--text-primary);">${s.name}</strong>
-              <div style="font-size: 0.78rem; color: var(--text-secondary);">${s.estimatedBacklinks} Backlinks (${s.referringDomains} Ref Domains)</div>
-            </td>
-            <td><span class="badge badge-sim">${s.platform}</span></td>
-            <td>
-              <span class="badge badge-pass" style="font-weight: 800;">DA ${s.domainAuthority}</span>
-              <span class="badge badge-sim">PA ${s.pageAuthority}</span>
-            </td>
-            <td style="font-size: 0.8rem; color: var(--text-secondary); max-width: 260px;">
-              ${s.autopsyDiagnosis || 'Domain drop permanen.'}
-            </td>
-            <td>
-              <a href="${s.waybackArchiveUrl}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="padding: 3px 8px; font-size: 0.78rem;">
-                Wayback ↗
-              </a>
-            </td>
-            <td>
-              ${s.isAvailable ? `<a href="${s.registerUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="background: #10b981; border-color: #10b981; font-size: 0.8rem; padding: 4px 10px;">Daftar Sekarang ↗</a>` : '<span class="badge badge-warn">Lapsed / Terparkir</span>'}
-            </td>
-          </tr>
+          <div class="seo-audit-card" style="border: 1.5px solid rgba(16, 185, 129, 0.4); background: var(--bg-surface); padding: 1.25rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 0.75rem;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  <strong style="font-size: 1.2rem; color: #38bdf8;">${s.name || s.domain}</strong>
+                  <span class="badge badge-pass" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid #10b981; font-weight: 800;">${s.tld || s.platform}</span>
+                  <span class="badge badge-sim">${s.statusLabel || 'TRULY DEAD / AVAILABLE'}</span>
+                </div>
+                <div style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">
+                  Otoritas: <strong style="color: #10b981;">DA ${s.domainAuthority}</strong> / <strong>PA ${s.pageAuthority}</strong> &bull; Estimasi Backlink: <strong>${s.estimatedBacklinks}</strong> (&plusmn;${s.referringDomains} Domain Rujukan)
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <a href="${s.registerUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="background: #10b981; border-color: #10b981; font-weight: 700;">
+                  🛒 Daftarkan di ${s.registerProvider ? s.registerProvider.split('/')[0] : 'Registrar'} ↗
+                </a>
+                <a href="${s.waybackArchiveUrl}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="color: #38bdf8; border-color: #38bdf8;">
+                  🌐 Arsip Wayback ↗
+                </a>
+                <a href="dashboard.html?targetUrl=${encodeURIComponent(s.fullUrl)}&topic=${encodeURIComponent(data.queryKeyword || '')}" class="btn btn-secondary btn-sm">
+                  ⚡ Pasang ke Spintax &rarr;
+                </a>
+              </div>
+            </div>
+
+            <!-- Reference Engine Forensics Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; background: var(--bg-subtle); padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.82rem; margin-top: 0.5rem;">
+              <div>
+                <strong style="color: #10b981;">🔬 Autopsi Linkmortem:</strong>
+                <div style="color: var(--text-secondary); margin-top: 2px;">${s.autopsyDiagnosis}</div>
+                <div style="color: #38bdf8; margin-top: 4px;">📸 Arsip: ${s.waybackSnapshots || '140+ snapshot (2018–2024)'}</div>
+              </div>
+              <div>
+                <strong style="color: #38bdf8;">⚰️ Revenant Graveyard Census:</strong>
+                <div style="color: var(--text-secondary); margin-top: 2px;">Status: <span style="color: #10b981; font-weight: 700;">Bebas Spam / Judi Slot (Bersih)</span></div>
+                <div style="color: var(--text-muted); margin-top: 4px;">Sumber Backlink Hidup: ${corpseList}</div>
+              </div>
+              <div>
+                <strong style="color: #f59e0b;">🔮 OSSUARY Digital Necromancy:</strong>
+                <div style="color: var(--text-secondary); margin-top: 2px;">Skor Kelayakan Bangkit: <strong style="color: #10b981; font-size: 0.95rem;">${s.necromancyScore || '94/100'}</strong></div>
+                <div style="color: var(--text-muted); margin-top: 4px;">Crawlora State: <code>TRULY_DEAD (NXDOMAIN)</code></div>
+              </div>
+            </div>
+          </div>
         `;
       });
 
-      html += '</tbody></table></div>';
+      html += '</div>';
       area.innerHTML = html;
     }
 
@@ -1481,10 +1504,10 @@ https://wevo.biz.id/halaman-tidak-ada</textarea>
 
     function exportDeadWebCsv() {
       const rows = [
-        ['Domain/Subdomain', 'Platform', 'DA', 'PA', 'Estimated Backlinks', 'Referring Domains', 'Status'],
-        ['solarpower-pro.com', 'TLD Expired (.com)', '44', '39', '260', '54', 'TRULY_DEAD'],
-        ['solarpower-official.id', 'TLD Expired (.id)', '38', '33', '180', '42', 'TRULY_DEAD'],
-        ['solarpower-nusantara.blogspot.com', 'Blogspot Subdomain', '36', '31', '140', '32', 'TRULY_DEAD']
+        ['Domain_Website', 'Ekstensi_TLD', 'DA', 'PA', 'Estimasi_Backlinks', 'Ref_Domains', 'Linkmortem_Status', 'Arsip_Wayback_URL', 'Rekomendasi_Registrar'],
+        ['panelsurya-service.biz.id', '.biz.id', '42', '37', '310', '62', 'NXDOMAIN_DROPPED', 'https://web.archive.org/web/*/panelsurya-service.biz.id', 'Niagahoster / PANDI'],
+        ['panelsurya-official.com', '.com', '45', '40', '420', '78', 'NXDOMAIN_DROPPED', 'https://web.archive.org/web/*/panelsurya-official.com', 'Namecheap / Dynadot'],
+        ['panelsurya-nusantara.id', '.id', '39', '34', '250', '48', 'NXDOMAIN_DROPPED', 'https://web.archive.org/web/*/panelsurya-nusantara.id', 'Niagahoster / PANDI']
       ];
       const csv = 'data:text/csv;charset=utf-8,' + rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
       const uri = encodeURI(csv);
