@@ -46,6 +46,21 @@ const {
   generateCloneSubmissionPlan
 } = require('./domain/competitorBacklinkEngine');
 const {
+  ZOMBIE_PLATFORMS,
+  huntZombieBlogs,
+  checkSearchEngineIndex,
+  submitIndexingService,
+  scheduleDripFeedIndexing,
+  analyzeTop10Serp,
+  trackRankKeywords,
+  monitorIndexAlerts,
+  checkBulkSitePages,
+  inspectRedirectChain,
+  checkNoindexMeta,
+  check404Errors,
+  extractSitemapUrlsFromXml
+} = require('./domain/seoToolsProEngine');
+const {
   MAX_IMAGES_PER_PROJECT,
   createDatabase,
   authorizeWorkspaceAction,
@@ -866,6 +881,127 @@ function createAppServer({ dbPath = ':memory:' } = {}) {
           selectedTargets: body.selectedTargets || []
         });
         return sendJson(res, 200, { message: 'Rencana alur kloning backlink kompetitor siap.', ...plan }, requestId);
+      }
+
+      // 10L. SEO Tools: Zombie Blog Hunter (Expired Web 2.0 with High Authority)
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/zombie-hunter') {
+        const body = await parseJsonBody(req);
+        const result = huntZombieBlogs({
+          keyword: body.keyword || 'panel surya',
+          platform: body.platform || 'BLOGSPOT',
+          minDa: Number(body.minDa) || 20,
+          limit: Number(body.limit) || 8
+        });
+        return sendJson(res, 200, { message: 'Pencarian blog zombie berotoritas selesai.', ...result }, requestId);
+      }
+
+      // 10M. SEO Tools: Multi-Engine Index Checker (Google, Bing, Yandex)
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/index-checker') {
+        const body = await parseJsonBody(req);
+        const urls = Array.isArray(body.urls) ? body.urls : (body.urls ? String(body.urls).split(/[\r\n]+/) : ['https://wevo.biz.id']);
+        const engine = body.engine || 'google';
+        const checked = checkSearchEngineIndex({ urls, engine });
+        return sendJson(res, 200, {
+          engine,
+          totalChecked: checked.length,
+          indexedCount: checked.filter(c => c.isIndexed).length,
+          results: checked
+        }, requestId);
+      }
+
+      // 10N. SEO Tools: Direct Indexing Service (Google Indexing API & Yandex/Bing IndexNow Ping)
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/indexing-service') {
+        const body = await parseJsonBody(req);
+        const urls = Array.isArray(body.urls) ? body.urls : (body.urls ? String(body.urls).split(/[\r\n]+/) : ['https://wevo.biz.id']);
+        const engine = body.engine || 'all';
+        const result = submitIndexingService({
+          urls,
+          engine,
+          notificationType: body.notificationType || 'URL_UPDATED'
+        });
+        return sendJson(res, 200, result, requestId);
+      }
+
+      // 10O. SEO Tools: Drip Feed Indexing Scheduler
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/drip-feed-scheduler') {
+        const body = await parseJsonBody(req);
+        const urls = Array.isArray(body.urls) ? body.urls : (body.urls ? String(body.urls).split(/[\r\n]+/) : []);
+        const schedule = scheduleDripFeedIndexing({
+          urls,
+          batchSize: Number(body.batchSize) || 10,
+          intervalMinutes: Number(body.intervalMinutes) || 30,
+          startTimeIso: body.startTimeIso || null
+        });
+        return sendJson(res, 200, { message: 'Antrean drip-feed indexing berhasil dijadwalkan.', ...schedule }, requestId);
+      }
+
+      // 10P. SEO Tools: SERP & Top 10 Analyzer
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/top10-serp') {
+        const body = await parseJsonBody(req);
+        const keyword = body.keyword || 'jasa pasang kanopi';
+        const analysis = analyzeTop10Serp({ keyword });
+        return sendJson(res, 200, { message: 'Analisis Top 10 SERP selesai.', ...analysis }, requestId);
+      }
+
+      // 10Q. SEO Tools: Rank Tracker
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/rank-tracker') {
+        const body = await parseJsonBody(req);
+        const domain = body.domain || 'wevo.biz.id';
+        const keywords = Array.isArray(body.keywords) ? body.keywords : ['jasa pasang kanopi', 'tukang las terdekat'];
+        const tracker = trackRankKeywords({ domain, keywords });
+        return sendJson(res, 200, { message: 'Pelacakan ranking kata kunci berhasil diperbarui.', ...tracker }, requestId);
+      }
+
+      // 10R. SEO Tools: Index Monitoring & Alert
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/index-monitoring') {
+        const body = await parseJsonBody(req);
+        const domain = body.domain || 'wevo.biz.id';
+        const urls = Array.isArray(body.urls) ? body.urls : [];
+        const monitor = monitorIndexAlerts({ domain, urls });
+        return sendJson(res, 200, { message: 'Pemeriksaan status monitoring dan alert selesai.', ...monitor }, requestId);
+      }
+
+      // 10S. SEO Tools: Bulk Site Pages (site:domain.com)
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/bulk-site-pages') {
+        const body = await parseJsonBody(req);
+        const domain = body.domain || 'wevo.biz.id';
+        const estimatedPages = Number(body.estimatedPages) || 50;
+        const bulk = checkBulkSitePages({ domain, estimatedPages });
+        return sendJson(res, 200, { message: 'Pemeriksaan bulk indeks site: berhasil.', ...bulk }, requestId);
+      }
+
+      // 10T. Free Tool: Redirect Chain Checker (301, 302, 307)
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/free/redirect-checker') {
+        const body = await parseJsonBody(req);
+        const targetUrl = body.url || body.targetUrl || 'http://wevo.biz.id';
+        const chain = inspectRedirectChain(targetUrl);
+        return sendJson(res, 200, { message: 'Pemeriksaan redirect chain selesai.', ...chain }, requestId);
+      }
+
+      // 10U. Free Tool: Noindex & Robots Meta Checker
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/free/noindex-checker') {
+        const body = await parseJsonBody(req);
+        const targetUrl = body.url || 'https://wevo.biz.id';
+        const htmlContent = body.htmlContent || '';
+        const headersMeta = body.headers || {};
+        const check = checkNoindexMeta({ url: targetUrl, htmlContent, headers: headersMeta });
+        return sendJson(res, 200, { message: 'Pemeriksaan status noindex selesai.', ...check }, requestId);
+      }
+
+      // 10V. Free Tool: 404 Error Checker
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/free/404-checker') {
+        const body = await parseJsonBody(req);
+        const urls = Array.isArray(body.urls) ? body.urls : (body.urls ? String(body.urls).split(/[\r\n]+/) : ['https://wevo.biz.id/halaman-aktif', 'https://wevo.biz.id/halaman-lama-404']);
+        const check = check404Errors({ urls });
+        return sendJson(res, 200, { message: 'Pemeriksaan broken link 404 selesai.', ...check }, requestId);
+      }
+
+      // 10W. Free Tool: Sitemap XML Extractor
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/free/sitemap-extractor') {
+        const body = await parseJsonBody(req);
+        const xml = body.xml || body.sitemapXml || '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://wevo.biz.id/</loc></url><url><loc>https://wevo.biz.id/layanan</loc></url></urlset>';
+        const extracted = extractSitemapUrlsFromXml(xml);
+        return sendJson(res, 200, { message: 'Ekstraksi URL dari sitemap XML berhasil.', ...extracted }, requestId);
       }
 
       // 11. Serve Static HTML Preview Files (DPES v1.3 HTML Visual Handoff)

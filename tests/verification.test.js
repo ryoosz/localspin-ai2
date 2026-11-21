@@ -613,3 +613,154 @@ test('L2 & L3 - SEO Tools: Competitor Backlink Spy & 4-Stage Clone Pipeline (Scr
   const cloneData = await apiCloneRes.json();
   assert.ok(cloneData.submissionTasks.length > 0);
 });
+
+test('L2 & L3 - SEO Tools Suite: Zombie Blog Hunter, Multi-Engine Indexing, Drip-Feed, SERP/Rank Tracking, & Free Utilities', async () => {
+  const { createAppServer } = require('../src/server');
+  const { dispatch } = createAppServer({ dbPath: ':memory:' });
+
+  // 1. Zombie Blog Hunter API
+  const zombieRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/zombie-hunter',
+    body: { keyword: 'jasa kanopi', platform: 'BLOGSPOT', minDa: 25, limit: 6 }
+  });
+  assert.equal(zombieRes.status, 200);
+  const zombieData = await zombieRes.json();
+  assert.equal(zombieData.zombieBlogs.length, 6);
+  assert.ok(zombieData.zombieBlogs[0].domainAuthority >= 20);
+  assert.ok(zombieData.zombieBlogs[0].name.includes('blogspot.com'));
+
+  // 2. Multi-Engine Index Checker (Google, Bing, Yandex)
+  const indexCheckRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/index-checker',
+    body: {
+      urls: ['https://wevo.biz.id', 'https://wevo.biz.id/layanan'],
+      engine: 'yandex'
+    }
+  });
+  assert.equal(indexCheckRes.status, 200);
+  const indexCheckData = await indexCheckRes.json();
+  assert.equal(indexCheckData.totalChecked, 2);
+  assert.equal(indexCheckData.engine, 'yandex');
+  assert.ok(indexCheckData.results[0].searchQueryUrl.includes('yandex.com'));
+
+  // 3. Direct Indexing Submission (Google Indexing API + Yandex IndexNow Ping)
+  const indexSubmitRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/indexing-service',
+    body: {
+      urls: ['https://wevo.biz.id/artikel/pasang-ac-jakarta'],
+      engine: 'all'
+    }
+  });
+  assert.equal(indexSubmitRes.status, 200);
+  const indexSubmitData = await indexSubmitRes.json();
+  assert.equal(indexSubmitData.totalSubmitted, 1);
+  assert.equal(indexSubmitData.submissions[0].googleIndexingApi.status, 'SUBMITTED');
+  assert.equal(indexSubmitData.submissions[0].yandexIndexNow.status, 'PINGED');
+
+  // 4. Drip-Feed Indexing Scheduler
+  const dripRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/drip-feed-scheduler',
+    body: {
+      urls: Array.from({ length: 25 }, (_, i) => `https://wevo.biz.id/page-${i + 1}`),
+      batchSize: 10,
+      intervalMinutes: 20
+    }
+  });
+  assert.equal(dripRes.status, 200);
+  const dripData = await dripRes.json();
+  assert.equal(dripData.totalBatches, 3);
+  assert.equal(dripData.batches[0].urls.length, 10);
+  assert.equal(dripData.batches[2].urls.length, 5);
+
+  // 5. Top 10 SERP Analyzer
+  const serpRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/top10-serp',
+    body: { keyword: 'service pompa air jogja' }
+  });
+  assert.equal(serpRes.status, 200);
+  const serpData = await serpRes.json();
+  assert.equal(serpData.top10Results.length, 10);
+  assert.ok(serpData.averageTop10WordCount > 500);
+
+  // 6. Rank Tracker
+  const rankRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/rank-tracker',
+    body: {
+      domain: 'wevo.biz.id',
+      keywords: ['jasa pasang canopy', 'harga borongan las']
+    }
+  });
+  assert.equal(rankRes.status, 200);
+  const rankData = await rankRes.json();
+  assert.equal(rankData.totalKeywords, 2);
+  assert.ok(rankData.rankings[0].currentPosition >= 1);
+
+  // 7. Index Monitoring & Alert
+  const monitorRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/index-monitoring',
+    body: { domain: 'wevo.biz.id' }
+  });
+  assert.equal(monitorRes.status, 200);
+  const monitorData = await monitorRes.json();
+  assert.ok(monitorData.monitoredCount >= 5);
+
+  // 8. Bulk Site Pages Checker (site:domain.com)
+  const bulkRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/bulk-site-pages',
+    body: { domain: 'wevo.biz.id', estimatedPages: 100 }
+  });
+  assert.equal(bulkRes.status, 200);
+  const bulkData = await bulkRes.json();
+  assert.ok(bulkData.totalIndexedPages > 0);
+  assert.ok(bulkData.indexRatioPercent > 0);
+
+  // 9. Free Tools: Redirect Chain, Noindex, 404, Sitemap XML
+  const redirectRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/free/redirect-checker',
+    body: { url: 'http://wevo.biz.id' }
+  });
+  assert.equal(redirectRes.status, 200);
+  const redirectData = await redirectRes.json();
+  assert.ok(redirectData.hops.length >= 1);
+
+  const noindexRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/free/noindex-checker',
+    body: {
+      url: 'https://wevo.biz.id/test',
+      htmlContent: '<html><head><meta name="robots" content="noindex, follow"></head></html>'
+    }
+  });
+  assert.equal(noindexRes.status, 200);
+  const noindexData = await noindexRes.json();
+  assert.equal(noindexData.isIndexable, false);
+  assert.equal(noindexData.metaRobotsFound, true);
+
+  const err404Res = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/free/404-checker',
+    body: { urls: ['https://wevo.biz.id/h1', 'https://wevo.biz.id/h2'] }
+  });
+  assert.equal(err404Res.status, 200);
+  const err404Data = await err404Res.json();
+  assert.equal(err404Data.totalChecked, 2);
+
+  const sitemapRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/free/sitemap-extractor',
+    body: { xml: '<urlset><url><loc>https://wevo.biz.id/home</loc></url><url><loc>https://wevo.biz.id/kontak</loc></url></urlset>' }
+  });
+  assert.equal(sitemapRes.status, 200);
+  const sitemapData = await sitemapRes.json();
+  assert.equal(sitemapData.totalUrlsExtracted, 2);
+  assert.equal(sitemapData.urls[0], 'https://wevo.biz.id/home');
+});

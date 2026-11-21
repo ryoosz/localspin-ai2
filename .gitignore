@@ -1,0 +1,4 @@
+.netlify/
+.env
+data/*.sqlite
+node_modules/

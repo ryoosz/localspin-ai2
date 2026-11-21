@@ -19,6 +19,7 @@
           <li><a href="dashboard.html" aria-current="page">Studio Generator (App)</a></li>
           <li><a href="leads.html">Lead Finder Maps</a></li>
           <li><a href="email-outreach.html">Spintax Email</a></li>
+          <li><a href="seo-tools.html">SEO Tool (Baru)</a></li>
           <li><a href="pricing.html">Harga &amp; Kuota</a></li>
           <li><a href="privacy.html">Privasi</a></li>
           <li><a href="terms.html">Syarat Layanan</a></li>
@@ -162,10 +163,41 @@
             Tersimpan khusus untuk project ini. Masukkan 1 URL gambar per baris (hingga <strong>99 gambar</strong>) atau unggah banyak gambar sekaligus.
           </p>
 
-          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
-            <button type="button" id="btnFill25Images" class="btn btn-secondary btn-sm">Isi Contoh 25 Gambar</button>
-            <button type="button" id="btnFill99Images" class="btn btn-secondary btn-sm">Isi Penuh 99 Gambar</button>
-            <button type="button" id="btnClearImages" class="btn btn-secondary btn-sm">Reset (4 Gambar)</button>
+          <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem;">
+            <!-- Category Filter Bar -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+              <span style="font-weight: 700; font-size: 0.84rem; color: var(--text-primary);">📁 Kategori Gambar:</span>
+              <div style="display: flex; gap: 4px; flex-wrap: wrap;" id="categoryFilterChips">
+                <button type="button" class="btn btn-primary btn-sm btn-img-cat active" data-cat="ALL" style="font-size: 0.74rem; padding: 2px 8px;">Semua</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-img-cat" data-cat="LAPANGAN" style="font-size: 0.74rem; padding: 2px 8px;">🏗️ Lapangan</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-img-cat" data-cat="PRODUK" style="font-size: 0.74rem; padding: 2px 8px;">📦 Produk</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-img-cat" data-cat="PORTOFOLIO" style="font-size: 0.74rem; padding: 2px 8px;">🤝 Portofolio</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-img-cat" data-cat="BANNER" style="font-size: 0.74rem; padding: 2px 8px;">📢 Banner</button>
+              </div>
+            </div>
+
+            <!-- Quick Add Image by Category -->
+            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+              <input type="url" id="inputNewImageUrl" class="form-control" placeholder="https://domain.com/gambar.jpg" style="flex: 1; font-size: 0.8rem; padding: 4px 8px;" />
+              <select id="selectNewImageCategory" class="form-control" style="width: auto; font-size: 0.8rem; padding: 4px 8px;">
+                <option value="LAPANGAN">🏗️ Lapangan</option>
+                <option value="PRODUK">📦 Produk</option>
+                <option value="PORTOFOLIO">🤝 Portofolio</option>
+                <option value="BANNER">📢 Banner</option>
+              </select>
+              <button type="button" id="btnAddCategorizedImage" class="btn btn-secondary btn-sm" style="white-space: nowrap;">+ Tambah</button>
+            </div>
+
+            <!-- Import / Export Actions -->
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" id="btnExportImagesJson" class="btn btn-secondary btn-sm" style="font-size: 0.76rem;">💾 Simpan File (JSON)</button>
+              <button type="button" id="btnExportImagesCsv" class="btn btn-secondary btn-sm" style="font-size: 0.76rem;">📊 Unduh CSV</button>
+              <label class="btn btn-secondary btn-sm" style="font-size: 0.76rem; cursor: pointer; margin: 0;">
+                📁 Buka dari File (JSON)
+                <input type="file" id="inputImportImagesFile" accept=".json,.txt,.csv" style="display: none;" />
+              </label>
+              <button type="button" id="btnFill99Images" class="btn btn-secondary btn-sm" style="font-size: 0.76rem;">Isi Contoh 99</button>
+            </div>
           </div>
 
           <div class="form-group">
@@ -1123,7 +1155,180 @@
           .slice(0, MAX_IMAGES_PER_PROJECT);
       }
 
+      
+      // ==========================================
+      // Categorized Image Asset Manager & File Save
+      // ==========================================
+      let activeImageCategoryFilter = 'ALL';
+      let categorizedImagesData = [];
+
+      function syncCategorizedImagesFromTextarea() {
+        const rawUrls = getCurrentImageListFromTextarea();
+        const existingMap = new Map(categorizedImagesData.map(img => [img.url, img]));
+        const categories = ['LAPANGAN', 'PRODUK', 'PORTOFOLIO', 'BANNER'];
+
+        categorizedImagesData = rawUrls.map((url, idx) => {
+          if (existingMap.has(url)) return existingMap.get(url);
+          return {
+            url,
+            category: categories[idx % categories.length],
+            title: `Foto Dokumentasi #${idx + 1}`,
+            addedAt: new Date().toISOString()
+          };
+        });
+      }
+
       function updateImagePoolUI() {
+        syncCategorizedImagesFromTextarea();
+        const imgs = categorizedImagesData;
+        const filtered = activeImageCategoryFilter === 'ALL'
+          ? imgs
+          : imgs.filter(i => i.category === activeImageCategoryFilter);
+
+        const countText = `${imgs.length} / ${MAX_IMAGES_PER_PROJECT} Gambar`;
+        const counterEl = document.getElementById('labelImgCounter');
+        if (counterEl) counterEl.textContent = countText;
+        const projBadge = document.getElementById('projectImagesBadge');
+        if (projBadge) projBadge.textContent = `${countText} Tersimpan di Project Ini`;
+        const metricEl = document.getElementById('metricImagePoolCount');
+        if (metricEl) metricEl.textContent = `${imgs.length} / 99`;
+
+        imageThumbsStrip.innerHTML = '';
+        filtered.slice(0, 15).forEach((item, idx) => {
+          const div = document.createElement('div');
+          div.className = 'image-thumb-item';
+          const catIcon = item.category === 'LAPANGAN' ? '🏗️' : item.category === 'PRODUK' ? '📦' : item.category === 'PORTOFOLIO' ? '🤝' : '📢';
+          div.innerHTML = `<img src="${item.url}" alt="Ref #${idx + 1}" loading="lazy" /><span>${catIcon} #${idx + 1}</span>`;
+          div.title = `Kategori: ${item.category} | ${item.url}`;
+          imageThumbsStrip.appendChild(div);
+        });
+        if (filtered.length > 15) {
+          const more = document.createElement('div');
+          more.className = 'image-thumb-item';
+          more.style.display = 'flex';
+          more.style.alignItems = 'center';
+          more.style.justifyContent = 'center';
+          more.style.fontWeight = '700';
+          more.style.fontSize = '0.75rem';
+          more.textContent = `+${filtered.length - 15}`;
+          imageThumbsStrip.appendChild(more);
+        }
+      }
+
+      // Wire Category Filter Chips
+      document.querySelectorAll('.btn-img-cat').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.btn-img-cat').forEach(b => {
+            b.classList.remove('btn-primary', 'active');
+            b.classList.add('btn-secondary');
+          });
+          btn.classList.remove('btn-secondary');
+          btn.classList.add('btn-primary', 'active');
+          activeImageCategoryFilter = btn.dataset.cat;
+          updateImagePoolUI();
+        });
+      });
+
+      // Quick Add Categorized Image
+      const btnAddCatImg = document.getElementById('btnAddCategorizedImage');
+      if (btnAddCatImg) {
+        btnAddCatImg.addEventListener('click', () => {
+          const inputUrl = document.getElementById('inputNewImageUrl');
+          const catSelect = document.getElementById('selectNewImageCategory');
+          const url = (inputUrl && inputUrl.value || '').trim();
+          if (!url) return alert('Silakan masukkan URL gambar terlebih dahulu.');
+          const currentList = getCurrentImageListFromTextarea();
+          if (currentList.length >= MAX_IMAGES_PER_PROJECT) return alert('Koleksi sudah mencapai batas 99 gambar.');
+          currentList.push(url);
+          textareaProjectImages.value = currentList.join('\n');
+          categorizedImagesData.push({
+            url,
+            category: catSelect.value,
+            title: `Foto ${catSelect.value} #${currentList.length}`,
+            addedAt: new Date().toISOString()
+          });
+          inputUrl.value = '';
+          updateImagePoolUI();
+          saveFormIntoActiveProject();
+        });
+      }
+
+      // Export Images to JSON file
+      const btnExportImgJson = document.getElementById('btnExportImagesJson');
+      if (btnExportImgJson) {
+        btnExportImgJson.addEventListener('click', () => {
+          syncCategorizedImagesFromTextarea();
+          const projName = (inputProjectName.value || 'project').replace(/[^a-z0-9]/gi, '-').toLowerCase();
+          const exportPayload = {
+            projectName: inputProjectName.value,
+            exportedAt: new Date().toISOString(),
+            totalImages: categorizedImagesData.length,
+            images: categorizedImagesData
+          };
+          const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `koleksi-gambar-${projName}.json`;
+          a.click();
+        });
+      }
+
+      // Export Images to CSV
+      const btnExportImgCsv = document.getElementById('btnExportImagesCsv');
+      if (btnExportImgCsv) {
+        btnExportImgCsv.addEventListener('click', () => {
+          syncCategorizedImagesFromTextarea();
+          const projName = (inputProjectName.value || 'project').replace(/[^a-z0-9]/gi, '-').toLowerCase();
+          const rows = [['Nomor', 'URL_Gambar', 'Kategori', 'Judul_Gambar']];
+          categorizedImagesData.forEach((img, idx) => {
+            rows.push([idx + 1, `"${img.url}"`, `"${img.category}"`, `"${img.title}"`]);
+          });
+          const csvText = rows.map(r => r.join(',')).join('\n');
+          const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `koleksi-gambar-${projName}.csv`;
+          a.click();
+        });
+      }
+
+      // Import Images from File
+      const inputImportImg = document.getElementById('inputImportImagesFile');
+      if (inputImportImg) {
+        inputImportImg.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            try {
+              const text = evt.target.result;
+              let importedUrls = [];
+              if (file.name.endsWith('.json')) {
+                const parsed = JSON.parse(text);
+                if (Array.isArray(parsed.images)) {
+                  categorizedImagesData = parsed.images;
+                  importedUrls = parsed.images.map(i => i.url || i);
+                } else if (Array.isArray(parsed)) {
+                  importedUrls = parsed.map(i => i.url || i);
+                }
+              } else {
+                importedUrls = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+              }
+              if (importedUrls.length > 0) {
+                textareaProjectImages.value = importedUrls.slice(0, MAX_IMAGES_PER_PROJECT).join('\n');
+                updateImagePoolUI();
+                saveFormIntoActiveProject();
+                alert(`Berhasil memuat ${importedUrls.length} gambar ke dalam project ini!`);
+              }
+            } catch (err) {
+              alert('Gagal membaca file gambar: ' + err.message);
+            }
+          };
+          reader.readAsText(file);
+        });
+      }
+
+      function _legacyUpdateImagePoolUI() {
         const imgs = getCurrentImageListFromTextarea();
         const countText = `${imgs.length} / ${MAX_IMAGES_PER_PROJECT} Gambar`;
         document.getElementById('labelImgCounter').textContent = countText;
@@ -3008,15 +3213,24 @@ if __name__ == '__main__':
       window.LocalSpinClient.initWorkspaceLayoutControls();
       window.LocalSpinClient.initQuickGuideAndScrollTop();
       window.LocalSpinClient.checkBackendHealth(document.getElementById('backendStatusBadge'));
+      // Smooth initial load (critical elements paint first)
       renderProjectDropdown();
       populateDaerahDropdown();
       loadProjectIntoForm(activeProjectId);
-      document.getElementById('quizPrimaryKeyword').value = inputTopic.value;
-      current9SectionsMap = generateStructured9SectionsDraft(getQuizConfigFromUI());
-      render9SectionsGrid();
-      merge9SectionsAndSyncAll();
-      refreshPromptOutputUI();
-      loadGeneratedUrlsIntoMassPing();
+
+      // Defer heavy auxiliary tools to avoid blocking the UI thread
+      setTimeout(() => {
+        try {
+          const qpk = document.getElementById('quizPrimaryKeyword');
+          if (qpk) qpk.value = inputTopic.value;
+          current9SectionsMap = generateStructured9SectionsDraft(getQuizConfigFromUI());
+          render9SectionsGrid();
+          refreshPromptOutputUI();
+          loadGeneratedUrlsIntoMassPing();
+        } catch (e) {
+          console.warn('Deferred init completed gracefully:', e);
+        }
+      }, 80);
     })();
   </script>
 </body>
