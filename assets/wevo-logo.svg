@@ -1,0 +1,227 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 440" width="100%" height="100%">
+  <defs>
+    <!-- Background / Soft Glow -->
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#10b981" flood-opacity="0.25" />
+    </filter>
+    <filter id="badgeShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.15" />
+    </filter>
+
+    <!-- Gradients -->
+    <linearGradient id="chameleonBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="45%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+
+    <linearGradient id="chameleonStripe" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+
+    <linearGradient id="branchGrad" x1="0%" y1="0%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#92400e" />
+      <stop offset="100%" stop-color="#78350f" />
+    </linearGradient>
+
+    <linearGradient id="arrowGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+
+    <linearGradient id="brandTextGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0e7490" />
+      <stop offset="100%" stop-color="#083344" />
+    </linearGradient>
+
+    <linearGradient id="featherGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fed7aa" />
+      <stop offset="50%" stop-color="#ffedd5" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+  </defs>
+
+  <!-- ============================================== -->
+  <!-- 1. BADGES ABOVE MASCOT (SPIN, ARROW, GEAR)    -->
+  <!-- ============================================== -->
+
+  <!-- {SPIN} Orange Starburst Bubble -->
+  <g transform="translate(230, 25)" filter="url(#badgeShadow)">
+    <path d="M 30,0 L 37,10 L 50,7 L 49,20 L 60,25 L 53,36 L 60,47 L 47,49 L 45,61 L 32,56 L 24,65 L 18,54 L 6,56 L 9,43 L 0,36 L 9,27 L 4,15 L 17,15 L 20,3 Z" fill="#f97316" stroke="#ea580c" stroke-width="2" />
+    <text x="30" y="37" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="900" font-size="14" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">{SPIN}</text>
+  </g>
+
+  <!-- Rising Growth / Ranking Up Arrow -->
+  <g transform="translate(260, 45)" filter="url(#badgeShadow)">
+    <polyline points="5,45 25,25 35,32 55,8" fill="none" stroke="url(#arrowGrad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+    <polygon points="55,8 40,9 52,22" fill="#0284c7" />
+  </g>
+
+  <!-- Mechanical Automation Gear -->
+  <g transform="translate(285, 75)" filter="url(#badgeShadow)">
+    <circle cx="16" cy="16" r="10" fill="none" stroke="#38bdf8" stroke-width="5" />
+    <circle cx="16" cy="16" r="5" fill="#0284c7" />
+    <path d="M16,2 L16,6 M16,26 L16,30 M2,16 L6,16 M26,16 L30,16 M6,6 L9,9 M23,23 L26,26 M6,26 L9,23 M23,9 L26,6" stroke="#0284c7" stroke-width="3" stroke-linecap="round" />
+  </g>
+
+  <!-- ============================================== -->
+  <!-- 2. WOODEN BRANCH & LEAVES                      -->
+  <!-- ============================================== -->
+  <g id="treeBranch">
+    <!-- Main Perch Branch -->
+    <path d="M 60,205 Q 150,225 240,215 Q 310,210 345,185 Q 320,200 240,225 Q 140,235 60,218 Z" fill="url(#branchGrad)" />
+    <!-- Secondary Twigs -->
+    <path d="M 100,215 Q 75,185 60,175 Q 70,185 85,218 Z" fill="url(#branchGrad)" />
+    <path d="M 310,215 Q 335,210 345,215 Q 330,220 305,220 Z" fill="url(#branchGrad)" />
+
+    <!-- Sprouting Green Leaves -->
+    <!-- Left leaves -->
+    <path d="M 60,175 Q 45,155 60,145 Q 75,160 60,175 Z" fill="#22c55e" stroke="#15803d" stroke-width="1.5" />
+    <path d="M 75,185 Q 85,165 105,170 Q 95,190 75,185 Z" fill="#4ade80" stroke="#15803d" stroke-width="1.5" />
+    <!-- Right leaves -->
+    <path d="M 345,185 Q 365,165 350,150 Q 335,170 345,185 Z" fill="#22c55e" stroke="#15803d" stroke-width="1.5" />
+    <path d="M 345,215 Q 365,220 360,235 Q 340,230 345,215 Z" fill="#4ade80" stroke="#15803d" stroke-width="1.5" />
+
+    <!-- Hanging Magnifying Glass from Branch -->
+    <g transform="translate(290, 218)">
+      <line x1="10" y1="0" x2="10" y2="12" stroke="#475569" stroke-width="2" />
+      <circle cx="10" cy="18" r="6" fill="#e0f2fe" stroke="#334155" stroke-width="2" />
+      <line x1="14" y1="22" x2="18" y2="28" stroke="#334155" stroke-width="2" stroke-linecap="round" />
+    </g>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- 3. CHAMELEON (BUNGLON) MASCOT                  -->
+  <!-- ============================================== -->
+  <g id="chameleonMascot" filter="url(#softGlow)">
+    <!-- Curled Tail -->
+    <path d="M 270,185 Q 295,200 280,240 Q 265,270 230,265 Q 200,255 210,230 Q 220,210 240,225 Q 248,235 240,245 Q 230,248 225,240" fill="none" stroke="url(#chameleonBody)" stroke-width="18" stroke-linecap="round" />
+    <path d="M 270,185 Q 295,200 280,240 Q 265,270 230,265 Q 200,255 210,230 Q 220,210 240,225 Q 248,235 240,245 Q 230,248 225,240" fill="none" stroke="#10b981" stroke-width="14" stroke-linecap="round" />
+
+    <!-- Chameleon Main Body / Torso -->
+    <path d="M 180,110 C 235,90 270,120 280,185 C 285,210 250,225 210,220 C 175,215 160,180 165,145 Z" fill="url(#chameleonBody)" stroke="#047857" stroke-width="3" />
+
+    <!-- Body Decorative Stripes (Yellow / Amber) -->
+    <path d="M 215,108 Q 220,135 235,145" stroke="url(#chameleonStripe)" stroke-width="5" stroke-linecap="round" fill="none" />
+    <path d="M 235,115 Q 240,145 255,160" stroke="url(#chameleonStripe)" stroke-width="5" stroke-linecap="round" fill="none" />
+    <path d="M 255,130 Q 260,165 272,175" stroke="url(#chameleonStripe)" stroke-width="5" stroke-linecap="round" fill="none" />
+    <circle cx="230" cy="175" r="4" fill="#fbbf24" />
+    <circle cx="250" cy="190" r="3.5" fill="#fbbf24" />
+
+    <!-- Back Ridge / Crest Points -->
+    <polygon points="195,100 202,92 208,100" fill="#059669" />
+    <polygon points="212,98 219,89 226,98" fill="#059669" />
+    <polygon points="230,102 237,94 244,103" fill="#059669" />
+    <polygon points="248,110 255,102 262,112" fill="#059669" />
+
+    <!-- Back Leg Perched on Branch -->
+    <path d="M 250,185 Q 265,205 255,225 C 250,228 240,226 235,220" fill="url(#chameleonBody)" stroke="#047857" stroke-width="2.5" />
+    <!-- Claws holding branch -->
+    <circle cx="242" cy="223" r="4" fill="#059669" />
+    <circle cx="250" cy="225" r="4" fill="#059669" />
+
+    <!-- Front Left Leg & Claws on Branch -->
+    <path d="M 185,185 Q 180,210 185,225" fill="none" stroke="url(#chameleonBody)" stroke-width="8" stroke-linecap="round" />
+    <circle cx="183" cy="225" r="4" fill="#059669" />
+    <circle cx="189" cy="226" r="4" fill="#059669" />
+
+    <!-- Chameleon Head -->
+    <path d="M 140,140 C 130,95 180,65 220,75 C 235,80 245,100 240,120 C 235,145 190,175 150,165 Z" fill="url(#chameleonBody)" stroke="#047857" stroke-width="3" />
+    <!-- Casque (Crest on top of head) -->
+    <path d="M 180,70 C 195,50 225,55 225,75 Z" fill="#34d399" stroke="#047857" stroke-width="2" />
+
+    <!-- Cute Smiling Mouth -->
+    <path d="M 148,145 Q 165,160 185,148" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linecap="round" />
+    <path d="M 182,146 L 187,143" stroke="#0f172a" stroke-width="3" stroke-linecap="round" />
+    <!-- Rosy Cheek -->
+    <circle cx="178" cy="142" r="7" fill="#fb7185" opacity="0.45" />
+
+    <!-- Big Inquisitive Eye & Eyelid -->
+    <circle cx="175" cy="112" r="22" fill="#10b981" stroke="#047857" stroke-width="3" />
+    <!-- Sclera -->
+    <circle cx="178" cy="112" r="16" fill="#ffffff" />
+    <!-- Pupil looking attentively -->
+    <circle cx="183" cy="112" r="9" fill="#0f172a" />
+    <!-- Catchlights / Sparkle -->
+    <circle cx="180" cy="108" r="3.5" fill="#ffffff" />
+    <circle cx="186" cy="115" r="1.5" fill="#ffffff" />
+
+    <!-- Round Geek / Smart Spectacles (Kacamata Bulat) -->
+    <circle cx="178" cy="112" r="20" fill="none" stroke="#1e293b" stroke-width="3.5" />
+    <circle cx="132" cy="115" r="14" fill="none" stroke="#1e293b" stroke-width="3.5" opacity="0.35" />
+    <line x1="158" y1="112" x2="146" y2="114" stroke="#1e293b" stroke-width="3" />
+    <!-- Spectacle Earpiece -->
+    <path d="M 198,110 Q 215,105 225,115" fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" />
+
+    <!-- Orange Bow Tie (Dasi Kupu-Kupu) -->
+    <g transform="translate(182, 168)">
+      <polygon points="0,0 -12,-7 -12,7" fill="#f97316" stroke="#c2410c" stroke-width="1.5" />
+      <polygon points="0,0 12,-7 12,7" fill="#f97316" stroke="#c2410c" stroke-width="1.5" />
+      <ellipse cx="0" cy="0" rx="4" ry="4.5" fill="#fbbf24" stroke="#c2410c" stroke-width="1.5" />
+    </g>
+
+    <!-- Right Arm holding Quill Pen -->
+    <path d="M 170,165 Q 155,185 145,190" fill="none" stroke="url(#chameleonBody)" stroke-width="7" stroke-linecap="round" />
+    <circle cx="145" cy="190" r="4.5" fill="#059669" />
+
+    <!-- Antique Feather Quill Pen (Bulu Unggas Menulis) -->
+    <g transform="translate(142, 192) rotate(-35)">
+      <!-- Quill Shaft -->
+      <line x1="0" y1="5" x2="0" y2="-55" stroke="#78350f" stroke-width="2.5" />
+      <!-- Metal Nib -->
+      <polygon points="0,7 -3,0 3,0" fill="#f59e0b" stroke="#78350f" stroke-width="1" />
+      <!-- Feather Plume -->
+      <path d="M 0,-15 C -15,-28 -18,-50 0,-65 C 18,-50 15,-28 0,-15 Z" fill="url(#featherGrad)" stroke="#c2410c" stroke-width="1.5" />
+      <!-- Feather vanes / cuts -->
+      <line x1="-3" y1="-30" x2="-10" y2="-35" stroke="#ea580c" stroke-width="1" />
+      <line x1="-2" y1="-42" x2="-12" y2="-48" stroke="#ea580c" stroke-width="1" />
+      <line x1="2" y1="-35" x2="10" y2="-40" stroke="#ea580c" stroke-width="1" />
+    </g>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- 4. PARCHMENT SCROLL WITH SPINTAX & WEVO        -->
+  <!-- ============================================== -->
+  <g id="parchmentScroll" transform="translate(90, 195)" filter="url(#badgeShadow)">
+    <!-- Scroll Paper Body -->
+    <path d="M 15,10 C 35,5 75,5 95,12 C 100,28 92,55 85,62 C 60,56 30,58 10,65 C 5,50 8,25 15,10 Z" fill="#fef9c3" stroke="#ca8a04" stroke-width="2" />
+    <!-- Scroll Rolled Edges -->
+    <ellipse cx="14" cy="10" rx="6" ry="4" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5" />
+    <ellipse cx="85" cy="62" rx="7" ry="5" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5" />
+
+    <!-- Scroll Content: Brand Name & Spintax Permutations -->
+    <text x="26" y="28" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="900" font-size="11" fill="#0f766e" letter-spacing="1">WEVO</text>
+    <!-- Spintax permutation symbols -->
+    <text x="24" y="42" font-family="'JetBrains Mono', Consolas, monospace" font-size="8" fill="#475569">{k|b|c}</text>
+    <text x="22" y="53" font-family="'JetBrains Mono', Consolas, monospace" font-size="8" fill="#475569">{k|v|q}</text>
+    <circle cx="68" cy="24" r="1.5" fill="#f59e0b" />
+    <circle cx="75" cy="35" r="1.5" fill="#f59e0b" />
+  </g>
+
+  <!-- ============================================== -->
+  <!-- 5. TYPOGRAPHY: WEVO .BIZ.ID                    -->
+  <!-- ============================================== -->
+  <g id="brandTypography" transform="translate(200, 340)">
+    <!-- Main "WEVO" with Chameleon Curly Tail 'O' -->
+    <g text-anchor="middle">
+      <!-- 'W' -->
+      <path d="M -115,-35 L -100,15 L -85,-18 L -70,15 L -55,-35 L -70,-35 L -78,-5 L -92,-35 L -102,-5 L -107,-35 Z" fill="url(#brandTextGrad)" />
+      <!-- 'E' -->
+      <path d="M -48,-35 L -10,-35 L -10,-22 L -32,-22 L -32,-14 L -15,-14 L -15,-2 L -32,-2 L -32,3 L -10,3 L -10,15 L -48,15 Z" fill="url(#brandTextGrad)" />
+      <!-- 'V' -->
+      <path d="M -3,-35 L 14,15 L 29,15 L 46,-35 L 30,-35 L 21,-5 L 12,-35 Z" fill="url(#brandTextGrad)" />
+      
+      <!-- 'O' with Chameleon Spiral Tail inside & Green Sprout Leaf on top -->
+      <!-- Sprout Leaf on top of 'O' -->
+      <path d="M 88,-36 C 98,-52 114,-45 106,-35 C 98,-33 90,-34 88,-36 Z" fill="#22c55e" stroke="#15803d" stroke-width="1.5" />
+      <!-- Outer 'O' Ring -->
+      <ellipse cx="82" cy="-10" rx="26" ry="28" fill="none" stroke="url(#brandTextGrad)" stroke-width="14" />
+      <!-- Spiral Tail inside 'O' -->
+      <path d="M 72,-8 A 9,9 0 0,0 87,0 A 5,5 0 0,0 84,-7 A 2,2 0 0,0 81,-5" fill="none" stroke="url(#brandTextGrad)" stroke-width="4.5" stroke-linecap="round" />
+    </g>
+
+    <!-- Subtitle: .BIZ.ID -->
+    <text x="0" y="44" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="900" font-size="28" fill="#0891b2" text-anchor="middle" letter-spacing="4">.BIZ.ID</text>
+  </g>
+</svg>

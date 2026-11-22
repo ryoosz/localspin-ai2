@@ -1303,16 +1303,23 @@ body[data-layout="stacked"] .studio-layout > aside {
   font-family: var(--font-family-sans);
 }
 .wevo-logo-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(6, 182, 212, 0.2) 100%);
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #0f172a;
   border: 1.5px solid #10b981;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
   flex-shrink: 0;
+  overflow: hidden;
+  padding: 2px;
+}
+.wevo-logo-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .wevo-logo-text {
   font-size: 1.3rem;
@@ -1410,7 +1417,7 @@ body[data-layout="stacked"] .studio-layout > aside {
   background: rgba(16, 185, 129, 0.05);
 }
 
-/* SEO Audit Visual Results (No more raw JSON) */
+/* SEO Audit Visual Results */
 .seo-audit-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -1429,14 +1436,13 @@ body[data-layout="stacked"] .studio-layout > aside {
   margin-bottom: 8px;
 }
 
-
 /* Form input alignment pair (Image 1 fix) */
 .form-aligned-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 14px;
   align-items: flex-end;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.9rem;
 }
 .form-aligned-row .form-group {
   display: flex;
@@ -1445,26 +1451,27 @@ body[data-layout="stacked"] .studio-layout > aside {
   margin-bottom: 0;
 }
 .form-aligned-row .form-label {
-  min-height: 2.4rem;
-  display: flex;
-  align-items: flex-end;
-  margin-bottom: 0.35rem;
-  line-height: 1.25;
-  font-size: 0.82rem;
+  display: block;
+  margin-bottom: 6px;
+  line-height: 1.3;
+  font-size: 0.83rem;
   font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
 }
 .form-aligned-row .form-control {
   height: 42px;
+  width: 100%;
   margin: 0;
   box-sizing: border-box;
 }
 
 /* 4-Stage prompt toolbar (Image 2 fix) */
 .prompt-tab-toolbar {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
   gap: 6px;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.75rem;
   background: rgba(15, 23, 42, 0.75);
   padding: 6px;
   border-radius: 8px;
@@ -1474,15 +1481,17 @@ body[data-layout="stacked"] .studio-layout > aside {
   background: #1e293b;
   border: 1px solid #334155;
   color: #cbd5e1;
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  padding: 6px 12px;
+  padding: 8px 10px;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
-  flex: 1 1 auto;
   text-align: center;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .prompt-tab-pill:hover {
   background: #334155;
@@ -1497,6 +1506,26 @@ body[data-layout="stacked"] .studio-layout > aside {
   box-shadow: 0 0 10px rgba(37, 99, 235, 0.45);
 }
 
+/* GSC Multi-Site Actions Toolbar (Image 3 fix) */
+.gsc-actions-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+  margin-bottom: 0.9rem;
+}
+.gsc-actions-row .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 42px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
 
 /* Expansive Wide Container for Studio App */
 .container {
@@ -1515,42 +1544,4 @@ body[data-layout="stacked"] .studio-layout > aside {
   .metrics-bar {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
-}
-
-/* Ensure prompt tabs and buttons never shrink awkwardly */
-.prompt-tab-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 0.65rem;
-  background: rgba(15, 23, 42, 0.75);
-  padding: 6px;
-  border-radius: 8px;
-  border: 1px solid #334155;
-}
-.prompt-tab-pill {
-  background: #1e293b;
-  border: 1px solid #334155;
-  color: #cbd5e1;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 6px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex: 1 1 auto;
-  text-align: center;
-  white-space: nowrap;
-}
-.prompt-tab-pill:hover {
-  background: #334155;
-  color: #ffffff;
-  border-color: #475569;
-}
-.prompt-tab-pill.active {
-  background: #2563eb !important;
-  border-color: #3b82f6 !important;
-  color: #ffffff !important;
-  font-weight: 700;
-  box-shadow: 0 0 10px rgba(37, 99, 235, 0.45);
 }
