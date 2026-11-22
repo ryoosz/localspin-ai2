@@ -1322,13 +1322,62 @@ body[data-layout="stacked"] .studio-layout > aside {
   object-fit: contain;
 }
 .wevo-logo-text {
-  font-size: 1.3rem;
+  font-size: 1.34rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  color: #ffffff;
+  color: var(--text-primary, #0f172a); /* WCAG AAA high-contrast on white & light backgrounds */
+  display: inline-flex;
+  align-items: baseline;
+  transition: color 0.2s ease;
 }
 .wevo-logo-text span {
+  color: #059669; /* Emerald 600 - High contrast green on white */
+  font-weight: 800;
+  margin-left: 1px;
+}
+.wevo-logo-wrap:hover .wevo-logo-text {
+  color: #2563eb;
+}
+.wevo-logo-wrap:hover .wevo-logo-text span {
+  color: #059669;
+  font-weight: 800;
+  margin-left: 1px;
+}
+.wevo-logo-wrap:hover .wevo-logo-text {
+  color: #2563eb;
+}
+.wevo-logo-wrap:hover .wevo-logo-text span {
   color: #10b981;
+}
+
+/* Dark theme / dark header support */
+body[data-theme="emerald-dark"] .wevo-logo-text,
+.site-header-dark .wevo-logo-text,
+.dark-surface .wevo-logo-text {
+  color: #f8fafc;
+}
+body[data-theme="emerald-dark"] .wevo-logo-text span,
+.site-header-dark .wevo-logo-text span,
+.dark-surface .wevo-logo-text span {
+  color: #34d399;
+}
+body[data-theme="emerald-dark"] .wevo-logo-wrap:hover .wevo-logo-text {
+  color: #38bdf8;
+}
+
+/* On dark backgrounds / themes (e.g., body[data-theme="emerald-dark"]) */
+body[data-theme="emerald-dark"] .wevo-logo-text,
+.site-header-dark .wevo-logo-text,
+.dark-surface .wevo-logo-text {
+  color: #f8fafc;
+}
+body[data-theme="emerald-dark"] .wevo-logo-text span,
+.site-header-dark .wevo-logo-text span,
+.dark-surface .wevo-logo-text span {
+  color: #34d399;
+}
+body[data-theme="emerald-dark"] .wevo-logo-wrap:hover .wevo-logo-text {
+  color: #38bdf8;
 }
 
 /* Drag and drop image area */

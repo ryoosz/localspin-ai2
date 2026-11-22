@@ -31,8 +31,9 @@
     </linearGradient>
 
     <linearGradient id="brandTextGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0e7490" />
-      <stop offset="100%" stop-color="#083344" />
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="60%" stop-color="#083344" />
+      <stop offset="100%" stop-color="#042f2e" />
     </linearGradient>
 
     <linearGradient id="featherGrad" x1="0%" y1="100%" x2="100%" y2="0%">
@@ -191,7 +192,7 @@
     <ellipse cx="85" cy="62" rx="7" ry="5" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5" />
 
     <!-- Scroll Content: Brand Name & Spintax Permutations -->
-    <text x="26" y="28" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="900" font-size="11" fill="#0f766e" letter-spacing="1">WEVO</text>
+    <text x="26" y="28" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="900" font-size="11" fill="#0f172a" letter-spacing="1">WEVO</text>
     <!-- Spintax permutation symbols -->
     <text x="24" y="42" font-family="'JetBrains Mono', Consolas, monospace" font-size="8" fill="#475569">{k|b|c}</text>
     <text x="22" y="53" font-family="'JetBrains Mono', Consolas, monospace" font-size="8" fill="#475569">{k|v|q}</text>
@@ -222,6 +223,6 @@
     </g>
 
     <!-- Subtitle: .BIZ.ID -->
-    <text x="0" y="44" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="900" font-size="28" fill="#0891b2" text-anchor="middle" letter-spacing="4">.BIZ.ID</text>
+    <text x="0" y="44" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="900" font-size="28" fill="#059669" text-anchor="middle" letter-spacing="4">.BIZ.ID</text>
   </g>
 </svg>
