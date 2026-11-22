@@ -46,6 +46,9 @@ const {
   generateCloneSubmissionPlan
 } = require('./domain/competitorBacklinkEngine');
 const {
+  runBacklinkMiner
+} = require('./domain/backlinkMinerEngine');
+const {
   DEAD_WEB_PLATFORMS,
   ZOMBIE_PLATFORMS,
   huntDeadWebsites,
@@ -884,6 +887,25 @@ function createAppServer({ dbPath = ':memory:' } = {}) {
           selectedTargets: body.selectedTargets || []
         });
         return sendJson(res, 200, { message: 'Rencana alur kloning backlink kompetitor siap.', ...plan }, requestId);
+      }
+
+      // 10K-1. SEO Tools: Backlink-Miner Engine (b2b-gtm Standard)
+      if (req.method === 'POST' && pathname === '/api/v1/seo-tools/backlink-miner') {
+        const body = await parseJsonBody(req);
+        try {
+          const rawTarget = body.target_domain !== undefined ? body.target_domain : (body.targetDomain !== undefined ? body.targetDomain : 'wevo.biz.id');
+          const minerResult = runBacklinkMiner({
+            target_domain: rawTarget,
+            competitor_domains: body.competitor_domains || body.competitorDomains || [],
+            niche_keywords: body.niche_keywords || body.nicheKeywords || [],
+            mode: body.mode || 'all',
+            depth: body.depth || 'standard',
+            bahasa_output: body.bahasa_output || 'Indonesia'
+          });
+          return sendJson(res, 200, { message: 'Penambangan peluang backlink selesai.', ...minerResult }, requestId);
+        } catch (err) {
+          return sendJson(res, 400, { error: err.message || 'Gagal memproses backlink miner.' }, requestId);
+        }
       }
 
       // 10K-2. Multi-Website Auto-Post Dispatcher (Instant, Fixed Drip, Random Anti-Footprint Drip + Atomic Sitemap Overwrite)

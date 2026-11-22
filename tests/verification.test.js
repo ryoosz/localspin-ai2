@@ -791,3 +791,54 @@ test('L2 & L3 - SEO Tools Suite: Zombie Blog Hunter, Multi-Engine Indexing, Drip
   assert.equal(sitemapData.totalUrlsExtracted, 2);
   assert.equal(sitemapData.urls[0], 'https://wevo.biz.id/home');
 });
+
+test('L2 & L3 - Backlink-Miner Suite: Broken Link Discovery, Competitor Mining, Guest Post Hunting, Scoring Formula & Outreach SOP', async () => {
+  const { dispatch } = createAppServer();
+
+  // Test full Backlink-Miner pipeline via POST /api/v1/seo-tools/backlink-miner
+  const minerRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/backlink-miner',
+    body: {
+      target_domain: 'wevo.biz.id',
+      competitor_domains: ['cmlabs.co', 'seosatu.com'],
+      niche_keywords: ['seo tools indonesia', 'spintax generator'],
+      mode: 'all',
+      depth: 'standard',
+      bahasa_output: 'Indonesia'
+    }
+  });
+
+  assert.equal(minerRes.status, 200);
+  const data = await minerRes.json();
+  assert.equal(data.success, true);
+  assert.equal(data.metadata.target_domain, 'wevo.biz.id');
+  assert.equal(data.metadata.total_found, 50);
+
+  // Verify Scoring & Priority formula: priority = (relevance * 0.5) + (authority_estimate * 0.3) + ((10 - difficulty) * 0.2)
+  const first = data.json_array[0];
+  const expectedPriority = Number(((first.relevance_score * 0.5) + (first.authority_estimate * 0.3) + ((10 - first.difficulty) * 0.2)).toFixed(2));
+  assert.equal(first.priority, expectedPriority, 'Priority calculation must follow the exact formula');
+
+  // Verify opportunity types
+  const types = new Set(data.json_array.map(item => item.opportunity_type));
+  assert.ok(types.has('broken-link'), 'Must contain broken-link opportunities');
+  assert.ok(types.has('competitor-backlink'), 'Must contain competitor-backlink opportunities');
+  assert.ok(types.has('guest-post'), 'Must contain guest-post opportunities');
+
+  // Verify Formats 6A (table_view) and 6B (json_array)
+  assert.ok(data.table_view.length > 0);
+  assert.ok(data.json_array.length > 0);
+  assert.ok(data.top_5_analysis.length === 5);
+  assert.ok(data.outreach_sop_top_3.length === 3);
+  assert.ok(data.outreach_sop_top_3[0].subject.length > 0);
+  assert.ok(data.outreach_sop_top_3[0].email_pitch_body.includes('wevo.biz.id'));
+
+  // Verify validation guard when target_domain is missing
+  const invalidRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/seo-tools/backlink-miner',
+    body: { target_domain: '' }
+  });
+  assert.equal(invalidRes.status, 400);
+});

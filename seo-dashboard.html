@@ -459,6 +459,19 @@ https://wevo.biz.id/kontak</textarea>
     <!-- ========================================== -->
     <div id="tabSpy" class="tab-pane" style="display: none;">
       <section class="card" style="margin-bottom: 1.5rem;">
+
+        <!-- Sub-Mode Switcher: Clone vs Backlink-Miner -->
+        <div style="display: flex; gap: 8px; margin-bottom: 1.25rem; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">
+          <button type="button" id="subTabBtnSpyClone" class="btn btn-primary btn-sm" onclick="switchSpySubMode('clone')" style="font-weight: 700; border-radius: 6px;">
+            🕵️‍♂️ Kloning Backlink Kompetitor (Klasik)
+          </button>
+          <button type="button" id="subTabBtnMiner" class="btn btn-secondary btn-sm" onclick="switchSpySubMode('miner')" style="font-weight: 700; border-radius: 6px; border: 1.5px solid #10b981; color: #10b981;">
+            ⛏️ Backlink-Miner Suite v1.20 (b2b-gtm Standard)
+          </button>
+        </div>
+
+        <!-- Mode A: Classic Clone Section Container -->
+        <div id="spyModeCloneContainer">
         <h2 style="font-size: 1.25rem; margin-bottom: 0.75rem;">🕵️‍♂️ Cek Backlink Kompetitor &amp; Kloning Alur Posting</h2>
         <p class="form-hint" style="margin-bottom: 1.25rem;">
           Alur kerja: <strong>Scrape Website Kompetitor &rarr; Daftar Website Target &rarr; Auto Fill Profil &rarr; Auto Posting dengan Spintax</strong>.
@@ -518,10 +531,145 @@ https://wevo.biz.id/kontak</textarea>
             </table>
           </div>
         </div>
+      
+        </div><!-- /#spyModeCloneContainer -->
+
+        <!-- Mode B: Backlink-Miner Suite Container -->
+        <div id="spyModeMinerContainer" style="display: none;">
+          <div style="background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.02) 100%); border: 1.5px solid #10b981; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.5rem;">
+              <span class="badge badge-pass" style="background: #10b981; color: #ffffff;">BACKLINK-MINER v1.20 &bull; B2B-GTM STANDARD</span>
+              <span style="font-size: 0.8rem; color: var(--text-secondary);">Broken Link &bull; Competitor Mining &bull; Guest Post Hunting &bull; Multi-Factor Scoring</span>
+            </div>
+            <h3 style="font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--text-primary);">
+              ⛏️ Penambang Peluang Backlink Terstruktur &amp; Outreach Otomatis
+            </h3>
+            <p class="form-hint" style="margin: 0; font-size: 0.88rem; line-height: 1.5;">
+              Cari peluang backlink berotoritas tinggi, deteksi link mati 404 (broken link) untuk diusulkan penggantiannya, intip backlink kompetitor yang bisa direplikasi, serta temukan portal "Write for Us" dengan sistem skor prioritas resmi: <code>priority = (relevance &times; 0.5) + (authority &times; 0.3) + ((10 - difficulty) &times; 0.2)</code>.
+            </p>
+          </div>
+
+          <!-- Miner Input Form Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 1.25rem;">
+            <div>
+              <label class="form-label" for="minerTargetDomain">Target Domain Anda</label>
+              <input type="text" id="minerTargetDomain" class="form-control" value="wevo.biz.id" placeholder="contoh: wevo.biz.id" />
+            </div>
+            <div>
+              <label class="form-label" for="minerCompetitorDomains">Domain Kompetitor (Pisahkan Koma)</label>
+              <input type="text" id="minerCompetitorDomains" class="form-control" value="cmlabs.co, seosatu.com, ubersuggest.com" placeholder="contoh: comp1.com, comp2.com" />
+            </div>
+            <div>
+              <label class="form-label" for="minerNicheKeywords">Kata Kunci Niche (Pisahkan Koma)</label>
+              <input type="text" id="minerNicheKeywords" class="form-control" value="seo tools indonesia, generator spintax, backlink builder, software seo lokal" placeholder="contoh: seo tools, spintax" />
+            </div>
+            <div>
+              <label class="form-label" for="minerMode">Mode Penambangan</label>
+              <select id="minerMode" class="form-control">
+                <option value="all" selected>Semua Mode (Broken Links, Kompetitor, Guest Posts)</option>
+                <option value="broken-links">Broken Link Discovery (Pranala 404/410)</option>
+                <option value="competitor-backlinks">Competitor Backlink Mining (Replikasi)</option>
+                <option value="guest-posts">Guest Post &amp; Editorial Hunting (Write for Us)</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="minerDepth">Kedalaman Penelusuran (Depth)</label>
+              <select id="minerDepth" class="form-control">
+                <option value="quick">Quick (~20 Peluang Teratas)</option>
+                <option value="standard" selected>Standard (~50 Peluang Lengkap)</option>
+                <option value="deep">Deep (100+ Peluang Massal)</option>
+              </select>
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+              <button type="button" id="btnRunBacklinkMiner" class="btn btn-primary" style="width: 100%; height: 42px; background: #10b981; border-color: #10b981; font-weight: 700; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                ⛏️ Jalankan Backlink-Miner
+              </button>
+            </div>
+          </div>
+
+          <!-- Miner Metric Indicators -->
+          <div class="metric-pill-grid" id="minerMetricsGrid" style="display: none; margin-bottom: 1.25rem;">
+            <div class="metric-pill-card">
+              <div class="metric-pill-val" id="metricMinerTotalFound" style="color: #10b981;">0</div>
+              <div style="color: var(--text-secondary); font-size: 0.85rem;">Total Peluang Terverifikasi</div>
+            </div>
+            <div class="metric-pill-card">
+              <div class="metric-pill-val" id="metricMinerMaxPriority" style="color: #3b82f6;">0.0</div>
+              <div style="color: var(--text-secondary); font-size: 0.85rem;">Skor Prioritas Tertinggi</div>
+            </div>
+            <div class="metric-pill-card">
+              <div class="metric-pill-val" id="metricMinerBrokenCount">0</div>
+              <div style="color: var(--text-secondary); font-size: 0.85rem;">Peluang Broken Link 404</div>
+            </div>
+            <div class="metric-pill-card">
+              <div class="metric-pill-val" id="metricMinerGuestCount">0</div>
+              <div style="color: var(--text-secondary); font-size: 0.85rem;">Peluang Guest Post Aktif</div>
+            </div>
+          </div>
+
+          <!-- Top 5 Executive Cards -->
+          <div id="minerTop5Area" style="display: none; margin-bottom: 1.5rem;">
+            <h4 style="font-size: 1.05rem; margin-bottom: 0.75rem; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+              <span>🏆</span> 5 Peluang Backlink Terbaik &amp; Alasan Prioritas (B2B-GTM)
+            </h4>
+            <div id="minerTop5List" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px;"></div>
+          </div>
+
+          <!-- Action Toolbar: CSV, JSON, Pitch -->
+          <div id="minerExportToolbar" style="display: none; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; background: var(--bg-surface); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="font-weight: 600; font-size: 0.88rem; color: var(--text-primary);">
+              📋 Hasil Penambangan Siap Ekspor
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" id="btnExportMinerCsv" class="btn btn-secondary btn-sm" style="font-weight: 600;">
+                📊 Ekspor Tabel CSV (Format 6A)
+              </button>
+              <button type="button" id="btnExportMinerJson" class="btn btn-secondary btn-sm" style="font-weight: 600;">
+                💾 Unduh JSON Array (Format 6B)
+              </button>
+              <button type="button" id="btnCopyOutreachSop" class="btn btn-primary btn-sm" style="font-weight: 600; background: #2563eb; border-color: #2563eb;">
+                📋 Salin SOP Outreach Top 3
+              </button>
+            </div>
+          </div>
+
+          <!-- Filterable Table -->
+          <div id="minerTableArea" style="display: none; overflow-x: auto; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+            <table class="backlink-table" id="minerResultsTable">
+              <thead>
+                <tr>
+                  <th style="width: 70px;">Priority</th>
+                  <th>Tipe Peluang</th>
+                  <th>Halaman Sumber (Source URL)</th>
+                  <th>Judul Halaman</th>
+                  <th>Anchor Text</th>
+                  <th>Relevance</th>
+                  <th>DA</th>
+                  <th>Diff</th>
+                  <th>Rekomendasi Aksi</th>
+                  <th>Kontak</th>
+                </tr>
+              </thead>
+              <tbody id="minerTableTbody"></tbody>
+            </table>
+          </div>
+
+          <!-- Outreach SOP Pitch Card Section -->
+          <div id="minerOutreachArea" style="display: none; background: #0f172a; color: #f8fafc; border-radius: 10px; padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; border-bottom: 1px solid #334155; padding-bottom: 0.5rem;">
+              <span style="font-weight: 700; font-size: 0.95rem; color: #38bdf8;">
+                📬 Naskah Outreach Pitch Siap Kirim (Top 3 Target)
+              </span>
+              <span class="badge badge-pass" style="background: #10b981; color: #ffffff;">TEMPLAT OTOMATIS B2B</span>
+            </div>
+            <div id="minerOutreachCards" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+          </div>
+        </div><!-- /#spyModeMinerContainer -->
+
       </section>
     </div>
 
-    <!-- ========================================== -->
+    <!-- ==========================================
     <!-- TAB 6: FREE SEO DIAGNOSTIC TOOLS -->
     <!-- ========================================== -->
     <div id="tabFree" class="tab-pane" style="display: none;">

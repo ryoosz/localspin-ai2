@@ -212,6 +212,19 @@
     <!-- ========================================== -->
     <div id="tabSpy" class="tab-pane">
       <section class="card" style="margin-bottom: 1.5rem;">
+
+        <!-- Sub-Mode Switcher: Clone vs Backlink-Miner -->
+        <div style="display: flex; gap: 8px; margin-bottom: 1.25rem; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">
+          <button type="button" id="subTabBtnSpyClone" class="btn btn-primary btn-sm" onclick="switchSpySubMode('clone')" style="font-weight: 700; border-radius: 6px;">
+            🕵️‍♂️ Kloning Backlink Kompetitor (Klasik)
+          </button>
+          <button type="button" id="subTabBtnMiner" class="btn btn-secondary btn-sm" onclick="switchSpySubMode('miner')" style="font-weight: 700; border-radius: 6px; border: 1.5px solid #10b981; color: #10b981;">
+            ⛏️ Backlink-Miner Suite v1.20 (b2b-gtm Standard)
+          </button>
+        </div>
+
+        <!-- Mode A: Classic Clone Section Container -->
+        <div id="spyModeCloneContainer">
         <h2 style="font-size: 1.25rem; margin-bottom: 0.75rem;">1. Periksa Profil Backlink &amp; Replikasi Alur Kompetitor</h2>
         <p class="form-hint" style="margin-bottom: 1.25rem;">
           Alur kerja: <strong>Scrape Website &rarr; Daftar Website Target &rarr; Auto Fill Profil &rarr; Auto Posting dengan Spintax</strong>.
@@ -285,10 +298,145 @@
             <!-- Injected via JavaScript -->
           </div>
         </div>
+      
+        </div><!-- /#spyModeCloneContainer -->
+
+        <!-- Mode B: Backlink-Miner Suite Container -->
+        <div id="spyModeMinerContainer" style="display: none;">
+          <div style="background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.02) 100%); border: 1.5px solid #10b981; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.5rem;">
+              <span class="badge badge-pass" style="background: #10b981; color: #ffffff;">BACKLINK-MINER v1.20 &bull; B2B-GTM STANDARD</span>
+              <span style="font-size: 0.8rem; color: var(--text-secondary);">Broken Link &bull; Competitor Mining &bull; Guest Post Hunting &bull; Multi-Factor Scoring</span>
+            </div>
+            <h3 style="font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--text-primary);">
+              ⛏️ Penambang Peluang Backlink Terstruktur &amp; Outreach Otomatis
+            </h3>
+            <p class="form-hint" style="margin: 0; font-size: 0.88rem; line-height: 1.5;">
+              Cari peluang backlink berotoritas tinggi, deteksi link mati 404 (broken link) untuk diusulkan penggantiannya, intip backlink kompetitor yang bisa direplikasi, serta temukan portal "Write for Us" dengan sistem skor prioritas resmi: <code>priority = (relevance &times; 0.5) + (authority &times; 0.3) + ((10 - difficulty) &times; 0.2)</code>.
+            </p>
+          </div>
+
+          <!-- Miner Input Form Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 1.25rem;">
+            <div>
+              <label class="form-label" for="minerTargetDomain">Target Domain Anda</label>
+              <input type="text" id="minerTargetDomain" class="form-control" value="wevo.biz.id" placeholder="contoh: wevo.biz.id" />
+            </div>
+            <div>
+              <label class="form-label" for="minerCompetitorDomains">Domain Kompetitor (Pisahkan Koma)</label>
+              <input type="text" id="minerCompetitorDomains" class="form-control" value="cmlabs.co, seosatu.com, ubersuggest.com" placeholder="contoh: comp1.com, comp2.com" />
+            </div>
+            <div>
+              <label class="form-label" for="minerNicheKeywords">Kata Kunci Niche (Pisahkan Koma)</label>
+              <input type="text" id="minerNicheKeywords" class="form-control" value="seo tools indonesia, generator spintax, backlink builder, software seo lokal" placeholder="contoh: seo tools, spintax" />
+            </div>
+            <div>
+              <label class="form-label" for="minerMode">Mode Penambangan</label>
+              <select id="minerMode" class="form-control">
+                <option value="all" selected>Semua Mode (Broken Links, Kompetitor, Guest Posts)</option>
+                <option value="broken-links">Broken Link Discovery (Pranala 404/410)</option>
+                <option value="competitor-backlinks">Competitor Backlink Mining (Replikasi)</option>
+                <option value="guest-posts">Guest Post &amp; Editorial Hunting (Write for Us)</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="minerDepth">Kedalaman Penelusuran (Depth)</label>
+              <select id="minerDepth" class="form-control">
+                <option value="quick">Quick (~20 Peluang Teratas)</option>
+                <option value="standard" selected>Standard (~50 Peluang Lengkap)</option>
+                <option value="deep">Deep (100+ Peluang Massal)</option>
+              </select>
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+              <button type="button" id="btnRunBacklinkMiner" class="btn btn-primary" style="width: 100%; height: 42px; background: #10b981; border-color: #10b981; font-weight: 700; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                ⛏️ Jalankan Backlink-Miner
+              </button>
+            </div>
+          </div>
+
+          <!-- Miner Metric Indicators -->
+          <div class="metric-pill-grid" id="minerMetricsGrid" style="display: none; margin-bottom: 1.25rem;">
+            <div class="metric-pill-card">
+              <div class="metric-pill-val" id="metricMinerTotalFound" style="color: #10b981;">0</div>
+              <div style="color: var(--text-secondary); font-size: 0.85rem;">Total Peluang Terverifikasi</div>
+            </div>
+            <div class="metric-pill-card">
+              <div class="metric-pill-val" id="metricMinerMaxPriority" style="color: #3b82f6;">0.0</div>
+              <div style="color: var(--text-secondary); font-size: 0.85rem;">Skor Prioritas Tertinggi</div>
+            </div>
+            <div class="metric-pill-card">
+              <div class="metric-pill-val" id="metricMinerBrokenCount">0</div>
+              <div style="color: var(--text-secondary); font-size: 0.85rem;">Peluang Broken Link 404</div>
+            </div>
+            <div class="metric-pill-card">
+              <div class="metric-pill-val" id="metricMinerGuestCount">0</div>
+              <div style="color: var(--text-secondary); font-size: 0.85rem;">Peluang Guest Post Aktif</div>
+            </div>
+          </div>
+
+          <!-- Top 5 Executive Cards -->
+          <div id="minerTop5Area" style="display: none; margin-bottom: 1.5rem;">
+            <h4 style="font-size: 1.05rem; margin-bottom: 0.75rem; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+              <span>🏆</span> 5 Peluang Backlink Terbaik &amp; Alasan Prioritas (B2B-GTM)
+            </h4>
+            <div id="minerTop5List" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px;"></div>
+          </div>
+
+          <!-- Action Toolbar: CSV, JSON, Pitch -->
+          <div id="minerExportToolbar" style="display: none; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; background: var(--bg-surface); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="font-weight: 600; font-size: 0.88rem; color: var(--text-primary);">
+              📋 Hasil Penambangan Siap Ekspor
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" id="btnExportMinerCsv" class="btn btn-secondary btn-sm" style="font-weight: 600;">
+                📊 Ekspor Tabel CSV (Format 6A)
+              </button>
+              <button type="button" id="btnExportMinerJson" class="btn btn-secondary btn-sm" style="font-weight: 600;">
+                💾 Unduh JSON Array (Format 6B)
+              </button>
+              <button type="button" id="btnCopyOutreachSop" class="btn btn-primary btn-sm" style="font-weight: 600; background: #2563eb; border-color: #2563eb;">
+                📋 Salin SOP Outreach Top 3
+              </button>
+            </div>
+          </div>
+
+          <!-- Filterable Table -->
+          <div id="minerTableArea" style="display: none; overflow-x: auto; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+            <table class="backlink-table" id="minerResultsTable">
+              <thead>
+                <tr>
+                  <th style="width: 70px;">Priority</th>
+                  <th>Tipe Peluang</th>
+                  <th>Halaman Sumber (Source URL)</th>
+                  <th>Judul Halaman</th>
+                  <th>Anchor Text</th>
+                  <th>Relevance</th>
+                  <th>DA</th>
+                  <th>Diff</th>
+                  <th>Rekomendasi Aksi</th>
+                  <th>Kontak</th>
+                </tr>
+              </thead>
+              <tbody id="minerTableTbody"></tbody>
+            </table>
+          </div>
+
+          <!-- Outreach SOP Pitch Card Section -->
+          <div id="minerOutreachArea" style="display: none; background: #0f172a; color: #f8fafc; border-radius: 10px; padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; border-bottom: 1px solid #334155; padding-bottom: 0.5rem;">
+              <span style="font-weight: 700; font-size: 0.95rem; color: #38bdf8;">
+                📬 Naskah Outreach Pitch Siap Kirim (Top 3 Target)
+              </span>
+              <span class="badge badge-pass" style="background: #10b981; color: #ffffff;">TEMPLAT OTOMATIS B2B</span>
+            </div>
+            <div id="minerOutreachCards" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+          </div>
+        </div><!-- /#spyModeMinerContainer -->
+
       </section>
     </div>
 
-    <!-- ========================================== -->
+    <!-- ==========================================
     <!-- TAB 2: ZOMBIE BLOG HUNTER -->
     <!-- ========================================== -->
     <div id="tabZombie" class="tab-pane" style="display: none;">
@@ -1631,6 +1779,232 @@ https://wevo.biz.id/halaman-tidak-ada</textarea>
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    });
+
+    
+    // Backlink-Miner Suite v1.20 Sub-Mode Switcher & Handlers
+    let currentMinerData = null;
+
+    function switchSpySubMode(mode) {
+      const cloneContainer = document.getElementById('spyModeCloneContainer');
+      const minerContainer = document.getElementById('spyModeMinerContainer');
+      const btnClone = document.getElementById('subTabBtnSpyClone');
+      const btnMiner = document.getElementById('subTabBtnMiner');
+
+      if (mode === 'miner') {
+        cloneContainer.style.display = 'none';
+        minerContainer.style.display = 'block';
+        btnClone.className = 'btn btn-secondary btn-sm';
+        btnMiner.className = 'btn btn-primary btn-sm';
+        btnMiner.style.background = '#10b981';
+        btnMiner.style.borderColor = '#10b981';
+        btnMiner.style.color = '#ffffff';
+        btnClone.style.color = '';
+      } else {
+        cloneContainer.style.display = 'block';
+        minerContainer.style.display = 'none';
+        btnClone.className = 'btn btn-primary btn-sm';
+        btnMiner.className = 'btn btn-secondary btn-sm';
+        btnMiner.style.background = '';
+        btnMiner.style.borderColor = '#10b981';
+        btnMiner.style.color = '#10b981';
+      }
+    }
+
+    async function handleRunBacklinkMiner() {
+      const targetDomain = document.getElementById('minerTargetDomain').value.trim();
+      const competitorDomains = document.getElementById('minerCompetitorDomains').value.trim();
+      const nicheKeywords = document.getElementById('minerNicheKeywords').value.trim();
+      const mode = document.getElementById('minerMode').value;
+      const depth = document.getElementById('minerDepth').value;
+      const btn = document.getElementById('btnRunBacklinkMiner');
+
+      if (!targetDomain) {
+        return alert('Target domain wajib diisi (contoh: wevo.biz.id).');
+      }
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Menambang Peluang Backlink...';
+
+      try {
+        const response = await fetch('/api/v1/seo-tools/backlink-miner', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            target_domain: targetDomain,
+            competitor_domains: competitorDomains,
+            niche_keywords: nicheKeywords,
+            mode: mode,
+            depth: depth,
+            bahasa_output: 'Indonesia'
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Terjadi kesalahan saat menjalankan Backlink-Miner.');
+        }
+
+        currentMinerData = data;
+        renderMinerResults(data);
+      } catch (err) {
+        alert('Gagal: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '⛏️ Jalankan Backlink-Miner';
+      }
+    }
+
+    function renderMinerResults(data) {
+      document.getElementById('minerMetricsGrid').style.display = 'grid';
+      document.getElementById('minerTop5Area').style.display = 'block';
+      document.getElementById('minerExportToolbar').style.display = 'flex';
+      document.getElementById('minerTableArea').style.display = 'block';
+      document.getElementById('minerOutreachArea').style.display = 'block';
+
+      // Update metrics
+      document.getElementById('metricMinerTotalFound').textContent = data.metadata.total_found;
+      const maxPri = data.table_view.length > 0 ? data.table_view[0].priority : 0;
+      document.getElementById('metricMinerMaxPriority').textContent = maxPri;
+
+      const brokenCount = data.table_view.filter(item => item.opportunity_type === 'broken-link').length;
+      const guestCount = data.table_view.filter(item => item.opportunity_type === 'guest-post').length;
+      document.getElementById('metricMinerBrokenCount').textContent = brokenCount;
+      document.getElementById('metricMinerGuestCount').textContent = guestCount;
+
+      // Render Top 5
+      const top5Container = document.getElementById('minerTop5List');
+      top5Container.innerHTML = data.top_5_analysis.map(item => `
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid #10b981; border-radius: 8px; padding: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+            <span class="badge badge-pass" style="font-size: 0.72rem;">#${item.rank} Prioritas: ${item.priority}</span>
+            <span style="font-size: 0.72rem; color: #38bdf8; font-weight: 600; text-transform: uppercase;">${item.opportunity_type}</span>
+          </div>
+          <div style="font-weight: 700; font-size: 0.88rem; margin-bottom: 4px; color: var(--text-primary); line-height: 1.3;">
+            ${item.page_title}
+          </div>
+          <a href="${item.source_url}" target="_blank" rel="noopener" style="font-size: 0.76rem; color: #3b82f6; text-decoration: underline; word-break: break-all; display: block; margin-bottom: 6px;">
+            ${item.source_url}
+          </a>
+          <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">
+            ${item.reason}
+          </p>
+        </div>
+      `).join('');
+
+      // Render Table Rows (Format 6A)
+      const tbody = document.getElementById('minerTableTbody');
+      tbody.innerHTML = data.table_view.map(row => {
+        const typeBadge = row.opportunity_type === 'broken-link'
+          ? '<span class="badge" style="background: #ef4444; color: #fff;">Broken Link 404</span>'
+          : row.opportunity_type === 'guest-post'
+          ? '<span class="badge" style="background: #8b5cf6; color: #fff;">Guest Post</span>'
+          : '<span class="badge badge-pass">Competitor</span>';
+
+        return `
+          <tr>
+            <td style="font-weight: 800; color: #10b981; font-size: 0.95rem;">${row.priority}</td>
+            <td>${typeBadge}</td>
+            <td style="max-width: 220px; word-break: break-all;">
+              <a href="${row.source_url}" target="_blank" rel="noopener" style="color: #38bdf8; text-decoration: underline; font-size: 0.8rem;">
+                ${row.source_url}
+              </a>
+            </td>
+            <td style="font-size: 0.82rem; font-weight: 600;">${row.page_title}</td>
+            <td style="font-size: 0.8rem; color: var(--text-secondary);">${row.anchor_text}</td>
+            <td style="text-align: center; font-weight: 700;">${row.relevance}/10</td>
+            <td style="text-align: center; font-weight: 700; color: #3b82f6;">${row.authority_estimate}/10</td>
+            <td style="text-align: center; color: var(--text-secondary);">${row.difficulty}/10</td>
+            <td style="font-size: 0.78rem; line-height: 1.35; max-width: 260px;">${row.suggested_action}</td>
+            <td style="font-size: 0.76rem; color: var(--text-secondary);">${row.contact_info || 'unknown'}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Render Outreach Cards (Top 3)
+      const outreachContainer = document.getElementById('minerOutreachCards');
+      outreachContainer.innerHTML = data.outreach_sop_top_3.map(item => `
+        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-weight: 700; color: #38bdf8; font-size: 0.86rem;">
+              Target #${item.rank}: ${item.target_url} (${item.opportunity_type})
+            </span>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="copyOutreachTemplate(${item.rank})" style="font-size: 0.74rem; padding: 3px 8px;">
+              📋 Salin Naskah Ini
+            </button>
+          </div>
+          <div style="font-size: 0.78rem; color: #cbd5e1; margin-bottom: 6px;">
+            <strong>Subjek:</strong> ${item.subject}
+          </div>
+          <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 6px;">
+            <strong>Kontak Sasaran:</strong> ${item.contact_info}
+          </div>
+          <textarea id="outreachText_${item.rank}" class="form-control" rows="5" readonly style="background: #0f172a; color: #e2e8f0; font-family: monospace; font-size: 0.76rem; border-color: #334155;">${item.email_pitch_body}</textarea>
+        </div>
+      `).join('');
+    }
+
+    function copyOutreachTemplate(rank) {
+      const textarea = document.getElementById('outreachText_' + rank);
+      if (!textarea) return;
+      navigator.clipboard.writeText(textarea.value).then(() => {
+        alert('Naskah outreach pitch untuk Target #' + rank + ' berhasil disalin!');
+      });
+    }
+
+    // Export Handlers for Backlink-Miner
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnRun = document.getElementById('btnRunBacklinkMiner');
+      if (btnRun) btnRun.addEventListener('click', handleRunBacklinkMiner);
+
+      const btnCsv = document.getElementById('btnExportMinerCsv');
+      if (btnCsv) {
+        btnCsv.addEventListener('click', () => {
+          if (!currentMinerData || !currentMinerData.table_view) return alert('Jalankan Backlink-Miner terlebih dahulu.');
+          const rows = [
+            ['priority', 'opportunity_type', 'source_url', 'page_title', 'anchor_text', 'target_url_on_source', 'relevance', 'authority_estimate', 'difficulty', 'suggested_action', 'notes'],
+            ...currentMinerData.table_view.map(r => [
+              r.priority, r.opportunity_type, r.source_url, r.page_title, r.anchor_text, r.target_url_on_source, r.relevance, r.authority_estimate, r.difficulty, r.suggested_action, r.notes
+            ])
+          ];
+          const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+          const uri = encodeURI(csvContent);
+          const link = document.createElement('a');
+          link.href = uri;
+          link.download = `backlink-miner-report-${new Date().toISOString().slice(0, 10)}.csv`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      }
+
+      const btnJson = document.getElementById('btnExportMinerJson');
+      if (btnJson) {
+        btnJson.addEventListener('click', () => {
+          if (!currentMinerData || !currentMinerData.json_array) return alert('Jalankan Backlink-Miner terlebih dahulu.');
+          const jsonStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(currentMinerData.json_array, null, 2));
+          const link = document.createElement('a');
+          link.href = jsonStr;
+          link.download = `backlink-miner-data-${new Date().toISOString().slice(0, 10)}.json`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      }
+
+      const btnCopySop = document.getElementById('btnCopyOutreachSop');
+      if (btnCopySop) {
+        btnCopySop.addEventListener('click', () => {
+          if (!currentMinerData || !currentMinerData.outreach_sop_top_3) return alert('Jalankan Backlink-Miner terlebih dahulu.');
+          const sopText = currentMinerData.outreach_sop_top_3.map(item => 
+            `=== TARGET #${item.rank}: ${item.target_url} (${item.opportunity_type}) ===\nSubjek: ${item.subject}\nKontak: ${item.contact_info}\n\n${item.email_pitch_body}\n`
+          ).join('\n-------------------------------------\n\n');
+
+          navigator.clipboard.writeText(sopText).then(() => {
+            alert('SOP & Template Pitch Outreach untuk Top 3 Target berhasil disalin ke clipboard!');
+          });
+        });
+      }
     });
 
     // Initialize
