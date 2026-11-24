@@ -1148,10 +1148,18 @@
         clientCompareArticles
       } = window.LocalSpinClient;
 
-      // Load or initialize multi-project state in localStorage
+      // Load or initialize multi-project state in localStorage (safe against corrupted storage)
       const STORAGE_KEY = 'localspin_projects_v12';
-      let projectsMap = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || JSON.parse(JSON.stringify(DEFAULT_PROJECTS_STATE));
-      let activeProjectId = 'proj_a';
+      let projectsMap;
+      try {
+        const parsedProjects = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        projectsMap = (parsedProjects && typeof parsedProjects === 'object' && !Array.isArray(parsedProjects) && Object.keys(parsedProjects).length > 0)
+          ? parsedProjects
+          : JSON.parse(JSON.stringify(DEFAULT_PROJECTS_STATE));
+      } catch (_) {
+        projectsMap = JSON.parse(JSON.stringify(DEFAULT_PROJECTS_STATE));
+      }
+      let activeProjectId = projectsMap.proj_a ? 'proj_a' : Object.keys(projectsMap)[0];
 
       const selectProject = document.getElementById('selectProject');
       const inputProjectName = document.getElementById('inputProjectName');
