@@ -93,11 +93,16 @@
         </h2>
 
         <div class="spin-action-card">
-          <button type="button" id="btnRunBatchGeneration" class="btn-hero-spin" style="width: 100%; justify-content: center;">
-            🚀 Spin &amp; Generate Artikel Sekarang
-          </button>
-          <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 8px; line-height: 1.4;">
-            Klik tombol ini untuk memulai proses generate. Dilengkapi ritme halus &amp; indikator progress real-time tanpa membebani server.
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button type="button" id="btnRunBatchGeneration" class="btn-hero-spin" style="width: 100%; justify-content: center; padding: 10px 12px; font-size: 0.86rem;">
+              ⚡ Generate Langsung
+            </button>
+            <button type="button" id="btnSlowBatchGeneration" class="btn btn-secondary" style="width: 100%; justify-content: center; padding: 10px 12px; font-size: 0.86rem; font-weight: 700; border: 1.5px solid #10b981; color: #059669;">
+              🐢 Slow Generate
+            </button>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 8px; line-height: 1.45;">
+            <strong>Alur 4 Langkah:</strong> 1. Generate Prompt &rarr; 2. Tempel Prompt &rarr; 3. <strong>Spin Prompt</strong> &rarr; 4. <strong>Generate Langsung</strong> (instan) / <strong>Slow Generate</strong> (bertahap).
           </div>
         </div>
 
@@ -350,9 +355,12 @@
             </label>
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-top: 1.25rem;">
-            <button type="submit" id="btnGenerateBatch" class="btn btn-primary">
-              &#9889; Generate Artikel Daerah + Uji Copyscape
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 1.25rem;">
+            <button type="submit" id="btnGenerateBatch" class="btn btn-primary" style="font-size: 0.84rem; padding: 10px 8px;">
+              &#9889; Generate Langsung
+            </button>
+            <button type="button" id="btnGenerateBatchSlow" class="btn btn-secondary" style="font-size: 0.84rem; padding: 10px 8px; font-weight: 700; border-color: #10b981; color: #059669;">
+              &#128034; Slow Generate
             </button>
           </div>
         </form>
@@ -539,10 +547,10 @@
           ></textarea>
 
           <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.75rem;">
-            <button type="button" id="btnAutoSpinMainArticle" class="btn btn-primary btn-sm">
-              &#10024; Auto-Spin Artikel Utama &amp; Pasang Template Otomatis
+            <button type="button" id="btnAutoSpinMainArticle" class="btn btn-primary btn-sm" style="font-weight: 700; padding: 8px 16px;">
+              &#10024; Spin Prompt (Ubah ke Master Spintax)
             </button>
-            <button type="button" id="btnLoadFullAiBlueprint" class="btn btn-secondary btn-sm">
+            <button type="button" id="btnLoadFullAiBlueprint" class="btn btn-secondary btn-sm" style="display: none;">
               &#128196; Gunakan Blueprint Artikel Lengkap AI
             </button>
           </div>
@@ -1730,7 +1738,8 @@
         if (modal) modal.classList.remove('is-active');
       }
 
-      async function runBatchGeneration() {
+      async function runBatchGeneration(mode = 'instant') {
+        const isSlowMode = mode === 'slow';
         const w = getSelectedWilayahObj();
         const d = getSelectedDaerahObj();
         const checkedInputs = Array.from(kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked'));
@@ -1738,6 +1747,10 @@
         if (checkedInputs.length === 0) {
           articlesOutputContainer.innerHTML = `<div class="notice-banner" style="border-left-color: #d97706;">Silakan centang minimal 1 Kecamatan terlebih dahulu.</div>`;
           return;
+        }
+
+        if (!textareaSpintax.value.trim()) {
+          rebuildBlueprintFromInputs(true);
         }
 
         const cfg = getBlueprintConfigFromForm();
@@ -1815,24 +1828,29 @@
         const masterSpintax = textareaSpintax.value;
         const generated = [];
         const campaignSeed = `${cfg.topic}::${w.wilayah}::${d.labelLengkap}`;
-        const maxAttempts = targetPool.length > 30 ? 3 : 8;
-        const peerWindow = targetPool.length > 30 ? 8 : 25;
+        const maxAttempts = isSlowMode ? (targetPool.length > 30 ? 3 : 6) : (targetPool.length > 20 ? 2 : 4);
+        const peerWindow = isSlowMode ? (targetPool.length > 30 ? 8 : 16) : 6;
 
-        // Open Smooth Progress Modal
-        showProgressModal(targetPool.length);
+        // Only open progress modal & apply pacing delay in Slow Generate mode
+        isGeneratingCancelled = false;
         const wsSettings = getWorkspaceSettings();
-        const pacingDelay = Math.max(0, Number(wsSettings.pacingSpeed != null ? wsSettings.pacingSpeed : 60));
+        const pacingDelay = isSlowMode ? Math.max(120, Number(wsSettings.pacingSpeed || 160)) : 0;
+        if (isSlowMode) {
+          showProgressModal(targetPool.length);
+        }
 
         for (let idx = 0; idx < targetPool.length; idx++) {
           if (isGeneratingCancelled) break;
           const target = targetPool[idx];
-          const pct = Math.round(((idx + 1) / targetPool.length) * 85);
-          updateProgressUI({
-            current: idx + 1,
-            total: targetPool.length,
-            percent: pct,
-            stageText: `[Tahap 1/3] Meracik spintax & wilayah: Kec. ${target.kecamatan}, ${target.labelKotaKabupaten}...`
-          });
+          if (isSlowMode) {
+            const pct = Math.round(((idx + 1) / targetPool.length) * 85);
+            updateProgressUI({
+              current: idx + 1,
+              total: targetPool.length,
+              percent: pct,
+              stageText: `[Slow Generate ${idx + 1}/${targetPool.length}] Meracik Kec. ${target.kecamatan}, ${target.labelKotaKabupaten}...`
+            });
+          }
 
           const imgRender = clientRenderProjectImagesForArticle({
             projectImages,
@@ -1918,21 +1936,23 @@
             htmlContent
           });
 
-          // Pacing delay to avoid overloading browser and server
-          if (pacingDelay > 0) {
+          // Pacing delay only in Slow Generate mode; instant mode yields only every 25 items for large batches
+          if (isSlowMode && pacingDelay > 0) {
             await new Promise((r) => setTimeout(r, pacingDelay));
-          } else if (idx % 4 === 0) {
+          } else if (!isSlowMode && idx > 0 && idx % 25 === 0) {
             await new Promise((r) => setTimeout(r, 0));
           }
         }
 
-        updateProgressUI({
-          current: generated.length,
-          total: targetPool.length,
-          percent: 92,
-          stageText: '[Tahap 2/3] Memeriksa skor keunikan n-gram Copyscape (&le;14% overlap)...'
-        });
-        await new Promise((r) => setTimeout(r, 80));
+        if (isSlowMode) {
+          updateProgressUI({
+            current: generated.length,
+            total: targetPool.length,
+            percent: 92,
+            stageText: '[Tahap 2/3] Memeriksa skor keunikan n-gram Copyscape (&le;14% overlap)...'
+          });
+          await new Promise((r) => setTimeout(r, 40));
+        }
 
         let sumUniqueness = 0;
         let allPassed = true;
@@ -1975,14 +1995,16 @@
           ? `<span class="badge badge-pass">&#10003; LULUS COPYSCAPE (&le;14% Overlap)</span>`
           : `<span class="badge badge-warn">&#9888; PERLU TAMBAH SPINTAX</span>`;
 
-        updateProgressUI({
-          current: generated.length,
-          total: targetPool.length,
-          percent: 100,
-          stageText: `[Tahap 3/3] Selesai! ${generated.length} artikel berhasil dibuat (${avgUnique}% keunikan).`
-        });
-        await new Promise((r) => setTimeout(r, 350));
-        hideProgressModal();
+        if (isSlowMode) {
+          updateProgressUI({
+            current: generated.length,
+            total: targetPool.length,
+            percent: 100,
+            stageText: `[Tahap 3/3] Selesai! ${generated.length} artikel berhasil dibuat (${avgUnique}% keunikan).`
+          });
+          await new Promise((r) => setTimeout(r, 220));
+          hideProgressModal();
+        }
 
         renderArticlesList();
         refreshSitemapPreview();
@@ -2700,26 +2722,27 @@ ${art.htmlContent}
                 updateCapacityAdvisorUI();
               }
               saveFormIntoActiveProject();
-              runBatchGeneration();
+              if (statusNote) {
+                statusNote.style.color = '#15803d';
+                statusNote.textContent += ' Siap! Sekarang klik "⚡ Generate Langsung" atau "🐢 Slow Generate".';
+              }
               return;
             }
           }
           rebuildBlueprintFromInputs(true);
           updateCapacityAdvisorUI();
           saveFormIntoActiveProject();
-          runBatchGeneration();
           if (statusNote) {
             statusNote.style.color = '#15803d';
-            statusNote.textContent = '✓ Berhasil di-spin dengan Engine Client Browser.';
+            statusNote.textContent = '✓ Spin Prompt berhasil! Master Spintax siap — klik "⚡ Generate Langsung" atau "🐢 Slow Generate".';
           }
         } catch (err) {
           rebuildBlueprintFromInputs(true);
           updateCapacityAdvisorUI();
           saveFormIntoActiveProject();
-          runBatchGeneration();
           if (statusNote) {
             statusNote.style.color = '#b45309';
-            statusNote.textContent = `✓ Di-spin dengan Engine Lokal (Fallback: ${err && err.message ? err.message : 'timeout'}).`;
+            statusNote.textContent = `✓ Spin Prompt selesai (Engine Lokal). Silakan klik "⚡ Generate Langsung" atau "🐢 Slow Generate".`;
           }
         } finally {
           btn.disabled = false;
@@ -2727,10 +2750,27 @@ ${art.htmlContent}
         }
       });
 
-      document.getElementById('btnLoadFullAiBlueprint').addEventListener('click', () => {
+      document.getElementById('btnLoadFullAiBlueprint')?.addEventListener('click', () => {
         rebuildBlueprintFromInputs(false);
-        runBatchGeneration();
+        updateCapacityAdvisorUI();
       });
+
+      function triggerGenerateArticles(mode) {
+        if (!textareaSpintax.value.trim()) {
+          rebuildBlueprintFromInputs(true);
+        }
+        saveFormIntoActiveProject();
+        runBatchGeneration(mode).then(() => {
+          const headingEl = document.getElementById('copyscape-inspector-heading');
+          if (headingEl && headingEl.scrollIntoView) {
+            headingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      }
+
+      document.getElementById('btnRunBatchGeneration')?.addEventListener('click', () => triggerGenerateArticles('instant'));
+      document.getElementById('btnSlowBatchGeneration')?.addEventListener('click', () => triggerGenerateArticles('slow'));
+      document.getElementById('btnGenerateBatchSlow')?.addEventListener('click', () => triggerGenerateArticles('slow'));
 
       document.getElementById('btnApplyRecommendedCount').addEventListener('click', () => {
         const cap = updateCapacityAdvisorUI();
@@ -2765,15 +2805,7 @@ ${art.htmlContent}
 
       document.getElementById('generatorForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        if (!textareaSpintax.value.trim()) {
-          rebuildBlueprintFromInputs(true);
-        }
-        saveFormIntoActiveProject();
-        runBatchGeneration();
-        const headingEl = document.getElementById('copyscape-inspector-heading');
-        if (headingEl && headingEl.scrollIntoView) {
-          headingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        triggerGenerateArticles('instant');
       });
 
       document.getElementById('btnToggleAllKec').addEventListener('click', () => {
