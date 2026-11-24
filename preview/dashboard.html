@@ -85,6 +85,35 @@
       <button type="button" class="btn btn-secondary btn-sm btn-open-guide">&#10067; Cara Pakai Website</button>
     </div>
 
+    
+    <!-- 6-Checkpoint Sequential Stepper (Anti-Freeze Manual Pipeline) -->
+    <div id="checkpointStepperBar" class="cp-stepper-bar" role="navigation" aria-label="Tahapan Checkpoint Studio">
+      <button type="button" class="cp-step-pill active" id="cpPill1" data-cp="1">
+        <span class="cp-step-num">1</span>
+        <span>CP 1: Project, Daerah &amp; Gambar</span>
+      </button>
+      <button type="button" class="cp-step-pill locked" id="cpPill2" data-cp="2">
+        <span class="cp-step-num">2</span>
+        <span>CP 2: Judul, WA &amp; Hyperlink</span>
+      </button>
+      <button type="button" class="cp-step-pill locked" id="cpPill3" data-cp="3">
+        <span class="cp-step-num">3</span>
+        <span>CP 3: Kuis Konfigurasi</span>
+      </button>
+      <button type="button" class="cp-step-pill locked" id="cpPill4" data-cp="4">
+        <span class="cp-step-num">4</span>
+        <span>CP 4: Prompt &amp; Tempel AI</span>
+      </button>
+      <button type="button" class="cp-step-pill locked" id="cpPill5" data-cp="5">
+        <span class="cp-step-num">5</span>
+        <span>CP 5: 9 Bagan &amp; Spin Prompt</span>
+      </button>
+      <button type="button" class="cp-step-pill locked" id="cpPill6" data-cp="6">
+        <span class="cp-step-num">6</span>
+        <span>CP 6: Spintax &amp; Generate</span>
+      </button>
+    </div>
+
     <div class="studio-layout">
       <!-- Left Column: Configuration Form -->
       <aside class="card" aria-labelledby="form-config-heading">
@@ -107,6 +136,10 @@
         </div>
 
         <form id="generatorForm" onsubmit="return false;">
+          <div id="cpBox1" class="cp-box cp-active">
+            <div class="cp-box-header">
+              <span class="cp-badge" id="cpBadge1">● CHECKPOINT 1 — PROJECT, DAERAH &amp; GAMBAR</span>
+            </div>
           <div class="form-group">
             <label class="form-label" for="inputProjectName">Nama Project</label>
             <input type="text" id="inputProjectName" class="form-control" value="Project A — Solar Panel & Audit Energi" />
@@ -246,6 +279,19 @@
             </div>
           </div>
 
+          <div class="cp-action-bar" style="margin-bottom: 1rem;">
+              <button type="button" id="btnSaveCheckpoint1" class="btn btn-primary btn-sm cp-btn-save" style="width: 100%;">
+                💾 Simpan Project &amp; Selesaikan Checkpoint 1 &rarr;
+              </button>
+            </div>
+          </div><!-- /#cpBox1 -->
+
+          <div id="cpBox2" class="cp-box cp-locked">
+            <div class="cp-box-header">
+              <span class="cp-badge" id="cpBadge2">🔒 CHECKPOINT 2 — JUDUL GAMBAR, WA &amp; HYPERLINK</span>
+            </div>
+            <div class="cp-lock-notice">🔒 Selesaikan &amp; tekan "Simpan Project (Checkpoint 1)" di atas terlebih dahulu.</div>
+
           <div class="form-group">
             <label class="form-label" for="inputImageTitlePattern">Judul Gambar (<code>title="..."</code>) Disesuaikan Topik &amp; Daerah</label>
             <input
@@ -355,14 +401,12 @@
             </label>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 1.25rem;">
-            <button type="submit" id="btnGenerateBatch" class="btn btn-primary" style="font-size: 0.84rem; padding: 10px 8px;">
-              &#9889; Generate Langsung
-            </button>
-            <button type="button" id="btnGenerateBatchSlow" class="btn btn-secondary" style="font-size: 0.84rem; padding: 10px 8px; font-weight: 700; border-color: #10b981; color: #059669;">
-              &#128034; Slow Generate
-            </button>
-          </div>
+          <div class="cp-action-bar">
+              <button type="button" id="btnSaveCheckpoint2" class="btn btn-primary btn-sm cp-btn-save" style="width: 100%;">
+                💾 Simpan Checkpoint 2 &amp; Lanjut ke Kuis (CP 3) &rarr;
+              </button>
+            </div>
+          </div><!-- /#cpBox2 -->
         </form>
 
         <details style="margin-top: 1.15rem; border-top: 1px solid var(--border-subtle); padding-top: 0.85rem;">
@@ -414,7 +458,12 @@
             <strong>Alur Kerja Mudah:</strong> (1) Isi kuiz parameter di bawah &rarr; (2) Salin <strong>Prompt 4-Tahap</strong> ke Chatbot (atau klik <em>Isi Otomatis 9 Bagan</em>) &rarr; (3) Periksa <strong>9 Bagan Terpisah</strong> (Intro, Definisi, Proses, Manfaat/Fitur, Biaya/Daerah, Risiko, FAQ, Kesimpulan, CTA) &rarr; (4) Klik <strong>Satukan 9 Bagan</strong> agar langsung menyatu ke <strong>Kolom Artikel Utama</strong> dan bersandingan 1-to-1 dengan <strong>Hasil Kerangka Spintax</strong>.
           </p>
 
-          <!-- Step 1 of Quiz: Input Configuration Grid -->
+          <!-- CHECKPOINT 3: Kuis Parameter Konfigurasi Artikel (Semua Input Mode Hover) -->
+          <div id="cpBox3" class="cp-box cp-locked" style="margin-bottom: 1rem;">
+            <div class="cp-box-header">
+              <span class="cp-badge" id="cpBadge3">🔒 CHECKPOINT 3 — KUIS PARAMETER KONFIGURASI ARTIKEL (MODE HOVER AKTIF)</span>
+            </div>
+            <div class="cp-lock-notice">🔒 Selesaikan &amp; simpan Checkpoint 2 terlebih dahulu. (Mode Hover aktif: arahkan kursor ke kotak teks mana pun untuk melihat tulisan lengkap.)</div>
           <div style="background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.9rem;">
             <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.6rem; color: #1e3a8a;">
               &#9312; Kuiz Parameter Konfigurasi Artikel (Input Configuration)
@@ -482,7 +531,20 @@
             </div>
           </div>
 
-          <!-- Step 2 of Quiz: 4-Stage Prompt Output + Paste Chatbot Response -->
+          <div class="cp-action-bar" style="margin-bottom: 0.5rem;">
+              <span class="form-hint" style="margin: 0;">💡 Arahkan kursor (<em>hover</em>) ke kotak input kuis untuk melihat teks lengkap tanpa terpotong.</span>
+              <button type="button" id="btnSaveCheckpoint3" class="btn btn-primary btn-sm cp-btn-save">
+                💾 Simpan Checkpoint 3 &amp; Buat Prompt Chatbot (CP 4) &rarr;
+              </button>
+            </div>
+          </div><!-- /#cpBox3 -->
+
+          <!-- CHECKPOINT 4: Output Prompt Chatbot & Tempel Hasil Chatbot -->
+          <div id="cpBox4" class="cp-box cp-locked" style="margin-bottom: 1rem;">
+            <div class="cp-box-header">
+              <span class="cp-badge" id="cpBadge4">🔒 CHECKPOINT 4 — OUTPUT PROMPT &amp; TEMPEL HASIL CHATBOT</span>
+            </div>
+            <div class="cp-lock-notice">🔒 Simpan Checkpoint 3 terlebih dahulu agar Prompt Chatbot dibuat sesuai konfigurasi terbaru.</div>
           <div class="grid-2" style="gap: 0.85rem; margin-bottom: 0.9rem;">
             <div style="background: #0f172a; color: #f8fafc; padding: 0.85rem; border-radius: 8px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; padding-bottom: 0.4rem; border-bottom: 1px solid #334155;">
@@ -513,7 +575,20 @@
             </div>
           </div>
 
-          <!-- Step 3 of Quiz: 9 Modular Section Boxes (Bagan 01 - Bagan 09) -->
+          <div class="cp-action-bar" style="margin-bottom: 0.5rem;">
+              <span class="form-hint" style="margin: 0;">Salin Prompt &rarr; Jalankan di ChatGPT/Gemini/Claude &rarr; Tempel hasilnya di kanan &rarr; tekan Proses Checkpoint 4.</span>
+              <button type="button" id="btnSaveCheckpoint4" class="btn btn-primary btn-sm cp-btn-save">
+                💾 Simpan &amp; Proses Checkpoint 4 (Pecah ke 9 Bagan) &rarr;
+              </button>
+            </div>
+          </div><!-- /#cpBox4 -->
+
+          <!-- CHECKPOINT 5: Pemecahan 9 Bagan Modular -->
+          <div id="cpBox5a" class="cp-box cp-locked">
+            <div class="cp-box-header">
+              <span class="cp-badge" id="cpBadge5a">🔒 CHECKPOINT 5A — PEMECAHAN 9 BAGIAN MODULAR</span>
+            </div>
+            <div class="cp-lock-notice">🔒 Selesaikan &amp; proses Checkpoint 4 terlebih dahulu.</div>
           <details open style="background: #ffffff; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem;">
             <summary style="cursor: pointer; font-weight: 700; font-size: 0.92rem; display: flex; justify-content: space-between; align-items: center;">
               <span>&#9315; Bagan Modular 9 Bagian Artikel (Klik untuk Buka/Tutup Rincian per Bagian)</span>
@@ -521,10 +596,15 @@
             </summary>
             <div id="modular9SectionsGrid" class="grid-3" style="gap: 0.65rem; margin-top: 0.75rem;"></div>
           </details>
+          </div><!-- /#cpBox5a -->
         </section>
 
         <!-- Step 2A: Kolom Artikel Utama (Auto-Detect Language & Auto-Nested Spin) -->
-        <section class="card hover-popup-shell" style="margin-bottom: 1.25rem;" aria-labelledby="raw-article-heading">
+        <section id="cpBox5" class="card hover-popup-shell cp-box cp-locked" style="margin-bottom: 1.25rem;" aria-labelledby="raw-article-heading">
+          <div class="cp-box-header">
+            <span class="cp-badge" id="cpBadge5">🔒 CHECKPOINT 5B — ARTIKEL UTAMA &amp; SPIN PROMPT</span>
+          </div>
+          <div class="cp-lock-notice">🔒 Selesaikan Checkpoint 4 (Pecah ke 9 Bagan) terlebih dahulu, lalu cek artikel utama &amp; klik Spin Prompt.</div>
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem;">
             <h2 id="raw-article-heading" style="font-size: 1.18rem; margin: 0;">
               2. Kolom Artikel Utama (Auto-Deteksi Bahasa &amp; Auto-Nested Spin)
@@ -595,7 +675,11 @@
         </section>
 
         <!-- Step 2C: Master Spintax Blueprint Card with Rich Formatting Toolbar & Hover Pop-Up -->
-        <section class="card hover-popup-shell" style="margin-bottom: 1.5rem;" aria-labelledby="spintax-editor-heading">
+        <section id="cpBox6" class="card hover-popup-shell cp-box cp-locked" style="margin-bottom: 1.5rem;" aria-labelledby="spintax-editor-heading">
+          <div class="cp-box-header">
+            <span class="cp-badge" id="cpBadge6">🔒 CHECKPOINT 6 (FINAL) — CEK/EDIT SPINTAX &amp; GENERATE ARTIKEL</span>
+          </div>
+          <div class="cp-lock-notice">🔒 Jalankan "✨ Spin Prompt" pada Checkpoint 5 terlebih dahulu sebelum masuk ke tahap akhir Generate Artikel.</div>
           <div id="alignmentAuditBar" style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.6rem 0.85rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
             <div style="font-size: 0.82rem; font-weight: 700; color: #166534;">
               &#128279; Status Sandingan 1-to-1 (Artikel Utama &harr; Kerangka Spintax): <span id="auditSyncStatusText">TERHUBUNG 100%</span>
@@ -654,6 +738,19 @@
               spellcheck="false"
               aria-label="Editor Master Spintax"
             ></textarea>
+          </div>
+          <div class="cp-action-bar" style="background: rgba(16, 185, 129, 0.06); padding: 12px; border-radius: 8px; border: 1.5px solid #10b981; margin-top: 0.9rem;">
+            <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary);">
+              🚀 Tahap Akhir (Checkpoint 6): Setelah Master Spintax dicek/diedit, pilih mode generate:
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" id="btnGenerateBatch" class="btn btn-primary btn-sm" style="background: #10b981; border-color: #059669; font-weight: 800; padding: 9px 16px;">
+                ⚡ Generate Langsung (Otomatis)
+              </button>
+              <button type="button" id="btnGenerateBatchSlow" class="btn btn-secondary btn-sm" style="font-weight: 800; padding: 9px 16px; border: 1.5px solid #059669; color: #059669;">
+                🐢 Slow Generate (Bertahap)
+              </button>
+            </div>
           </div>
         </section>
 
@@ -1448,9 +1545,8 @@
 
         updateDetectedLanguageUI();
         updateImagePoolUI();
-        rebuildBlueprintFromInputs(true);
         currentBatchArticles = [];
-        renderArticlesList();
+        if (typeof applyCheckpointStageUI === 'function') applyCheckpointStageUI();
       }
 
       function saveFormIntoActiveProject() {
@@ -1673,7 +1769,6 @@
               current.push(reader.result);
               textareaProjectImages.value = current.join('\n');
               saveFormIntoActiveProject();
-              runBatchGeneration();
             }
           };
           reader.readAsDataURL(file);
@@ -1698,8 +1793,6 @@
         }
         textareaProjectImages.value = urls.join('\n');
         saveFormIntoActiveProject();
-        updateCapacityAdvisorUI();
-        runBatchGeneration();
       }
 
       document.getElementById('btnFill25Images')?.addEventListener('click', () => fillPresetReferenceImages(25));
@@ -2097,6 +2190,7 @@
 </head>
 <body>
 ${art.htmlContent}
+  <div id="wevoHoverInputTooltip" class="wevo-hover-tooltip" role="tooltip"></div>
 </body>
 </html>`;
       }
@@ -2755,7 +2849,7 @@ ${art.htmlContent}
         updateCapacityAdvisorUI();
       });
 
-      function triggerGenerateArticles(mode) {
+      let triggerGenerateArticles = function(mode) {
         if (!textareaSpintax.value.trim()) {
           rebuildBlueprintFromInputs(true);
         }
@@ -2798,8 +2892,7 @@ ${art.htmlContent}
         selectImagesPerArticle
       ].forEach((el) => {
         el.addEventListener('change', () => {
-          rebuildBlueprintFromInputs(true);
-          saveFormIntoActiveProject();
+          // Manual checkpoint mode: no automatic heavy rebuild until Simpan Checkpoint 2
         });
       });
 
@@ -3459,7 +3552,6 @@ if __name__ == '__main__':
         });
         textareaRawMainArticle.value = combine9SectionsToRawArticle(current9SectionsMap);
         updateDetectedLanguageUI();
-        rebuildBlueprintFromInputs(true);
         saveFormIntoActiveProject();
         refreshAlignmentAuditUI();
       }
@@ -3476,24 +3568,11 @@ if __name__ == '__main__':
       ].forEach((id) => {
         const el = document.getElementById(id);
         if (!el) return;
-        const handler = () => {
-          if (id === 'quizPrimaryKeyword') {
-            inputTopic.value = el.value;
-          }
-          refreshPromptOutputUI();
-          refreshAlignmentAuditUI();
-        };
-        el.addEventListener('input', handler);
-        el.addEventListener('change', handler);
+        // Manual checkpoint mode (anti-freeze): quiz inputs do not trigger auto-rebuild on every keystroke.
+        // Processing runs only when user clicks Simpan Checkpoint 3.
       });
 
-      inputTopic.addEventListener('input', () => {
-        const qpk = document.getElementById('quizPrimaryKeyword');
-        if (qpk && qpk.value !== inputTopic.value) {
-          qpk.value = inputTopic.value;
-          refreshPromptOutputUI();
-        }
-      });
+      // Manual checkpoint mode (anti-freeze): topic syncs to quiz on Simpan Checkpoint 1.
 
       [
         'btnPromptTabMaster',
@@ -3544,8 +3623,7 @@ if __name__ == '__main__':
         }
       });
 
-      textareaRawMainArticle.addEventListener('input', refreshAlignmentAuditUI);
-      textareaSpintax.addEventListener('input', refreshAlignmentAuditUI);
+      // Manual checkpoint mode (anti-freeze): alignment audit runs on Checkpoint 5 / 6 save, not every keystroke.
 
       syncMainHighlight = window.LocalSpinClient.bindSyntaxHighlightOverlay(
         textareaSpintax,
@@ -3599,24 +3677,269 @@ if __name__ == '__main__':
       window.LocalSpinClient.initWorkspaceLayoutControls();
       window.LocalSpinClient.initQuickGuideAndScrollTop();
       window.LocalSpinClient.checkBackendHealth(document.getElementById('backendStatusBadge'));
+      
+      // ==========================================================
+      // 6-CHECKPOINT SEQUENTIAL PIPELINE & HOVER INPUT CONTROLLER
+      // ==========================================================
+      function getProjectCheckpointStage() {
+        const proj = projectsMap[activeProjectId];
+        if (!proj || typeof proj.checkpointStage !== 'number') return 0;
+        return Math.max(0, Math.min(6, proj.checkpointStage));
+      }
+
+      function setProjectCheckpointStage(stage) {
+        if (!projectsMap[activeProjectId]) return;
+        projectsMap[activeProjectId].checkpointStage = Math.max(0, Math.min(6, Number(stage) || 0));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(projectsMap));
+        applyCheckpointStageUI();
+      }
+
+      function applyCheckpointStageUI() {
+        const stage = getProjectCheckpointStage(); // 0..6 (completed count)
+        const boxMap = [
+          { cp: 1, el: document.getElementById('cpBox1'), badge: document.getElementById('cpBadge1'), title: 'CHECKPOINT 1 — PROJECT, DAERAH & GAMBAR' },
+          { cp: 2, el: document.getElementById('cpBox2'), badge: document.getElementById('cpBadge2'), title: 'CHECKPOINT 2 — JUDUL GAMBAR, WA & HYPERLINK' },
+          { cp: 3, el: document.getElementById('cpBox3'), badge: document.getElementById('cpBadge3'), title: 'CHECKPOINT 3 — KUIS PARAMETER KONFIGURASI ARTIKEL' },
+          { cp: 4, el: document.getElementById('cpBox4'), badge: document.getElementById('cpBadge4'), title: 'CHECKPOINT 4 — OUTPUT PROMPT & TEMPEL HASIL CHATBOT' },
+          { cp: 5, el: document.getElementById('cpBox5a'), badge: document.getElementById('cpBadge5a'), title: 'CHECKPOINT 5A — PEMECAHAN 9 BAGIAN MODULAR' },
+          { cp: 5, el: document.getElementById('cpBox5'), badge: document.getElementById('cpBadge5'), title: 'CHECKPOINT 5B — ARTIKEL UTAMA & SPIN PROMPT' },
+          { cp: 6, el: document.getElementById('cpBox6'), badge: document.getElementById('cpBadge6'), title: 'CHECKPOINT 6 (FINAL) — CEK/EDIT SPINTAX & GENERATE ARTIKEL' }
+        ];
+
+        boxMap.forEach(({ cp, el, badge, title }) => {
+          if (!el) return;
+          el.classList.remove('cp-locked', 'cp-active', 'cp-done');
+          if (cp <= stage) {
+            el.classList.add('cp-done');
+            if (badge) badge.textContent = '✓ ' + title + ' (TERSIMPAN)';
+          } else if (cp === stage + 1) {
+            el.classList.add('cp-active');
+            if (badge) badge.textContent = '● ' + title + ' (TAHAP AKTIF)';
+          } else {
+            el.classList.add('cp-locked');
+            if (badge) badge.textContent = '🔒 ' + title + ' (TERKUNCI)';
+          }
+        });
+
+        for (let i = 1; i <= 6; i++) {
+          const pill = document.getElementById('cpPill' + i);
+          if (!pill) continue;
+          pill.classList.remove('done', 'active', 'locked');
+          if (i <= stage) {
+            pill.classList.add('done');
+          } else if (i === stage + 1) {
+            pill.classList.add('active');
+          } else {
+            pill.classList.add('locked');
+          }
+        }
+
+        // Enable top hero generate buttons only when Checkpoint 5 (Spin Prompt) is complete (stage >= 5)
+        const canGenerate = stage >= 5;
+        ['btnRunBatchGeneration', 'btnSlowBatchGeneration', 'btnGenerateBatch', 'btnGenerateBatchSlow'].forEach((btnId) => {
+          const b = document.getElementById(btnId);
+          if (!b) return;
+          b.disabled = !canGenerate;
+          b.style.opacity = canGenerate ? '1' : '0.45';
+          b.title = canGenerate
+            ? 'Siap Generate Artikel (Checkpoint 6)'
+            : 'Selesaikan Checkpoint 1 s/d 5 (termasuk Spin Prompt) terlebih dahulu';
+        });
+      }
+
+      function scrollToCheckpoint(cpNum) {
+        const targetId = cpNum === 5 ? 'cpBox5a' : 'cpBox' + cpNum;
+        const el = document.getElementById(targetId);
+        if (el && el.scrollIntoView) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+
+      function initHoverInputMode() {
+        const tooltip = document.getElementById('wevoHoverInputTooltip');
+        if (!tooltip) return;
+
+        let activeHoverEl = null;
+
+        function getFieldLabel(el) {
+          if (el.id) {
+            const lbl = document.querySelector('label[for="' + el.id + '"]');
+            if (lbl) return lbl.textContent.trim();
+          }
+          return el.getAttribute('aria-label') || el.placeholder || 'Preview Input';
+        }
+
+        function positionTooltip(el) {
+          const rect = el.getBoundingClientRect();
+          const top = Math.max(10, rect.top - tooltip.offsetHeight - 10);
+          const left = Math.min(window.innerWidth - tooltip.offsetWidth - 12, Math.max(10, rect.left));
+          tooltip.style.top = top + 'px';
+          tooltip.style.left = left + 'px';
+        }
+
+        function showHoverTooltip(el) {
+          if (!el || !el.matches('input[type="text"], input[type="url"], input[type="number"], textarea, select')) return;
+          if (el.id === 'textareaMasterSpintax' || el.id === 'textareaGeneratedPrompt') return;
+          const isQuizInput = Boolean(el.closest('#cpBox3'));
+          const val = el.tagName === 'SELECT'
+            ? (el.options[el.selectedIndex] ? el.options[el.selectedIndex].text : '')
+            : (el.value || '');
+          const isOverflowing = (el.scrollWidth > el.clientWidth + 2) || (el.scrollHeight > el.clientHeight + 2);
+
+          if (!isQuizInput && !isOverflowing && val.length < 36) {
+            tooltip.style.display = 'none';
+            return;
+          }
+
+          const labelText = getFieldLabel(el);
+          const displayVal = val.trim() ? val : '(Kosong — ' + (el.placeholder || 'Ketik teks di sini') + ')';
+          tooltip.innerHTML = '<span class="wevo-hover-tooltip-label">🔎 ' + labelText.replace(/</g, '&lt;') + '</span>' +
+            displayVal.replace(/</g, '&lt;').slice(0, 600);
+          tooltip.style.display = 'block';
+          positionTooltip(el);
+        }
+
+        document.addEventListener('mouseover', (e) => {
+          const target = e.target && e.target.closest ? e.target.closest('input.form-control, textarea.form-control, select.form-control') : null;
+          if (!target) return;
+          activeHoverEl = target;
+          showHoverTooltip(target);
+        });
+
+        document.addEventListener('mouseout', (e) => {
+          const target = e.target && e.target.closest ? e.target.closest('input.form-control, textarea.form-control, select.form-control') : null;
+          if (target && target === activeHoverEl) {
+            activeHoverEl = null;
+            tooltip.style.display = 'none';
+          }
+        });
+
+        document.addEventListener('input', (e) => {
+          if (activeHoverEl && e.target === activeHoverEl) {
+            showHoverTooltip(activeHoverEl);
+          }
+        });
+
+        document.addEventListener('focusin', (e) => {
+          const target = e.target && e.target.closest ? e.target.closest('#cpBox3 input.form-control, #cpBox3 textarea.form-control, #cpBox1 input.form-control, #cpBox2 input.form-control') : null;
+          if (target) {
+            activeHoverEl = target;
+            showHoverTooltip(target);
+          }
+        });
+
+        document.addEventListener('focusout', () => {
+          activeHoverEl = null;
+          tooltip.style.display = 'none';
+        });
+      }
+
+      function initCheckpointPipelineAndHoverMode() {
+        // Stepper pill navigation
+        for (let i = 1; i <= 6; i++) {
+          const pill = document.getElementById('cpPill' + i);
+          if (!pill) continue;
+          pill.addEventListener('click', () => {
+            const stage = getProjectCheckpointStage();
+            if (i <= stage + 1) {
+              scrollToCheckpoint(i);
+            } else {
+              alert('Checkpoint ' + i + ' masih terkunci. Silakan selesaikan & simpan Checkpoint ' + (stage + 1) + ' terlebih dahulu secara bertahap.');
+            }
+          });
+        }
+
+        // Checkpoint 1 Save (Project, Topik, Wilayah, Kota, Kecamatan, Gambar)
+        const handleSaveCp1 = () => {
+          saveFormIntoActiveProject();
+          const qpk = document.getElementById('quizPrimaryKeyword');
+          if (qpk && inputTopic.value.trim()) qpk.value = inputTopic.value.trim();
+          setProjectCheckpointStage(1);
+          scrollToCheckpoint(2);
+        };
+        document.getElementById('btnSaveCheckpoint1')?.addEventListener('click', handleSaveCp1);
+        document.getElementById('btnSaveProject')?.addEventListener('click', () => {
+          if (getProjectCheckpointStage() < 1) setProjectCheckpointStage(1);
+        });
+
+        // Checkpoint 2 Save (Judul Gambar, Alt Text, Template, WA, Greeting, Link, CTA)
+        document.getElementById('btnSaveCheckpoint2')?.addEventListener('click', () => {
+          saveFormIntoActiveProject();
+          setProjectCheckpointStage(2);
+          scrollToCheckpoint(3);
+        });
+
+        // Checkpoint 3 Save (Kuis Parameter Konfigurasi -> Generate Prompt Chatbot)
+        document.getElementById('btnSaveCheckpoint3')?.addEventListener('click', () => {
+          const qpk = document.getElementById('quizPrimaryKeyword');
+          if (qpk && qpk.value.trim()) inputTopic.value = qpk.value.trim();
+          saveFormIntoActiveProject();
+          refreshPromptOutputUI();
+          setProjectCheckpointStage(3);
+          scrollToCheckpoint(4);
+        });
+
+        // Checkpoint 4 Save & Process (Tempel Hasil Chatbot -> Pecah ke 9 Bagan Modular)
+        const handleSaveCp4 = () => {
+          const raw = (document.getElementById('textareaPasteChatbotResult')?.value || '').trim();
+          if (raw) {
+            current9SectionsMap = parseChatbotOutputInto9Sections(raw, getQuizConfigFromUI());
+          } else {
+            current9SectionsMap = generateStructured9SectionsDraft(getQuizConfigFromUI());
+          }
+          render9SectionsGrid();
+          textareaRawMainArticle.value = combine9SectionsToRawArticle(current9SectionsMap);
+          updateDetectedLanguageUI();
+          saveFormIntoActiveProject();
+          setProjectCheckpointStage(4);
+          scrollToCheckpoint(5);
+        };
+        document.getElementById('btnSaveCheckpoint4')?.addEventListener('click', handleSaveCp4);
+
+        // Hook Spin Prompt (Checkpoint 5 -> unlocks Checkpoint 6)
+        document.getElementById('btnAutoSpinMainArticle')?.addEventListener('click', () => {
+          setTimeout(() => {
+            if (textareaSpintax.value.trim()) {
+              updateCapacityAdvisorUI();
+              refreshAlignmentAuditUI();
+              setProjectCheckpointStage(5);
+              scrollToCheckpoint(6);
+            }
+          }, 150);
+        });
+
+        // Hook New Project button to reset to Checkpoint 1 (stage 0)
+        document.getElementById('btnNewProject')?.addEventListener('click', () => {
+          setProjectCheckpointStage(0);
+          scrollToCheckpoint(1);
+        });
+
+        // Hook Generate button click in Checkpoint 6
+        const origTrigger = triggerGenerateArticles;
+        triggerGenerateArticles = function(mode) {
+          if (getProjectCheckpointStage() < 5) {
+            alert('Silakan selesaikan Checkpoint 1 s/d 5 (termasuk Spin Prompt) secara bertahap sebelum Generate Artikel.');
+            scrollToCheckpoint(getProjectCheckpointStage() + 1);
+            return;
+          }
+          setProjectCheckpointStage(6);
+          origTrigger(mode);
+        };
+
+        // Ensure btnGenerateBatch (inside CP 6) triggers instant generate
+        document.getElementById('btnGenerateBatch')?.addEventListener('click', () => triggerGenerateArticles('instant'));
+
+        initHoverInputMode();
+        applyCheckpointStageUI();
+      }
+
       // Smooth initial load (critical elements paint first)
       renderProjectDropdown();
       populateDaerahDropdown();
       loadProjectIntoForm(activeProjectId);
 
-      // Defer heavy auxiliary tools to avoid blocking the UI thread
-      setTimeout(() => {
-        try {
-          const qpk = document.getElementById('quizPrimaryKeyword');
-          if (qpk) qpk.value = inputTopic.value;
-          current9SectionsMap = generateStructured9SectionsDraft(getQuizConfigFromUI());
-          render9SectionsGrid();
-          refreshPromptOutputUI();
-          loadGeneratedUrlsIntoMassPing();
-        } catch (e) {
-          console.warn('Deferred init completed gracefully:', e);
-        }
-      }, 80);
+      // Anti-freeze init: apply checkpoint locks & hover input mode ONLY (no heavy auto-processing on load)
+      initCheckpointPipelineAndHoverMode();
     })();
   </script>
 </body>

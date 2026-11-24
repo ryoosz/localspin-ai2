@@ -1594,3 +1594,195 @@ body[data-theme="emerald-dark"] .wevo-logo-wrap:hover .wevo-logo-text {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 }
+
+/* ========================================================
+   6-CHECKPOINT SEQUENTIAL PIPELINE & HOVER INPUT MODE
+   ======================================================== */
+.cp-stepper-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  background: var(--bg-surface, #ffffff);
+  border: 1.5px solid var(--border-color, #cbd5e1);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 1.15rem;
+  box-shadow: var(--shadow-sm);
+}
+.cp-step-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-subtle, #e2e8f0);
+  background: var(--bg-subtle, #f1f5f9);
+  color: var(--text-secondary, #334155);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+.cp-step-pill:hover:not(.locked) {
+  border-color: #2563eb;
+  transform: translateY(-1px);
+}
+.cp-step-pill.done {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #065f46;
+}
+.cp-step-pill.active {
+  background: #eff6ff;
+  border-color: #2563eb;
+  color: #1d4ed8;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16);
+}
+.cp-step-pill.locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.cp-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  background: #cbd5e1;
+  color: #0f172a;
+}
+.cp-step-pill.done .cp-step-num {
+  background: #10b981;
+  color: #ffffff;
+}
+.cp-step-pill.active .cp-step-num {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.cp-box {
+  position: relative;
+  border-radius: 10px;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+.cp-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px dashed var(--border-color, #cbd5e1);
+}
+.cp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.3px;
+  background: #dbeafe;
+  color: #1e40af;
+}
+.cp-box.cp-done .cp-badge {
+  background: #dcfce7;
+  color: #166534;
+}
+.cp-box.cp-locked {
+  opacity: 0.52;
+  filter: grayscale(0.25);
+}
+.cp-box.cp-locked input,
+.cp-box.cp-locked select,
+.cp-box.cp-locked textarea,
+.cp-box.cp-locked button:not(.cp-unlock-hint-btn) {
+  pointer-events: none;
+}
+.cp-lock-notice {
+  display: none;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  color: #92400e;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-bottom: 0.65rem;
+}
+.cp-box.cp-locked .cp-lock-notice {
+  display: block;
+}
+.cp-action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-subtle, #e2e8f0);
+}
+.cp-btn-save {
+  background: #10b981 !important;
+  border-color: #059669 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  padding: 9px 16px !important;
+  border-radius: 8px !important;
+  cursor: pointer;
+}
+.cp-btn-save:hover {
+  background: #059669 !important;
+}
+
+/* Hover Mode for Inputs (especially CP 3 Quiz & overflowing text fields) */
+#cpBox3 .form-control,
+.cp-hover-field {
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+#cpBox3 .form-control:hover,
+#cpBox3 .form-control:focus,
+.cp-hover-field:hover,
+.cp-hover-field:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.2) !important;
+  transform: translateY(-1px);
+  position: relative;
+  z-index: 5;
+}
+
+.wevo-hover-tooltip {
+  position: fixed;
+  z-index: 99999;
+  max-width: 460px;
+  min-width: 220px;
+  background: #0f172a;
+  color: #f8fafc;
+  border: 1.5px solid #38bdf8;
+  border-radius: 10px;
+  padding: 10px 13px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.45);
+  pointer-events: none;
+  display: none;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+.wevo-hover-tooltip-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #38bdf8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  display: block;
+}
