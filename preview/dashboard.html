@@ -1549,10 +1549,34 @@
         if (typeof applyCheckpointStageUI === 'function') applyCheckpointStageUI();
       }
 
+      function persistProjectsMapSafe() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(projectsMap));
+        } catch (err) {
+          // QuotaExceededError (e.g. large base64 images): save lightweight copy without base64 blobs
+          try {
+            const lightMap = {};
+            Object.entries(projectsMap).forEach(([k, v]) => {
+              lightMap[k] = {
+                ...v,
+                images: (v.images || []).filter((u) => !String(u).startsWith('data:image/'))
+              };
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(lightMap));
+          } catch (_) {
+            console.warn('localStorage quota exceeded; keeping project state in memory.');
+          }
+        }
+      }
+
       function saveFormIntoActiveProject() {
         const imgs = getCurrentImageListFromTextarea();
+        const prevStage = (projectsMap[activeProjectId] && typeof projectsMap[activeProjectId].checkpointStage === 'number')
+          ? projectsMap[activeProjectId].checkpointStage
+          : 0;
         projectsMap[activeProjectId] = {
           id: activeProjectId,
+          checkpointStage: prevStage,
           name: inputProjectName.value.trim() || 'Project Tanpa Nama',
           topic: inputTopic.value.trim(),
           rawMainArticle: textareaRawMainArticle.value,
@@ -1568,7 +1592,7 @@
           imageAltPattern: inputImageAlt.value.trim(),
           images: imgs
         };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(projectsMap));
+        persistProjectsMapSafe();
         renderProjectDropdown();
         updateImagePoolUI();
       }
@@ -2841,6 +2865,11 @@ ${art.htmlContent}
         } finally {
           btn.disabled = false;
           btn.innerHTML = origHtml;
+          if (textareaSpintax.value.trim() && typeof setProjectCheckpointStage === 'function') {
+            refreshAlignmentAuditUI();
+            setProjectCheckpointStage(5);
+            scrollToCheckpoint(6);
+          }
         }
       });
 
@@ -3688,9 +3717,11 @@ if __name__ == '__main__':
       }
 
       function setProjectCheckpointStage(stage) {
-        if (!projectsMap[activeProjectId]) return;
+        if (!projectsMap[activeProjectId]) {
+          projectsMap[activeProjectId] = { id: activeProjectId, name: inputProjectName.value.trim() || 'Project Baru' };
+        }
         projectsMap[activeProjectId].checkpointStage = Math.max(0, Math.min(6, Number(stage) || 0));
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(projectsMap));
+        persistProjectsMapSafe();
         applyCheckpointStageUI();
       }
 
@@ -3859,7 +3890,12 @@ if __name__ == '__main__':
         };
         document.getElementById('btnSaveCheckpoint1')?.addEventListener('click', handleSaveCp1);
         document.getElementById('btnSaveProject')?.addEventListener('click', () => {
-          if (getProjectCheckpointStage() < 1) setProjectCheckpointStage(1);
+          const qpk = document.getElementById('quizPrimaryKeyword');
+          if (qpk && inputTopic.value.trim()) qpk.value = inputTopic.value.trim();
+          if (getProjectCheckpointStage() < 1) {
+            setProjectCheckpointStage(1);
+            scrollToCheckpoint(2);
+          }
         });
 
         // Checkpoint 2 Save (Judul Gambar, Alt Text, Template, WA, Greeting, Link, CTA)
@@ -3896,17 +3932,7 @@ if __name__ == '__main__':
         };
         document.getElementById('btnSaveCheckpoint4')?.addEventListener('click', handleSaveCp4);
 
-        // Hook Spin Prompt (Checkpoint 5 -> unlocks Checkpoint 6)
-        document.getElementById('btnAutoSpinMainArticle')?.addEventListener('click', () => {
-          setTimeout(() => {
-            if (textareaSpintax.value.trim()) {
-              updateCapacityAdvisorUI();
-              refreshAlignmentAuditUI();
-              setProjectCheckpointStage(5);
-              scrollToCheckpoint(6);
-            }
-          }, 150);
-        });
+        // Checkpoint 5 -> 6 unlock is handled directly inside btnAutoSpinMainArticle's finally block!
 
         // Hook New Project button to reset to Checkpoint 1 (stage 0)
         document.getElementById('btnNewProject')?.addEventListener('click', () => {
