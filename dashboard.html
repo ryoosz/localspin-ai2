@@ -1150,7 +1150,7 @@
 
       // Load or initialize multi-project state in localStorage
       const STORAGE_KEY = 'localspin_projects_v12';
-      let projectsMap = JSON.parse(localStorage.getItem(AUTOPOST_STORAGE_KEY) || 'null') || JSON.parse(JSON.stringify(DEFAULT_PROJECTS_STATE));
+      let projectsMap = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || JSON.parse(JSON.stringify(DEFAULT_PROJECTS_STATE));
       let activeProjectId = 'proj_a';
 
       const selectProject = document.getElementById('selectProject');
@@ -1456,7 +1456,7 @@
           imageAltPattern: inputImageAlt.value.trim(),
           images: imgs
         };
-        localStorage.setItem(AUTOPOST_STORAGE_KEY, JSON.stringify(projectsMap));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(projectsMap));
         renderProjectDropdown();
         updateImagePoolUI();
       }
@@ -1686,9 +1686,9 @@
         runBatchGeneration();
       }
 
-      document.getElementById('btnFill25Images').addEventListener('click', () => fillPresetReferenceImages(25));
-      document.getElementById('btnFill99Images').addEventListener('click', () => fillPresetReferenceImages(99));
-      document.getElementById('btnClearImages').addEventListener('click', () => fillPresetReferenceImages(4));
+      document.getElementById('btnFill25Images')?.addEventListener('click', () => fillPresetReferenceImages(25));
+      document.getElementById('btnFill99Images')?.addEventListener('click', () => fillPresetReferenceImages(99));
+      document.getElementById('btnClearImages')?.addEventListener('click', () => fillPresetReferenceImages(4));
 
       let isGeneratingCancelled = false;
 
