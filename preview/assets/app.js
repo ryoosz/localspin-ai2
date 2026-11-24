@@ -53,12 +53,7 @@ const DEFAULT_PROJECTS_STATE = {
     imagesPerArticle: 2,
     imageTitlePattern: '{{topik}} — Dokumentasi #{{ nomor_gambar }} Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}',
     imageAltPattern: '{Dokumentasi pengerjaan|Tim teknisi lapangan|Proses instalasi resmi|Standar kerja profesional} {{topik}} #{{ nomor_gambar }} di Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}',
-    images: [
-      'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1497440001374-f26997328c1b?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1559302504-64aae6ca6b6d?auto=format&fit=crop&w=1000&q=80'
-    ]
+    images: []
   },
   proj_b: {
     id: 'proj_b',
@@ -76,12 +71,7 @@ const DEFAULT_PROJECTS_STATE = {
     imagesPerArticle: 2,
     imageTitlePattern: '{{topik}} — Proyek #{{ nomor_gambar }} Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}',
     imageAltPattern: '{Proyek renovasi bangunan|Tim sipil & arsitek|Pengerjaan interior rapi|Standar konstruksi resmi} {{topik}} #{{ nomor_gambar }} di Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}',
-    images: [
-      'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1541888946425-d09bb18086f6?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1000&q=80'
-    ]
+    images: []
   }
 };
 
@@ -464,7 +454,11 @@ function clientRenderProjectImagesForArticle({
 }) {
   const pool = Array.isArray(projectImages) && projectImages.length > 0
     ? projectImages.slice(0, MAX_IMAGES_PER_PROJECT)
-    : ['https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1000&q=80'];
+    : [];
+
+  if (pool.length === 0) {
+    return { figuresHtml: '', metaList: [] };
+  }
 
   const count = Math.max(1, Math.min(pool.length, Number(imagesPerArticle) || 1));
   const figures = [];
@@ -555,7 +549,7 @@ function clientInjectGeo(text, target, extraVars = {}) {
     wa_number: extraVars.whatsappNumber || '6281234567890',
     wa_url: waUrl,
     target_url: extraVars.targetUrl || 'https://nusantaraseo.id/layanan-resmi',
-    image_url: extraVars.imageUrl || 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1000&q=80'
+    image_url: extraVars.imageUrl || ''
   };
   return String(text || '').replace(/\{\{([a-zA-Z0-9_]+)\}\}/g, (full, k) => {
     const key = k.toLowerCase();

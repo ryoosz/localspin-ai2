@@ -41,7 +41,7 @@
         <button type="button" id="btnNewProject" class="btn btn-secondary btn-sm">+ Buat Project Baru</button>
       </div>
       <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-        <span class="badge badge-pass" id="projectImagesBadge">4 / 99 Gambar Tersimpan di Project Ini</span>
+        <span class="badge badge-pass" id="projectImagesBadge">0 / 99 Gambar Tersimpan di Project Ini</span>
         <button type="button" id="btnSaveProject" class="btn btn-primary btn-sm">&#128190; Simpan Project &amp; Gambar</button>
       </div>
     </section>
@@ -58,7 +58,7 @@
       </div>
       <div class="metric-box">
         <div class="metric-label">Koleksi Gambar Project</div>
-        <div class="metric-value" id="metricImagePoolCount">4 / 99</div>
+        <div class="metric-value" id="metricImagePoolCount">0 / 99</div>
       </div>
       <div class="metric-box">
         <div class="metric-label">Rata-rata Keunikan Copyscape</div>
@@ -197,7 +197,7 @@
           <!-- Koleksi Gambar Referensi per Project (1 s/d 99 Gambar) -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
             <h3 style="font-size: 1rem; margin: 0;">&#128444; Koleksi Gambar Project (Maks. 99 Gambar)</h3>
-            <span class="badge badge-sim" id="labelImgCounter">4 / 99 Gambar</span>
+            <span class="badge badge-sim" id="labelImgCounter">0 / 99 Gambar</span>
           </div>
           <p class="form-hint" style="margin-bottom: 0.5rem;">
             Tersimpan khusus untuk project ini. Masukkan 1 URL gambar per baris (hingga <strong>99 gambar</strong>) atau unggah banyak gambar sekaligus.
@@ -1265,6 +1265,28 @@
         projectsMap = JSON.parse(JSON.stringify(DEFAULT_PROJECTS_STATE));
       }
       let activeProjectId = projectsMap.proj_a ? 'proj_a' : Object.keys(projectsMap)[0];
+      // One-time cleanup of legacy hardcoded Unsplash default images from cached localStorage
+      if (!localStorage.getItem('wevo_cleared_default_unsplash_v1')) {
+        const legacyDefaults = new Set([
+          'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1000&q=80',
+          'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=1000&q=80',
+          'https://images.unsplash.com/photo-1497440001374-f26997328c1b?auto=format&fit=crop&w=1000&q=80',
+          'https://images.unsplash.com/photo-1559302504-64aae6ca6b6d?auto=format&fit=crop&w=1000&q=80',
+          'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1000&q=80',
+          'https://images.unsplash.com/photo-1541888946425-d09bb18086f6?auto=format&fit=crop&w=1000&q=80',
+          'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1000&q=80',
+          'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1000&q=80'
+        ]);
+        Object.values(projectsMap).forEach((p) => {
+          if (p && Array.isArray(p.images)) {
+            p.images = p.images.filter((u) => !legacyDefaults.has(u));
+          }
+        });
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(projectsMap));
+          localStorage.setItem('wevo_cleared_default_unsplash_v1', '1');
+        } catch (_) {}
+      }
 
       const selectProject = document.getElementById('selectProject');
       const inputProjectName = document.getElementById('inputProjectName');
@@ -2699,10 +2721,7 @@ ${art.htmlContent}
           imagesPerArticle: 2,
           imageTitlePattern: '{{topik}} — Dokumentasi #{{nomor_gambar}} Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}',
           imageAltPattern: 'Dokumentasi {{topik}} #{{nomor_gambar}} di Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}',
-          images: [
-            'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1000&q=80',
-            'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1000&q=80'
-          ]
+          images: []
         };
         activeProjectId = newId;
         renderProjectDropdown();
