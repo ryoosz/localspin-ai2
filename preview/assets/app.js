@@ -1183,11 +1183,298 @@ function getScaledSectionSpec(targetLength = 1000) {
   }));
 }
 
+function buildKeywordResearchMiniPrompt(cfg = {}) {
+  const primaryKw = String(cfg.primaryKeyword || 'Jasa Pembuatan Website').trim();
+  const rawArticle = stripSectionMarkers(String(cfg.mainArticleText || '').trim());
+  const snippet = rawArticle.length > 1200 ? `${rawArticle.slice(0, 1200).trim()}...` : rawArticle;
+  const regionNote = cfg.daerah || cfg.wilayah
+    ? `\n- Target Wilayah: ${[cfg.daerah, cfg.wilayah].filter(Boolean).join(', ')} (gunakan placeholder Kecamatan {{kecamatan}} bila relevan)`
+    : '';
+  const articleBlock = snippet
+    ? `\n- Artikel Utama / Gambaran Materi Awal:\n"""\n${snippet}\n"""`
+    : '';
+
+  return `ROLE:
+Bertindak sebagai Pakar Riset Keyword SEO & Semantic Entity Strategist (Bahasa Indonesia).
+
+INPUT AWAL:
+- Keyword Utama / Topik Awal: ${primaryKw}${regionNote}${articleBlock}
+
+TUGAS:
+Analisis Keyword Utama${snippet ? ' beserta materi Artikel Utama di atas' : ''}, lalu keluarkan daftar Keyword Khusus (turunan relevan), Semantic Keywords (LSI), dan Related Entities secara otomatis & terstruktur.
+WAJIB gunakan 3 penanda blok persis di bawah ini (1 baris per item diawali tanda "-", tanpa kalimat pembuka/penutup panjang):
+
+[KEYWORD_KHUSUS]
+- (tuliskan 10 keyword khusus / long-tail / komersial yang berhubungan langsung dengan "${primaryKw}")
+
+[SEMANTIC_KEYWORDS]
+- (tuliskan 10 semantic keywords / LSI / istilah teknis & topik pendukung yang memperkaya kedalaman artikel)
+
+[RELATED_ENTITIES]
+- (tuliskan 10 related entities: komponen, profesi/tim ahli, standar layanan, segmen pelanggan, & entitas lokal Kecamatan {{kecamatan}})`;
+}
+
+const ID_STOPWORDS_MINI = new Set([
+  'yang', 'dan', 'di', 'ke', 'dari', 'untuk', 'pada', 'dengan', 'dalam', 'atau', 'ini', 'itu',
+  'adalah', 'merupakan', 'akan', 'dapat', 'bisa', 'lebih', 'sangat', 'juga', 'serta', 'oleh',
+  'karena', 'agar', 'supaya', 'bagi', 'para', 'kami', 'anda', 'kita', 'mereka', 'secara',
+  'sebagai', 'setiap', 'seluruh', 'melalui', 'hingga', 'sampai', 'tanpa', 'saat', 'ketika',
+  'sudah', 'telah', 'belum', 'tidak', 'bukan', 'hanya', 'namun', 'tetapi', 'seperti', 'antara',
+  'dalam', 'atas', 'bawah', 'awal', 'akhir', 'hal', 'cara', 'proses', 'hasil'
+]);
+
+function suggestLocalKeywordsAndEntities(primaryKeyword = '', mainArticleText = '') {
+  const pk = String(primaryKeyword || 'Layanan Profesional').trim();
+  const pkLower = pk.toLowerCase();
+  const cleanArticle = stripSectionMarkers(String(mainArticleText || ''))
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\{\{[^}]+\}\}/g, ' ')
+    .replace(/[{}|#*_"`~]/g, ' ');
+
+  // Extract topical 2-word & 3-word phrases from mainArticleText if provided
+  const tokens = cleanArticle
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/gi, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length >= 3 && !ID_STOPWORDS_MINI.has(w) && !/^\d+$/.test(w));
+
+  const phraseCounts = new Map();
+  for (let i = 0; i < tokens.length - 1; i++) {
+    const w1 = tokens[i];
+    const w2 = tokens[i + 1];
+    if (ID_STOPWORDS_MINI.has(w1) || ID_STOPWORDS_MINI.has(w2) || w1 === w2) continue;
+    const bi = `${w1} ${w2}`;
+    if (bi !== pkLower && !pkLower.includes(bi)) {
+      phraseCounts.set(bi, (phraseCounts.get(bi) || 0) + 1);
+    }
+  }
+  const extractedPhrases = [...phraseCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([p]) => p);
+
+  const secondary = [
+    `harga ${pkLower} terbaru`,
+    `biaya ${pkLower} transparan`,
+    `paket ${pkLower} bergaransi`,
+    `${pkLower} terdekat`,
+    `${pkLower} terpercaya`,
+    `konsultasi ${pkLower} gratis`,
+    `rekomendasi ${pkLower} terbaik`,
+    `spesialis ${pkLower} berpengalaman`
+  ];
+
+  const semanticBase = [
+    ...extractedPhrases.slice(0, 5),
+    'standar operasional prosedur',
+    'garansi resmi tertulis',
+    'efisiensi biaya dan waktu',
+    'spesifikasi teknis terukur',
+    'survei lokasi dan pemetaan kebutuhan',
+    'dukungan purna jual berkelanjutan',
+    'kualitas pengerjaan rapi'
+  ];
+
+  const entitiesBase = [
+    ...extractedPhrases.slice(5, 8),
+    'Tim Teknisi & Konsultan Bersertifikat',
+    'UMKM & Pelaku Usaha Lokal',
+    'Pelanggan Rumah Tangga & Komersial',
+    'Standar Mutu & Keamanan Kerja',
+    'Layanan Customer Support WhatsApp',
+    'Kecamatan {{kecamatan}}',
+    '{{label_kota_kabupaten}}',
+    'Provinsi {{wilayah}}'
+  ];
+
+  const dedupe = (arr, limit = 10) => {
+    const seen = new Set();
+    const out = [];
+    for (const item of arr) {
+      const s = String(item || '').trim();
+      if (!s) continue;
+      const key = s.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(s);
+      if (out.length >= limit) break;
+    }
+    return out;
+  };
+
+  return {
+    secondary: dedupe(secondary, 10),
+    semantic: dedupe(semanticBase, 10),
+    entities: dedupe(entitiesBase, 10)
+  };
+}
+
+function cleanKeywordChecklistItem(rawItem = '') {
+  let s = String(rawItem || '')
+    .replace(/^[\s\-*•‣▪◦]+/, '')
+    .replace(/^\(?\d+[\).\-\s]+/, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^["'“”]+|["'“”]+$/g, '')
+    .trim();
+
+  // If chatbot wrote "Keyword: long explanation...", keep the crisp keyword phrase before ':' or ' - ' / ' — '
+  const colonMatch = s.match(/^([^:–—]{3,55})\s*[:–—]\s+.{12,}$/);
+  if (colonMatch) {
+    s = colonMatch[1].trim();
+  }
+  s = s.replace(/[.;,]+$/, '').trim();
+  if (s.length < 2 || s.length > 90) return '';
+  if (/^\[(KEYWORD_KHUSUS|SECONDARY_KEYWORDS?|SEMANTIC_KEYWORDS?|RELATED_ENTITIES|LSI_KEYWORDS?)\]$/i.test(s)) return '';
+  if (/^(keyword khusus|secondary keywords?|semantic keywords?|related entities|entitas terkait|lsi keywords?)$/i.test(s)) return '';
+  return s;
+}
+
+function splitLinesOrCommaItems(blockText = '') {
+  const lines = String(blockText || '')
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const rawItems = [];
+  for (const line of lines) {
+    // Skip instructional placeholder lines like "(tuliskan 10 keyword...)"
+    if (/^\(tuliskan\s+\d+/i.test(line)) continue;
+    // If single line has multiple comma-separated items and no sentence structure
+    if (!/^[-*•\d]/.test(line) && line.includes(',') && line.split(',').length >= 3) {
+      line.split(',').forEach((part) => rawItems.push(part));
+    } else if (/^[-*•]/.test(line) && line.includes(',') && line.split(',').length >= 4) {
+      line.replace(/^[-*•\s]+/, '').split(',').forEach((part) => rawItems.push(part));
+    } else {
+      rawItems.push(line);
+    }
+  }
+
+  const seen = new Set();
+  const out = [];
+  for (const r of rawItems) {
+    const cleaned = cleanKeywordChecklistItem(r);
+    if (!cleaned) continue;
+    const key = cleaned.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(cleaned);
+  }
+  return out;
+}
+
+function parseKeywordResearchIntoChecklist(rawResponse = '', primaryKeyword = '', mainArticleText = '') {
+  const raw = String(rawResponse || '').trim();
+  const fallback = suggestLocalKeywordsAndEntities(primaryKeyword, mainArticleText);
+  if (!raw) return fallback;
+
+  const buckets = { secondary: [], semantic: [], entities: [] };
+  let currentBucket = null;
+  let structuredHit = false;
+
+  const lines = raw.split(/\r?\n/);
+  const secHeaderRx = /^(?:\[\s*(?:KEYWORD_KHUSUS|SECONDARY_KEYWORDS?|SPECIFIC_KEYWORDS?)\s*\]|#{1,4}\s*.*(?:keyword\s*khusus|secondary\s*keyword|kata\s*kunci\s*khusus|kata\s*kunci\s*turunan).*|(?:\*\*|\d+[\).\s]*)?(?:keyword\s*khusus|secondary\s*keywords?|kata\s*kunci\s*turunan|kata\s*kunci\s*spesifik)(?:\*\*)?\s*:?\s*)$/i;
+  const semHeaderRx = /^(?:\[\s*(?:SEMANTIC_KEYWORDS?|LSI_KEYWORDS?|SEMANTIC)\s*\]|#{1,4}\s*.*(?:semantic\s*keyword|lsi\s*keyword|kata\s*kunci\s*semantik).*|(?:\*\*|\d+[\).\s]*)?(?:semantic\s*keywords?|lsi\s*keywords?|kata\s*kunci\s*semantik)(?:\*\*)?\s*:?\s*)$/i;
+  const entHeaderRx = /^(?:\[\s*(?:RELATED_ENTITIES|ENTITIES|SEMANTIC_ENTITIES|ENTITAS_TERKAIT)\s*\]|#{1,4}\s*.*(?:related\s*entit|entitas\s*terkait|entitas\s*pendukung).*|(?:\*\*|\d+[\).\s]*)?(?:related\s*entities|entitas\s*terkait|semantic\s*&\s*related\s*entities)(?:\*\*)?\s*:?\s*)$/i;
+
+  const bucketLines = { secondary: [], semantic: [], entities: [] };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    if (secHeaderRx.test(trimmed)) {
+      currentBucket = 'secondary';
+      structuredHit = true;
+      continue;
+    }
+    if (semHeaderRx.test(trimmed)) {
+      currentBucket = 'semantic';
+      structuredHit = true;
+      continue;
+    }
+    if (entHeaderRx.test(trimmed)) {
+      currentBucket = 'entities';
+      structuredHit = true;
+      continue;
+    }
+
+    // Inline "Secondary Keywords: a, b, c" single-line format
+    const inlineSec = trimmed.match(/^(?:\*\*|-|\d+\.)?\s*(?:keyword\s*khusus|secondary\s*keywords?)\s*(?:\*\*)?:\s*(.+)$/i);
+    if (inlineSec) {
+      bucketLines.secondary.push(inlineSec[1]);
+      currentBucket = 'secondary';
+      structuredHit = true;
+      continue;
+    }
+    const inlineSem = trimmed.match(/^(?:\*\*|-|\d+\.)?\s*(?:semantic\s*keywords?|lsi\s*keywords?)\s*(?:\*\*)?:\s*(.+)$/i);
+    if (inlineSem) {
+      bucketLines.semantic.push(inlineSem[1]);
+      currentBucket = 'semantic';
+      structuredHit = true;
+      continue;
+    }
+    const inlineEnt = trimmed.match(/^(?:\*\*|-|\d+\.)?\s*(?:related\s*entities|entitas\s*terkait)\s*(?:\*\*)?:\s*(.+)$/i);
+    if (inlineEnt) {
+      bucketLines.entities.push(inlineEnt[1]);
+      currentBucket = 'entities';
+      structuredHit = true;
+      continue;
+    }
+
+    if (currentBucket) {
+      bucketLines[currentBucket].push(trimmed);
+    }
+  }
+
+  if (structuredHit) {
+    buckets.secondary = splitLinesOrCommaItems(bucketLines.secondary.join('\n'));
+    buckets.semantic = splitLinesOrCommaItems(bucketLines.semantic.join('\n'));
+    buckets.entities = splitLinesOrCommaItems(bucketLines.entities.join('\n'));
+    // If chatbot combined Semantic & Entities into 1 block, fill missing bucket gracefully
+    if (!buckets.secondary.length) buckets.secondary = fallback.secondary.slice(0, 6);
+    if (!buckets.semantic.length) buckets.semantic = fallback.semantic.slice(0, 6);
+    if (!buckets.entities.length) buckets.entities = fallback.entities.slice(0, 6);
+    return buckets;
+  }
+
+  // Unstructured paste fallback: classify items automatically into Secondary, Semantic, and Entities
+  const allItems = splitLinesOrCommaItems(raw);
+  if (!allItems.length) return fallback;
+
+  const pkTokens = String(primaryKeyword || '')
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length >= 4);
+  const commercialRx = /\b(harga|biaya|tarif|paket|jasa|layanan|murah|terbaik|terdekat|profesional|bergaransi|resmi|pesan|order|konsultasi)\b/i;
+  const entityRx = /(\{\{|\bkecamatan\b|\bkota\b|\bkabupaten\b|\bprovinsi\b|\bumkm\b|\bperusahaan\b|\binstansi\b|\bteknisi\b|\bkonsultan\b|\bspesialis\b|\bsertifikat\b|\bsni\b|\biso\b)/i;
+
+  for (const item of allItems) {
+    const lower = item.toLowerCase();
+    const hasPkWord = pkTokens.some((t) => lower.includes(t));
+    if (entityRx.test(item)) {
+      buckets.entities.push(item);
+    } else if (commercialRx.test(item) || hasPkWord) {
+      buckets.secondary.push(item);
+    } else {
+      buckets.semantic.push(item);
+    }
+  }
+
+  if (!buckets.secondary.length) buckets.secondary = allItems.slice(0, Math.ceil(allItems.length / 3));
+  if (!buckets.semantic.length) buckets.semantic = fallback.semantic.slice(0, 6);
+  if (!buckets.entities.length) buckets.entities = fallback.entities.slice(0, 6);
+
+  return buckets;
+}
+
 function buildSeoPromptFramework(cfg = {}) {
   const primaryKw = String(cfg.primaryKeyword || 'Jasa Pembuatan Website').trim();
   const secondaryKw = String(cfg.secondaryKeywords || 'biaya layanan, fitur unggulan, proses pengerjaan, bergaransi resmi').trim();
   const semanticKw = String(cfg.semanticKeywords || 'kualitas profesional, konsultasi teknis, dukungan pemeliharaan, solusi bisnis').trim();
   const entities = String(cfg.relatedEntities || 'UMKM, Perusahaan, Pelaku Usaha Lokal, Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}').trim();
+  const mainSeed = stripSectionMarkers(String(cfg.mainArticleSeed || '').trim());
+  const mainSeedSnippet = mainSeed ? `\n- Konteks Artikel Utama / Referensi Materi: ${mainSeed.slice(0, 600)}` : '';
   const targetLen = Number(cfg.articleLength || 1000);
   const minLen = Math.round(targetLen * 0.9);
   const maxLen = Math.round(targetLen * 1.1);
@@ -1217,7 +1504,7 @@ INPUT CONFIGURATION:
 - Article Type: ${articleType} | Search Intent: ${searchIntent}
 - Writing Style: ${writingStyle} | Tone: ${tone}
 - Target Audience: ${audience} | Content Depth: ${depth}
-- CTA Type: ${ctaType} | Bahasa: ${lang}
+- CTA Type: ${ctaType} | Bahasa: ${lang}${mainSeedSnippet}
 
 CONTENT STRUCTURE (WAJIB IKUTI 9 BAGIAN & PENANDA [BAGIAN 01] s/d [BAGIAN 09]):
 ${structureLines}
@@ -1637,6 +1924,9 @@ window.LocalSpinClient = {
   DEFAULT_PROJECTS_STATE,
   SEO_PROMPT_SECTIONS_SPEC,
   EMAIL_PROMPT_SECTIONS_SPEC,
+  buildKeywordResearchMiniPrompt,
+  suggestLocalKeywordsAndEntities,
+  parseKeywordResearchIntoChecklist,
   buildSeoPromptFramework,
   generateStructured9SectionsDraft,
   combine9SectionsToRawArticle,

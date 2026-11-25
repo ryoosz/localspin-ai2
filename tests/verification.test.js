@@ -903,3 +903,81 @@ Kesalahan yang sering terjadi adalah memilih jasa hanya berdasarkan skema tarif 
   assert.ok(linkIdx > 0 && linkIdx < waMidIdx, 'linkPosition=top must appear before middle WA box');
   assert.ok(imgIdx > waMidIdx, 'imagePosition=bottom must appear after middle section');
 });
+
+test('L2 & L3 - Section 1B Mini-Prompt Keyword Research, Auto-Extraction of Semantic Keywords & Related Entities, and Checklist Flow', async () => {
+  const vm = require('node:vm');
+  const fs = require('node:fs');
+  const path = require('node:path');
+
+  const appJs = fs.readFileSync(path.join(__dirname, '..', 'assets', 'app.js'), 'utf8');
+  const regionsJs = fs.readFileSync(path.join(__dirname, '..', 'assets', 'regionsData.js'), 'utf8');
+  const sandbox = { window: {}, document: { getElementById: () => null, querySelectorAll: () => [] }, navigator: {}, console };
+  sandbox.window = sandbox;
+  vm.runInNewContext(regionsJs + '\n' + appJs, sandbox);
+
+  const client = sandbox.LocalSpinClient;
+  assert.equal(typeof client.buildKeywordResearchMiniPrompt, 'function');
+  assert.equal(typeof client.parseKeywordResearchIntoChecklist, 'function');
+  assert.equal(typeof client.suggestLocalKeywordsAndEntities, 'function');
+
+  const miniPrompt = client.buildKeywordResearchMiniPrompt({
+    primaryKeyword: 'Jasa Catering Prasmanan Kantor',
+    mainArticleText: 'Layanan catering higienis bersertifikat halal MUI dengan menu nusantara harian dan prasmanan rapat korporat.',
+    wilayah: 'Jawa Barat',
+    daerah: 'Kota Depok'
+  });
+  assert.ok(miniPrompt.includes('[KEYWORD_KHUSUS]'));
+  assert.ok(miniPrompt.includes('[SEMANTIC_KEYWORDS]'));
+  assert.ok(miniPrompt.includes('[RELATED_ENTITIES]'));
+  assert.ok(miniPrompt.includes('halal MUI'));
+
+  const pastedChatbotReply = `
+[KEYWORD_KHUSUS]
+1. harga catering prasmanan kantor: Paket ekonomis hingga VIP untuk rapat perusahaan
+2. paket catering harian karyawan
+3. jasa catering acara korporat terdekat
+
+[SEMANTIC_KEYWORDS]
+- menu prasmanan higienis
+- standar dapur sehat
+- porsi seimbang bergizi
+
+[RELATED_ENTITIES]
+- Sertifikasi Halal MUI
+- Tim Koki Profesional
+- Kecamatan {{kecamatan}}
+`;
+  const parsed = client.parseKeywordResearchIntoChecklist(
+    pastedChatbotReply,
+    'Jasa Catering Prasmanan Kantor',
+    'Layanan catering higienis'
+  );
+  assert.deepEqual(Array.from(parsed.secondary), [
+    'harga catering prasmanan kantor',
+    'paket catering harian karyawan',
+    'jasa catering acara korporat terdekat'
+  ]);
+  assert.deepEqual(Array.from(parsed.semantic), [
+    'menu prasmanan higienis',
+    'standar dapur sehat',
+    'porsi seimbang bergizi'
+  ]);
+  assert.deepEqual(Array.from(parsed.entities), [
+    'Sertifikasi Halal MUI',
+    'Tim Koki Profesional',
+    'Kecamatan {{kecamatan}}'
+  ]);
+
+  // Verify dashboard.html exposes all 1B mini-prompt & checklist elements
+  const { dispatch } = createAppServer({ dbPath: ':memory:' });
+  const dashRes = await dispatch({ method: 'GET', url: '/dashboard.html' });
+  assert.equal(dashRes.status, 200);
+  const dashHtml = await dashRes.text();
+  assert.ok(dashHtml.includes('id="btnGenKeywordMiniPrompt"'));
+  assert.ok(dashHtml.includes('id="textareaPasteKeywordResearch"'));
+  assert.ok(dashHtml.includes('id="btnParseKeywordResearch"'));
+  assert.ok(dashHtml.includes('id="kwChecklistSecondary"'));
+  assert.ok(dashHtml.includes('id="kwChecklistSemantic"'));
+  assert.ok(dashHtml.includes('id="kwChecklistEntities"'));
+  assert.ok(dashHtml.includes('id="btnSaveKeywordChecklist"'));
+});

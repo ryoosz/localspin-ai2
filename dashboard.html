@@ -519,34 +519,151 @@
           </div>
 
           <p class="form-hint" style="margin-bottom: 0.85rem;">
-            <strong>Alur Kerja Mudah:</strong> (1) Isi kuiz parameter di bawah &rarr; (2) Salin <strong>Prompt 4-Tahap</strong> ke Chatbot (atau klik <em>Isi Otomatis 9 Bagan</em>) &rarr; (3) Periksa <strong>9 Bagan Terpisah</strong> (Intro, Definisi, Proses, Manfaat/Fitur, Biaya/Daerah, Risiko, FAQ, Kesimpulan, CTA) &rarr; (4) Klik <strong>Satukan 9 Bagan</strong> agar langsung menyatu ke <strong>Kolom Artikel Utama</strong> dan bersandingan 1-to-1 dengan <strong>Hasil Kerangka Spintax</strong>.
+            <strong>Alur Kerja 1B Bertahap:</strong> (1) Masukkan <strong>Keyword Awal &amp; Artikel Utama</strong> di bawah &rarr; klik <strong>Buat Mini-Prompt Keyword</strong> &rarr; (2) Tempel hasil mini-prompt untuk mengeluarkan <strong>Keyword Khusus, Semantic Keyword &amp; Related Entities</strong> secara otomatis &rarr; (3) Centang pilihan keyword + pilih parameter kuis &rarr; klik <strong>Simpan Checklist</strong> &rarr; (4) Klik <strong>Simpan Checkpoint 3 &amp; Keluarkan Prompt Artikel Utama (CP 4)</strong>, lalu lanjut ke 9 Bagan, Spin Prompt &amp; Generate Artikel.
           </p>
 
-          <!-- CHECKPOINT 3: Kuis Parameter Konfigurasi Artikel (Semua Input Mode Hover) -->
+          <!-- CHECKPOINT 3: Kuis Parameter Konfigurasi Artikel + Mini-Prompt Keyword & Entities (Semua Input Mode Hover) -->
           <div id="cpBox3" class="cp-box cp-locked" style="margin-bottom: 1rem;">
             <div class="cp-box-header">
-              <span class="cp-badge" id="cpBadge3">🔒 CHECKPOINT 3 — KUIS PARAMETER KONFIGURASI ARTIKEL (MODE HOVER AKTIF)</span>
+              <span class="cp-badge" id="cpBadge3">🔒 CHECKPOINT 3 — 1B. MINI-PROMPT KEYWORD, ENTITIES &amp; KONFIGURASI ARTIKEL (MODE HOVER AKTIF)</span>
             </div>
             <div class="cp-lock-notice">🔒 Selesaikan &amp; simpan Checkpoint 2 terlebih dahulu. (Mode Hover aktif: arahkan kursor ke kotak teks mana pun untuk melihat tulisan lengkap.)</div>
+
+            <!-- SUB-FITUR 1B: MINI-PROMPTING RISET KEYWORD KHUSUS, SEMANTIC KEYWORD & RELATED ENTITIES -->
+            <div class="kw-mini-prompt-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.6rem;">
+                <div style="font-weight: 700; font-size: 0.9rem; color: #1e3a8a; display: flex; align-items: center; gap: 6px;">
+                  <span>🧭</span> 1B-1. Mini-Prompt Keyword Khusus, Semantic Keyword &amp; Related Entities
+                </div>
+                <span class="kw-step-badge">Alur: Input Awal &rarr; Mini-Prompt &rarr; Tempel &rarr; Pilih &amp; Simpan Checklist</span>
+              </div>
+
+              <div class="grid-2" style="gap: 0.65rem; margin-bottom: 0.65rem;">
+                <div>
+                  <label class="form-label" for="quizPrimaryKeyword" style="font-size: 0.78rem;">Keyword Awal / Primary Keyword (H1, Intro, H2, Konklusi)</label>
+                  <input type="text" id="quizPrimaryKeyword" class="form-control" value="Jasa Instalasi Panel Surya & Audit Energi" placeholder="Masukkan kata kunci utama awal..." />
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label class="form-label" for="quizMainArticleSeed" style="font-size: 0.78rem; margin-bottom: 0;">Artikel Utama / Materi Awal (Dasar Ekstraksi Keyword &amp; Entities)</label>
+                    <button type="button" id="btnPullRawArticleTo1B" class="btn btn-secondary btn-sm" style="font-size: 0.68rem; padding: 2px 7px;">📎 Ambil dari Kolom Artikel Utama</button>
+                  </div>
+                  <textarea id="quizMainArticleSeed" class="form-control" rows="2" placeholder="Masukkan draf artikel utama / ringkasan topik di sini agar mini-prompt &amp; ekstraksi semantic keyword + related entities sesuai bahasan Anda..."></textarea>
+                </div>
+              </div>
+
+              <!-- Langkah A: Buat Mini-Prompt atau Ekstrak Instan -->
+              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.6rem;">
+                <button type="button" id="btnGenKeywordMiniPrompt" class="btn btn-primary btn-sm" style="font-weight: 600;">
+                  🔎 1. Buat &amp; Salin Mini-Prompt Keyword
+                </button>
+                <button type="button" id="btnAutoSuggestKeywords" class="btn btn-secondary btn-sm" title="Langsung keluarkan saran Keyword Khusus, Semantic Keyword &amp; Related Entities dari Keyword Awal + Artikel Utama tanpa perlu ke Chatbot">
+                  ⚡ Ekstrak Otomatis (Tanpa Chatbot)
+                </button>
+                <span id="kwMiniPromptStatus" style="font-size: 0.76rem; color: var(--text-muted);">Klik tombol (1) untuk membuat mini-prompt riset keyword terkait.</span>
+              </div>
+
+              <!-- Kotak Output Mini-Prompt (Muncul saat tombol 1 diklik) -->
+              <div id="keywordMiniPromptWrap" style="display: none; background: #0f172a; color: #f8fafc; border-radius: 8px; padding: 0.65rem; margin-bottom: 0.65rem; border: 1px solid #334155;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                  <span style="font-size: 0.78rem; font-weight: 700; color: #38bdf8;">📋 Output Mini-Prompt Riset Keyword &amp; Related Entities (Tempel ke ChatGPT / Gemini / Claude)</span>
+                  <button type="button" id="btnCopyKeywordMiniPrompt" class="btn btn-primary btn-sm" style="font-size: 0.72rem; padding: 3px 10px;">Salin Mini-Prompt</button>
+                </div>
+                <textarea id="textareaKeywordMiniPrompt" class="form-control" rows="5" readonly style="font-family: var(--font-mono); font-size: 0.75rem; background: #1e293b; color: #e2e8f0; border-color: #334155;"></textarea>
+              </div>
+
+              <!-- Langkah B: Tempel Kembali Hasil Mini-Prompt & Keluarkan Pilihan Otomatis -->
+              <div style="background: rgba(255,255,255,0.75); border: 1px dashed #94a3b8; border-radius: 8px; padding: 0.65rem;">
+                <label class="form-label" for="textareaPasteKeywordResearch" style="font-size: 0.78rem; font-weight: 700;">
+                  📥 2. Masukkan / Tempel Kembali Hasil Prompt Keyword dari Chatbot di Sini
+                </label>
+                <div style="display: flex; gap: 0.5rem; align-items: stretch; flex-wrap: wrap;">
+                  <textarea id="textareaPasteKeywordResearch" class="form-control" rows="2" style="flex: 1; min-width: 240px; font-size: 0.78rem;" placeholder="Tempel hasil [KEYWORD_KHUSUS], [SEMANTIC_KEYWORDS], dan [RELATED_ENTITIES] dari chatbot di sini..."></textarea>
+                  <button type="button" id="btnParseKeywordResearch" class="btn btn-primary btn-sm" style="font-weight: 700; white-space: nowrap;">
+                    ✨ Keluarkan Semantic Keyword &amp; Entities &rarr;
+                  </button>
+                </div>
+              </div>
+
+              <!-- Langkah C: Daftar Checklist Keyword Khusus, Semantic Keywords & Related Entities -->
+              <div id="keywordChecklistPanel" style="display: none; margin-top: 0.7rem;">
+                <div style="font-size: 0.8rem; font-weight: 700; color: #1e3a8a; margin-bottom: 0.35rem;">
+                  ✅ Pilih / Centang Keyword Khusus, Semantic Keywords &amp; Related Entities yang Ingin Dipakai:
+                </div>
+                <div class="kw-checklist-grid">
+                  <!-- Kolom 1: Keyword Khusus / Secondary -->
+                  <div class="kw-checklist-col">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <strong style="font-size: 0.76rem; color: #1e40af;">🎯 Keyword Khusus (Secondary)</strong>
+                      <div style="display: flex; gap: 4px;">
+                        <button type="button" id="btnSecCheckAll" class="btn btn-secondary btn-sm" style="font-size: 0.66rem; padding: 1px 6px;">Semua</button>
+                        <button type="button" id="btnSecUncheckAll" class="btn btn-secondary btn-sm" style="font-size: 0.66rem; padding: 1px 6px;">Reset</button>
+                      </div>
+                    </div>
+                    <div id="kwChecklistSecondary" class="kw-checklist-items"></div>
+                    <div style="display: flex; gap: 4px; margin-top: auto;">
+                      <input type="text" id="inputAddCustomSecKw" class="form-control" placeholder="+ Tambah keyword khusus..." style="font-size: 0.73rem; padding: 3px 7px; height: 28px;" />
+                      <button type="button" id="btnAddCustomSecKw" class="btn btn-secondary btn-sm" style="padding: 2px 8px; font-size: 0.72rem;">+</button>
+                    </div>
+                  </div>
+
+                  <!-- Kolom 2: Semantic Keywords -->
+                  <div class="kw-checklist-col">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <strong style="font-size: 0.76rem; color: #0f766e;">🧠 Semantic Keywords (LSI)</strong>
+                      <div style="display: flex; gap: 4px;">
+                        <button type="button" id="btnSemCheckAll" class="btn btn-secondary btn-sm" style="font-size: 0.66rem; padding: 1px 6px;">Semua</button>
+                        <button type="button" id="btnSemUncheckAll" class="btn btn-secondary btn-sm" style="font-size: 0.66rem; padding: 1px 6px;">Reset</button>
+                      </div>
+                    </div>
+                    <div id="kwChecklistSemantic" class="kw-checklist-items"></div>
+                    <div style="display: flex; gap: 4px; margin-top: auto;">
+                      <input type="text" id="inputAddCustomSemKw" class="form-control" placeholder="+ Tambah semantic keyword..." style="font-size: 0.73rem; padding: 3px 7px; height: 28px;" />
+                      <button type="button" id="btnAddCustomSemKw" class="btn btn-secondary btn-sm" style="padding: 2px 8px; font-size: 0.72rem;">+</button>
+                    </div>
+                  </div>
+
+                  <!-- Kolom 3: Related Entities -->
+                  <div class="kw-checklist-col">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <strong style="font-size: 0.76rem; color: #6d28d9;">🏛️ Related Entities (Entitas)</strong>
+                      <div style="display: flex; gap: 4px;">
+                        <button type="button" id="btnEntCheckAll" class="btn btn-secondary btn-sm" style="font-size: 0.66rem; padding: 1px 6px;">Semua</button>
+                        <button type="button" id="btnEntUncheckAll" class="btn btn-secondary btn-sm" style="font-size: 0.66rem; padding: 1px 6px;">Reset</button>
+                      </div>
+                    </div>
+                    <div id="kwChecklistEntities" class="kw-checklist-items"></div>
+                    <div style="display: flex; gap: 4px; margin-top: auto;">
+                      <input type="text" id="inputAddCustomEntKw" class="form-control" placeholder="+ Tambah entitas terkait..." style="font-size: 0.73rem; padding: 3px 7px; height: 28px;" />
+                      <button type="button" id="btnAddCustomEntKw" class="btn btn-secondary btn-sm" style="padding: 2px 8px; font-size: 0.72rem;">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           <div style="background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.9rem;">
-            <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.6rem; color: #1e3a8a;">
-              &#9312; Kuiz Parameter Konfigurasi Artikel (Input Configuration)
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem;">
+              <div style="font-weight: 700; font-size: 0.9rem; color: #1e3a8a;">
+                &#9312; 1B-2. Pilihan Parameter Konfigurasi Artikel &amp; Simpan Checklist
+              </div>
+              <span id="kwChecklistSavedBadge" class="badge badge-sim" style="font-size: 0.72rem;">Checklist siap disesuaikan</span>
             </div>
             <div class="grid-3" style="gap: 0.65rem; margin-bottom: 0.65rem;">
               <div>
-                <label class="form-label" for="quizPrimaryKeyword" style="font-size: 0.78rem;">Primary Keyword (H1, Intro, H2, Konklusi)</label>
-                <input type="text" id="quizPrimaryKeyword" class="form-control" value="Jasa Instalasi Panel Surya & Audit Energi" />
-              </div>
-              <div>
-                <label class="form-label" for="quizSecondaryKeywords" style="font-size: 0.78rem;">Secondary Keywords (Pembahasan Utama)</label>
+                <label class="form-label" for="quizSecondaryKeywords" style="font-size: 0.78rem;">Keyword Khusus / Secondary Keywords</label>
                 <input type="text" id="quizSecondaryKeywords" class="form-control" value="jenis layanan, fitur dan spesifikasi, biaya dan pemeliharaan" />
               </div>
               <div>
-                <label class="form-label" for="quizSemanticKeywords" style="font-size: 0.78rem;">Semantic Keywords &amp; Related Entities</label>
-                <input type="text" id="quizSemanticKeywords" class="form-control" value="efisiensi energi, garansi resmi, teknisi bersertifikat, Kecamatan {{kecamatan}}" />
+                <label class="form-label" for="quizSemanticKeywords" style="font-size: 0.78rem;">Semantic Keywords (LSI)</label>
+                <input type="text" id="quizSemanticKeywords" class="form-control" value="efisiensi energi, garansi resmi, teknisi bersertifikat" />
+              </div>
+              <div>
+                <label class="form-label" for="quizRelatedEntities" style="font-size: 0.78rem;">Related Entities &amp; Entitas Lokal</label>
+                <input type="text" id="quizRelatedEntities" class="form-control" value="UMKM, Perusahaan, Pelaku Usaha Lokal, Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}" />
               </div>
             </div>
-            <div class="grid-3" style="gap: 0.65rem;">
+            <div class="grid-3" style="gap: 0.65rem; margin-bottom: 0.75rem;">
               <div>
                 <label class="form-label" for="quizArticleLength" style="font-size: 0.78rem;">Target Panjang (Original Words)</label>
                 <select id="quizArticleLength" class="form-control">
@@ -593,12 +710,18 @@
                 </div>
               </div>
             </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; padding-top: 0.55rem; border-top: 1px dashed var(--border-subtle);">
+              <span class="form-hint" style="margin: 0;">Langkah (3): Simpan checklist keyword &amp; pilihan parameter sebelum mengeluarkan Prompting Artikel Utama.</span>
+              <button type="button" id="btnSaveKeywordChecklist" class="btn btn-secondary btn-sm" style="font-weight: 700; border-color: #2563eb; color: #1d4ed8;">
+                ✅ 3. Simpan Checklist Keyword &amp; Pilihan
+              </button>
+            </div>
           </div>
 
           <div class="cp-action-bar" style="margin-bottom: 0.5rem;">
-              <span class="form-hint" style="margin: 0;">💡 Arahkan kursor (<em>hover</em>) ke kotak input kuis untuk melihat teks lengkap tanpa terpotong.</span>
+              <span class="form-hint" style="margin: 0;">💡 Setelah checklist disimpan, klik tombol di kanan untuk mengeluarkan <strong>Prompting Artikel Utama (CP 4)</strong>.</span>
               <button type="button" id="btnSaveCheckpoint3" class="btn btn-primary btn-sm cp-btn-save">
-                💾 Simpan Checkpoint 3 &amp; Buat Prompt Chatbot (CP 4) &rarr;
+                💾 4. Simpan Checkpoint 3 &amp; Keluarkan Prompt Chatbot (CP 4) &rarr;
               </button>
             </div>
           </div><!-- /#cpBox3 -->
@@ -1647,6 +1770,16 @@
         inputImageAlt.value =
           p.imageAltPattern || '{Dokumentasi pengerjaan|Tim teknisi lapangan} {{topik}} #{{nomor_gambar}} di Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}';
         textareaProjectImages.value = (p.images || []).slice(0, MAX_IMAGES_PER_PROJECT).join('\n');
+        const qpkEl = document.getElementById('quizPrimaryKeyword');
+        if (qpkEl && p.topic) qpkEl.value = p.topic;
+        const qSeedEl = document.getElementById('quizMainArticleSeed');
+        if (qSeedEl) qSeedEl.value = p.mainArticleSeed || '';
+        const qSecEl = document.getElementById('quizSecondaryKeywords');
+        if (qSecEl && p.secondaryKeywords) qSecEl.value = p.secondaryKeywords;
+        const qSemEl = document.getElementById('quizSemanticKeywords');
+        if (qSemEl && p.semanticKeywords) qSemEl.value = p.semanticKeywords;
+        const qEntEl = document.getElementById('quizRelatedEntities');
+        if (qEntEl && p.relatedEntities) qEntEl.value = p.relatedEntities;
 
         updateDetectedLanguageUI();
         updateImagePoolUI();
@@ -1702,6 +1835,10 @@
           imagesPerArticle: Number(selectImagesPerArticle.value) || 2,
           imageTitlePattern: inputImageTitlePattern.value.trim(),
           imageAltPattern: inputImageAlt.value.trim(),
+          mainArticleSeed: document.getElementById('quizMainArticleSeed') ? document.getElementById('quizMainArticleSeed').value.trim() : '',
+          secondaryKeywords: document.getElementById('quizSecondaryKeywords') ? document.getElementById('quizSecondaryKeywords').value.trim() : '',
+          semanticKeywords: document.getElementById('quizSemanticKeywords') ? document.getElementById('quizSemanticKeywords').value.trim() : '',
+          relatedEntities: document.getElementById('quizRelatedEntities') ? document.getElementById('quizRelatedEntities').value.trim() : '',
           images: imgs
         };
         persistProjectsMapSafe();
@@ -3783,6 +3920,9 @@ if __name__ == '__main__':
       // Boot Studio & Resizable/Collapsible Sidebar & Quick Guide & Live Syntax Highlight
       const {
         SEO_PROMPT_SECTIONS_SPEC,
+        buildKeywordResearchMiniPrompt,
+        suggestLocalKeywordsAndEntities,
+        parseKeywordResearchIntoChecklist,
         buildSeoPromptFramework,
         generateStructured9SectionsDraft,
         combine9SectionsToRawArticle,
@@ -3794,11 +3934,14 @@ if __name__ == '__main__':
       let current9SectionsMap = {};
 
       function getQuizConfigFromUI() {
+        const relEl = document.getElementById('quizRelatedEntities');
+        const seedEl = document.getElementById('quizMainArticleSeed');
         return {
           primaryKeyword: document.getElementById('quizPrimaryKeyword').value || inputTopic.value,
           secondaryKeywords: document.getElementById('quizSecondaryKeywords').value,
           semanticKeywords: document.getElementById('quizSemanticKeywords').value,
-          relatedEntities: 'UMKM, Perusahaan, Pelaku Usaha Lokal, Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}',
+          relatedEntities: (relEl && relEl.value.trim()) || 'UMKM, Perusahaan, Pelaku Usaha Lokal, Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}',
+          mainArticleSeed: seedEl ? seedEl.value.trim() : '',
           articleLength: Number(document.getElementById('quizArticleLength').value || 1000),
           articleType: document.getElementById('quizArticleType').value,
           searchIntent: document.getElementById('quizSearchIntent').value,
@@ -3810,6 +3953,225 @@ if __name__ == '__main__':
           language: 'Indonesia'
         };
       }
+
+      // ==========================================================
+      // 1B MINI-PROMPT KEYWORD & SEMANTIC/RELATED ENTITIES WIDGET
+      // ==========================================================
+      function appendKeywordChipToContainer(containerEl, textValue, checked = true) {
+        if (!containerEl) return;
+        const val = String(textValue || '').trim();
+        if (!val) return;
+        const existing = containerEl.querySelectorAll('input[type="checkbox"]');
+        for (let i = 0; i < existing.length; i++) {
+          if (String(existing[i].value || '').toLowerCase() === val.toLowerCase()) {
+            existing[i].checked = checked;
+            return;
+          }
+        }
+        const lbl = document.createElement('label');
+        lbl.className = 'kw-check-chip';
+        const chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.checked = checked;
+        chk.value = val;
+        const span = document.createElement('span');
+        span.textContent = val;
+        lbl.appendChild(chk);
+        lbl.appendChild(span);
+        containerEl.appendChild(lbl);
+      }
+
+      function renderKeywordChecklistBuckets(parsed) {
+        const secWrap = document.getElementById('kwChecklistSecondary');
+        const semWrap = document.getElementById('kwChecklistSemantic');
+        const entWrap = document.getElementById('kwChecklistEntities');
+        const panel = document.getElementById('keywordChecklistPanel');
+        const badge = document.getElementById('kwChecklistSavedBadge');
+
+        if (secWrap) {
+          secWrap.innerHTML = '';
+          (parsed.secondary || []).forEach((item) => appendKeywordChipToContainer(secWrap, item, true));
+        }
+        if (semWrap) {
+          semWrap.innerHTML = '';
+          (parsed.semantic || []).forEach((item) => appendKeywordChipToContainer(semWrap, item, true));
+        }
+        if (entWrap) {
+          entWrap.innerHTML = '';
+          (parsed.entities || []).forEach((item) => appendKeywordChipToContainer(entWrap, item, true));
+        }
+        if (panel) panel.style.display = 'block';
+        if (badge) {
+          badge.className = 'badge badge-warn';
+          badge.textContent = 'Pilih centang & parameter lalu klik Simpan Checklist';
+        }
+      }
+
+      function getCheckedValuesFromContainer(containerId) {
+        const el = document.getElementById(containerId);
+        if (!el) return null;
+        const allBoxes = el.querySelectorAll('input[type="checkbox"]');
+        if (!allBoxes || allBoxes.length === 0) return null; // Not rendered yet
+        const selected = [];
+        for (let i = 0; i < allBoxes.length; i++) {
+          if (allBoxes[i].checked && allBoxes[i].value) {
+            selected.push(allBoxes[i].value.trim());
+          }
+        }
+        return selected;
+      }
+
+      function syncCheckedKeywordsToQuizInputs() {
+        const secChecked = getCheckedValuesFromContainer('kwChecklistSecondary');
+        const semChecked = getCheckedValuesFromContainer('kwChecklistSemantic');
+        const entChecked = getCheckedValuesFromContainer('kwChecklistEntities');
+
+        const secInput = document.getElementById('quizSecondaryKeywords');
+        const semInput = document.getElementById('quizSemanticKeywords');
+        const entInput = document.getElementById('quizRelatedEntities');
+
+        if (secChecked !== null && secChecked.length > 0 && secInput) {
+          secInput.value = secChecked.join(', ');
+        }
+        if (semChecked !== null && semChecked.length > 0 && semInput) {
+          semInput.value = semChecked.join(', ');
+        }
+        if (entChecked !== null && entChecked.length > 0 && entInput) {
+          entInput.value = entChecked.join(', ');
+        }
+      }
+
+      function setAllKeywordChecks(containerId, state) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        const boxes = el.querySelectorAll('input[type="checkbox"]');
+        for (let i = 0; i < boxes.length; i++) {
+          boxes[i].checked = Boolean(state);
+        }
+      }
+
+      document.getElementById('btnPullRawArticleTo1B')?.addEventListener('click', () => {
+        const seedEl = document.getElementById('quizMainArticleSeed');
+        if (!seedEl) return;
+        const rawMain = (textareaRawMainArticle && textareaRawMainArticle.value || '').trim();
+        if (!rawMain) {
+          alert('Kolom Artikel Utama masih kosong. Silakan ketik langsung draf/ide artikel utama di kotak 1B ini.');
+          return;
+        }
+        seedEl.value = rawMain;
+        const st = document.getElementById('kwMiniPromptStatus');
+        if (st) st.textContent = '✓ Teks diambil dari Kolom Artikel Utama. Klik tombol (1) untuk membuat Mini-Prompt.';
+      });
+
+      document.getElementById('btnGenKeywordMiniPrompt')?.addEventListener('click', () => {
+        const qpk = document.getElementById('quizPrimaryKeyword');
+        const primaryKw = (qpk && qpk.value.trim()) || inputTopic.value.trim() || 'Layanan Profesional';
+        if (qpk && !qpk.value.trim()) qpk.value = primaryKw;
+        const mainSeed = document.getElementById('quizMainArticleSeed')?.value || '';
+        const wObj = getSelectedWilayahObj();
+        const dObj = getSelectedDaerahObj();
+
+        const miniPrompt = buildKeywordResearchMiniPrompt({
+          primaryKeyword: primaryKw,
+          mainArticleText: mainSeed,
+          wilayah: wObj ? wObj.wilayah : '',
+          daerah: dObj ? dObj.labelLengkap : ''
+        });
+
+        const wrap = document.getElementById('keywordMiniPromptWrap');
+        const outTa = document.getElementById('textareaKeywordMiniPrompt');
+        const st = document.getElementById('kwMiniPromptStatus');
+        if (wrap) wrap.style.display = 'block';
+        if (outTa) outTa.value = miniPrompt;
+        window.LocalSpinClient.clientCopyText(miniPrompt);
+        if (st) {
+          st.style.color = '#166534';
+          st.textContent = '✓ Mini-Prompt berhasil dibuat & disalin! Tempel ke Chatbot, lalu masukkan hasilnya ke kotak (2).';
+        }
+      });
+
+      document.getElementById('btnCopyKeywordMiniPrompt')?.addEventListener('click', () => {
+        const outTa = document.getElementById('textareaKeywordMiniPrompt');
+        if (!outTa) return;
+        window.LocalSpinClient.clientCopyText(outTa.value);
+        const btn = document.getElementById('btnCopyKeywordMiniPrompt');
+        if (btn) {
+          const orig = btn.textContent;
+          btn.textContent = '✓ Tersalin!';
+          setTimeout(() => (btn.textContent = orig), 1500);
+        }
+      });
+
+      document.getElementById('btnAutoSuggestKeywords')?.addEventListener('click', () => {
+        const primaryKw = document.getElementById('quizPrimaryKeyword')?.value || inputTopic.value || 'Layanan Profesional';
+        const mainSeed = document.getElementById('quizMainArticleSeed')?.value || textareaRawMainArticle.value || '';
+        const suggested = suggestLocalKeywordsAndEntities(primaryKw, mainSeed);
+        renderKeywordChecklistBuckets(suggested);
+        const st = document.getElementById('kwMiniPromptStatus');
+        if (st) {
+          st.style.color = '#1d4ed8';
+          st.textContent = '⚡ Pilihan Keyword Khusus, Semantic Keyword & Related Entities berhasil diekstrak! Silakan centang lalu klik Simpan Checklist.';
+        }
+      });
+
+      document.getElementById('btnParseKeywordResearch')?.addEventListener('click', () => {
+        const rawPaste = document.getElementById('textareaPasteKeywordResearch')?.value || '';
+        const primaryKw = document.getElementById('quizPrimaryKeyword')?.value || inputTopic.value || 'Layanan Profesional';
+        const mainSeed = document.getElementById('quizMainArticleSeed')?.value || textareaRawMainArticle.value || '';
+        const parsed = parseKeywordResearchIntoChecklist(rawPaste, primaryKw, mainSeed);
+        renderKeywordChecklistBuckets(parsed);
+        const st = document.getElementById('kwMiniPromptStatus');
+        if (st) {
+          st.style.color = '#166534';
+          st.textContent = `✓ Berhasil mengeluarkan ${parsed.secondary.length} Keyword Khusus, ${parsed.semantic.length} Semantic Keywords & ${parsed.entities.length} Related Entities!`;
+        }
+      });
+
+      document.getElementById('btnSecCheckAll')?.addEventListener('click', () => setAllKeywordChecks('kwChecklistSecondary', true));
+      document.getElementById('btnSecUncheckAll')?.addEventListener('click', () => setAllKeywordChecks('kwChecklistSecondary', false));
+      document.getElementById('btnSemCheckAll')?.addEventListener('click', () => setAllKeywordChecks('kwChecklistSemantic', true));
+      document.getElementById('btnSemUncheckAll')?.addEventListener('click', () => setAllKeywordChecks('kwChecklistSemantic', false));
+      document.getElementById('btnEntCheckAll')?.addEventListener('click', () => setAllKeywordChecks('kwChecklistEntities', true));
+      document.getElementById('btnEntUncheckAll')?.addEventListener('click', () => setAllKeywordChecks('kwChecklistEntities', false));
+
+      [
+        { btnId: 'btnAddCustomSecKw', inputId: 'inputAddCustomSecKw', wrapId: 'kwChecklistSecondary' },
+        { btnId: 'btnAddCustomSemKw', inputId: 'inputAddCustomSemKw', wrapId: 'kwChecklistSemantic' },
+        { btnId: 'btnAddCustomEntKw', inputId: 'inputAddCustomEntKw', wrapId: 'kwChecklistEntities' }
+      ].forEach(({ btnId, inputId, wrapId }) => {
+        document.getElementById(btnId)?.addEventListener('click', () => {
+          const inp = document.getElementById(inputId);
+          const wrap = document.getElementById(wrapId);
+          if (!inp || !wrap) return;
+          const v = inp.value.trim();
+          if (!v) return;
+          appendKeywordChipToContainer(wrap, v, true);
+          inp.value = '';
+        });
+      });
+
+      document.getElementById('btnSaveKeywordChecklist')?.addEventListener('click', () => {
+        syncCheckedKeywordsToQuizInputs();
+        const qpk = document.getElementById('quizPrimaryKeyword');
+        if (qpk && qpk.value.trim()) inputTopic.value = qpk.value.trim();
+        const seedVal = document.getElementById('quizMainArticleSeed')?.value.trim() || '';
+        if (seedVal && !textareaRawMainArticle.value.trim()) {
+          textareaRawMainArticle.value = seedVal;
+        }
+        saveFormIntoActiveProject();
+
+        const badge = document.getElementById('kwChecklistSavedBadge');
+        if (badge) {
+          badge.className = 'badge badge-pass';
+          badge.textContent = '✓ Checklist & Pilihan Tersimpan! Siap Keluarkan Prompt (CP 4)';
+        }
+        const btnSaveCheck = document.getElementById('btnSaveKeywordChecklist');
+        if (btnSaveCheck) {
+          const orig = btnSaveCheck.innerHTML;
+          btnSaveCheck.innerHTML = '✓ Checklist Keyword Tersimpan!';
+          setTimeout(() => (btnSaveCheck.innerHTML = orig), 1800);
+        }
+      });
 
       function refreshPromptOutputUI() {
         const cfg = getQuizConfigFromUI();
@@ -4107,7 +4469,7 @@ if __name__ == '__main__':
 
         function showHoverTooltip(el) {
           if (!el || !el.matches('input[type="text"], input[type="url"], input[type="number"], textarea, select')) return;
-          if (el.id === 'textareaMasterSpintax' || el.id === 'textareaGeneratedPrompt') return;
+          if (el.id === 'textareaMasterSpintax' || el.id === 'textareaGeneratedPrompt' || el.id === 'textareaKeywordMiniPrompt') return;
           const isQuizInput = Boolean(el.closest('#cpBox3'));
           const val = el.tagName === 'SELECT'
             ? (el.options[el.selectedIndex] ? el.options[el.selectedIndex].text : '')
@@ -4202,10 +4564,15 @@ if __name__ == '__main__':
           scrollToCheckpoint(3);
         });
 
-        // Checkpoint 3 Save (Kuis Parameter Konfigurasi -> Generate Prompt Chatbot)
+        // Checkpoint 3 Save (Simpan Checklist & Kuis Parameter -> Keluarkan Prompt Chatbot Artikel Utama)
         document.getElementById('btnSaveCheckpoint3')?.addEventListener('click', () => {
+          syncCheckedKeywordsToQuizInputs();
           const qpk = document.getElementById('quizPrimaryKeyword');
           if (qpk && qpk.value.trim()) inputTopic.value = qpk.value.trim();
+          const seedVal = document.getElementById('quizMainArticleSeed')?.value.trim() || '';
+          if (seedVal && !textareaRawMainArticle.value.trim()) {
+            textareaRawMainArticle.value = seedVal;
+          }
           saveFormIntoActiveProject();
           refreshPromptOutputUI();
           setProjectCheckpointStage(3);
