@@ -669,7 +669,7 @@
           <p id="capacityAdviceText" style="font-size: 0.86rem; margin-bottom: 0.5rem; color: var(--text-secondary);"></p>
           <div style="display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;">
             <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; font-weight: 700; color: #1e3a8a; cursor: pointer;">
-              <input type="checkbox" id="chkAutoSyncRecommendedCount" checked />
+              <input type="checkbox" id="chkAutoSyncRecommendedCount" />
               <span>Otomatis Generate Sesuai Jumlah Rekomendasi Ideal</span>
             </label>
             <button type="button" id="btnApplyRecommendedCount" class="btn btn-primary btn-sm">
@@ -1811,25 +1811,116 @@
         });
       });
 
-      // Multi-file upload into Project's 99-image pool
-      inputImageFilesMulti.addEventListener('change', (e) => {
-        const files = Array.from(e.target.files || []);
-        if (!files.length) return;
-        const existing = getCurrentImageListFromTextarea();
-        let remainingSlots = MAX_IMAGES_PER_PROJECT - existing.length;
-        files.slice(0, remainingSlots).forEach((file) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const current = getCurrentImageListFromTextarea();
-            if (current.length < MAX_IMAGES_PER_PROJECT) {
-              current.push(reader.result);
-              textareaProjectImages.value = current.join('\n');
-              saveFormIntoActiveProject();
+      // ==========================================================
+      // MEMORY-SAFE IMAGE STORE (Zero Base64 Duplication / Anti-OOM)
+      // ==========================================================
+      const uploadedDataUrlMap = new Map(); // shortUrl (blob: or wevo-img://) -> compressed data:image/...
+
+      function registerDataUrlAsCompactRef(dataUrl, labelHint = 'img') {
+        if (!dataUrl || !String(dataUrl).startsWith('data:image/')) return dataUrl;
+        // Convert dataURL to Blob URL so DOM, textarea, and article strings only hold ~60 bytes instead of megabytes!
+        try {
+          if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function' && typeof atob === 'function') {
+            const commaIdx = dataUrl.indexOf(',');
+            if (commaIdx > 0) {
+              const meta = dataUrl.slice(0, commaIdx);
+              const mime = (meta.match(/data:([^;]+)/) || [null, 'image/jpeg'])[1];
+              const bin = atob(dataUrl.slice(commaIdx + 1));
+              const bytes = new Uint8Array(bin.length);
+              for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+              const blob = new Blob([bytes], { type: mime });
+              const blobUrl = URL.createObjectURL(blob);
+              uploadedDataUrlMap.set(blobUrl, dataUrl);
+              return blobUrl;
+            }
+          }
+        } catch (_) {}
+        const token = 'wevo-img://local-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7) + '-' + labelHint;
+        uploadedDataUrlMap.set(token, dataUrl);
+        return token;
+      }
+
+      function normalizeRawDataUrlsInTextarea() {
+        const rawVal = textareaProjectImages.value || '';
+        if (!rawVal.includes('data:image/')) return;
+        const lines = rawVal.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+        let changed = false;
+        const compact = lines.map((line, i) => {
+          if (line.startsWith('data:image/') && line.length > 1024) {
+            changed = true;
+            return registerDataUrlAsCompactRef(line, String(i + 1));
+          }
+          return line;
+        });
+        if (changed) {
+          textareaProjectImages.value = compact.join('\n');
+        }
+      }
+
+      function expandBlobUrlsForExport(str) {
+        let out = String(str || '');
+        if (!uploadedDataUrlMap.size) return out;
+        uploadedDataUrlMap.forEach((dataUrl, shortRef) => {
+          if (out.includes(shortRef)) {
+            out = out.split(shortRef).join(dataUrl);
+          }
+        });
+        return out;
+      }
+
+      function compressImageFileToRef(file, maxDim = 1280, quality = 0.8) {
+        return new Promise((resolve) => {
+          if (typeof Image === 'undefined' || typeof document.createElement !== 'function') {
+            const r = new FileReader();
+            r.onload = () => resolve(registerDataUrlAsCompactRef(r.result, file.name || 'photo'));
+            r.onerror = () => resolve('');
+            r.readAsDataURL(file);
+            return;
+          }
+          const tempUrl = (typeof URL !== 'undefined' && URL.createObjectURL) ? URL.createObjectURL(file) : null;
+          if (!tempUrl) {
+            const r = new FileReader();
+            r.onload = () => resolve(registerDataUrlAsCompactRef(r.result, file.name || 'photo'));
+            r.onerror = () => resolve('');
+            r.readAsDataURL(file);
+            return;
+          }
+          const img = new Image();
+          img.onload = () => {
+            try {
+              let w = img.naturalWidth || img.width || 800;
+              let h = img.naturalHeight || img.height || 600;
+              if (w > maxDim || h > maxDim) {
+                const scale = Math.min(maxDim / w, maxDim / h);
+                w = Math.max(1, Math.round(w * scale));
+                h = Math.max(1, Math.round(h * scale));
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = w;
+              canvas.height = h;
+              const ctx2d = canvas.getContext('2d');
+              ctx2d.drawImage(img, 0, 0, w, h);
+              let compressedDataUrl = canvas.toDataURL('image/webp', quality);
+              if (!compressedDataUrl || !compressedDataUrl.startsWith('data:image/webp')) {
+                compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+              }
+              URL.revokeObjectURL(tempUrl);
+              resolve(registerDataUrlAsCompactRef(compressedDataUrl, file.name || 'photo'));
+            } catch (_) {
+              URL.revokeObjectURL(tempUrl);
+              const r = new FileReader();
+              r.onload = () => resolve(registerDataUrlAsCompactRef(r.result, file.name || 'photo'));
+              r.onerror = () => resolve('');
+              r.readAsDataURL(file);
             }
           };
-          reader.readAsDataURL(file);
+          img.onerror = () => {
+            URL.revokeObjectURL(tempUrl);
+            resolve('');
+          };
+          img.src = tempUrl;
         });
-      });
+      }
 
       function fillPresetReferenceImages(count) {
         const basePhotos = [
@@ -1887,276 +1978,338 @@
         if (modal) modal.classList.remove('is-active');
       }
 
-      async function runBatchGeneration(mode = 'instant') {
-        const isSlowMode = mode === 'slow';
-        const w = getSelectedWilayahObj();
-        const d = getSelectedDaerahObj();
-        const checkedInputs = Array.from(kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked'));
-
-        if (checkedInputs.length === 0) {
-          articlesOutputContainer.innerHTML = `<div class="notice-banner" style="border-left-color: #d97706;">Silakan centang minimal 1 Kecamatan terlebih dahulu.</div>`;
-          return;
+      // Compact 32-bit FNV-1a integer shingle hashing (60x lower RAM than string Sets, zero Base64 scanning!)
+      function fnv1a32(str) {
+        let h = 0x811c9dc5;
+        for (let i = 0; i < str.length; i++) {
+          h ^= str.charCodeAt(i);
+          h = Math.imul(h, 0x01000193);
         }
+        return h >>> 0;
+      }
 
-        if (!textareaSpintax.value.trim()) {
-          rebuildBlueprintFromInputs(true);
-        }
-
-        const cfg = getBlueprintConfigFromForm();
-        const projectImages = getCurrentImageListFromTextarea();
-        const imagesPerArticle = Math.max(1, Number(selectImagesPerArticle.value) || 2);
-        const requestedMax = Math.max(1, Number(inputMaxArticlesToGen.value) || checkedInputs.length);
-
-        // Expand or slice targets according to requestedMax (up to 100+ articles across province districts)
-        const targetPool = [];
-        for (let i = 0; i < Math.min(requestedMax, checkedInputs.length); i++) {
-          const chk = checkedInputs[i];
-          targetPool.push({
-            wilayah: w.wilayah,
-            jenisDaerah: d.jenis,
-            kotaKabupaten: d.nama,
-            labelKotaKabupaten: d.labelLengkap,
-            kecamatan: chk.value,
-            konteksWilayah: w.karakteristikWilayah,
-            konteksDaerah: d.konteksDaerah,
-            konteksKecamatan: chk.dataset.konteks
-          });
-        }
-        if (targetPool.length < requestedMax && Array.isArray(w.daerahList)) {
-          for (const extraD of w.daerahList) {
-            if (extraD.id === d.id) continue;
-            for (const extraK of extraD.kecamatan || []) {
-              if (targetPool.length >= requestedMax) break;
-              targetPool.push({
-                wilayah: w.wilayah,
-                jenisDaerah: extraD.jenis,
-                kotaKabupaten: extraD.nama,
-                labelKotaKabupaten: extraD.labelLengkap,
-                kecamatan: extraK.nama,
-                konteksWilayah: w.karakteristikWilayah,
-                konteksDaerah: extraD.konteksDaerah,
-                konteksKecamatan: extraK.konteks || `kawasan strategis di Kecamatan ${extraK.nama}`
-              });
-            }
-            if (targetPool.length >= requestedMax) break;
+      function buildCompactTextProfile(pureText) {
+        const words = String(pureText || '')
+          .replace(/<[^>]+>/g, ' ')
+          .toLowerCase()
+          .replace(/[^a-z0-9\s]/g, ' ')
+          .split(/\s+/)
+          .filter(Boolean);
+        const s4 = new Set();
+        const s5 = new Set();
+        for (let i = 0; i <= words.length - 4; i++) {
+          const g4 = words[i] + ' ' + words[i + 1] + ' ' + words[i + 2] + ' ' + words[i + 3];
+          s4.add(fnv1a32(g4));
+          if (i <= words.length - 5) {
+            s5.add(fnv1a32(g4 + ' ' + words[i + 4]));
           }
         }
-        if (targetPool.length < requestedMax && Array.isArray(LOCALSPIN_REGIONS)) {
-          for (const extraW of LOCALSPIN_REGIONS) {
-            if (extraW.id === w.id) continue;
-            for (const extraD of extraW.daerahList || []) {
+        return { wordCount: words.length, s4, s5 };
+      }
+
+      function compareCompactProfiles(profA, profB) {
+        let shared4 = 0;
+        for (const h of profA.s4) {
+          if (profB.s4.has(h)) shared4++;
+        }
+        let shared5 = 0;
+        for (const h of profA.s5) {
+          if (profB.s5.has(h)) shared5++;
+        }
+        const denom4 = Math.max(1, Math.min(profA.s4.size, profB.s4.size));
+        const denom5 = Math.max(1, Math.min(profA.s5.size, profB.s5.size));
+        return {
+          overlap4: Number(((shared4 / denom4) * 100).toFixed(2)),
+          overlap5: Number(((shared5 / denom5) * 100).toFixed(2))
+        };
+      }
+
+      let isBatchRunningNow = false;
+
+      async function runBatchGeneration(mode = 'instant') {
+        if (isBatchRunningNow) return;
+        isBatchRunningNow = true;
+        try {
+          normalizeRawDataUrlsInTextarea();
+          const isSlowMode = mode === 'slow';
+          const w = getSelectedWilayahObj();
+          const d = getSelectedDaerahObj();
+          const checkedInputs = Array.from(kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked'));
+
+          if (checkedInputs.length === 0) {
+            articlesOutputContainer.innerHTML = `<div class="notice-banner" style="border-left-color: #d97706;">Silakan centang minimal 1 Kecamatan terlebih dahulu.</div>`;
+            return;
+          }
+
+          if (!textareaSpintax.value.trim()) {
+            rebuildBlueprintFromInputs(true);
+          }
+
+          // Free previous batch from RAM before starting new batch so heap stays minimal!
+          currentBatchArticles = [];
+          articlesOutputContainer.innerHTML = '';
+
+          const cfg = getBlueprintConfigFromForm();
+          const projectImages = getCurrentImageListFromTextarea();
+          const imagesPerArticle = Math.max(1, Number(selectImagesPerArticle.value) || 2);
+          const requestedMax = Math.min(250, Math.max(1, Number(inputMaxArticlesToGen.value) || checkedInputs.length));
+
+          const targetPool = [];
+          for (let i = 0; i < Math.min(requestedMax, checkedInputs.length); i++) {
+            const chk = checkedInputs[i];
+            targetPool.push({
+              wilayah: w.wilayah,
+              jenisDaerah: d.jenis,
+              kotaKabupaten: d.nama,
+              labelKotaKabupaten: d.labelLengkap,
+              kecamatan: chk.value,
+              konteksWilayah: w.karakteristikWilayah,
+              konteksDaerah: d.konteksDaerah,
+              konteksKecamatan: chk.dataset.konteks
+            });
+          }
+          if (targetPool.length < requestedMax && Array.isArray(w.daerahList)) {
+            for (const extraD of w.daerahList) {
+              if (extraD.id === d.id) continue;
               for (const extraK of extraD.kecamatan || []) {
                 if (targetPool.length >= requestedMax) break;
                 targetPool.push({
-                  wilayah: extraW.wilayah,
+                  wilayah: w.wilayah,
                   jenisDaerah: extraD.jenis,
                   kotaKabupaten: extraD.nama,
                   labelKotaKabupaten: extraD.labelLengkap,
                   kecamatan: extraK.nama,
-                  konteksWilayah: extraW.karakteristikWilayah,
+                  konteksWilayah: w.karakteristikWilayah,
                   konteksDaerah: extraD.konteksDaerah,
                   konteksKecamatan: extraK.konteks || `kawasan strategis di Kecamatan ${extraK.nama}`
                 });
               }
               if (targetPool.length >= requestedMax) break;
             }
-            if (targetPool.length >= requestedMax) break;
           }
-        }
-        const baseLen = targetPool.length;
-        let round = 2;
-        while (targetPool.length < requestedMax && baseLen > 0) {
-          const src = targetPool[(targetPool.length - baseLen) % baseLen];
-          targetPool.push({
-            ...src,
-            kecamatan: `${src.kecamatan} (Bagian ${round})`
-          });
-          if (targetPool.length % baseLen === 0) round++;
-        }
-
-        const masterSpintax = textareaSpintax.value;
-        const generated = [];
-        const campaignSeed = `${cfg.topic}::${w.wilayah}::${d.labelLengkap}`;
-        const maxAttempts = isSlowMode ? (targetPool.length > 30 ? 3 : 6) : (targetPool.length > 20 ? 2 : 4);
-        const peerWindow = isSlowMode ? (targetPool.length > 30 ? 8 : 16) : 6;
-
-        // Only open progress modal & apply pacing delay in Slow Generate mode
-        isGeneratingCancelled = false;
-        const wsSettings = getWorkspaceSettings();
-        const pacingDelay = isSlowMode ? Math.max(120, Number(wsSettings.pacingSpeed || 160)) : 0;
-        if (isSlowMode) {
-          showProgressModal(targetPool.length);
-        }
-
-        for (let idx = 0; idx < targetPool.length; idx++) {
-          if (isGeneratingCancelled) break;
-          const target = targetPool[idx];
-          if (isSlowMode) {
-            const pct = Math.round(((idx + 1) / targetPool.length) * 85);
-            updateProgressUI({
-              current: idx + 1,
-              total: targetPool.length,
-              percent: pct,
-              stageText: `[Slow Generate ${idx + 1}/${targetPool.length}] Meracik Kec. ${target.kecamatan}, ${target.labelKotaKabupaten}...`
+          if (targetPool.length < requestedMax && Array.isArray(LOCALSPIN_REGIONS)) {
+            for (const extraW of LOCALSPIN_REGIONS) {
+              if (extraW.id === w.id) continue;
+              for (const extraD of extraW.daerahList || []) {
+                for (const extraK of extraD.kecamatan || []) {
+                  if (targetPool.length >= requestedMax) break;
+                  targetPool.push({
+                    wilayah: extraW.wilayah,
+                    jenisDaerah: extraD.jenis,
+                    kotaKabupaten: extraD.nama,
+                    labelKotaKabupaten: extraD.labelLengkap,
+                    kecamatan: extraK.nama,
+                    konteksWilayah: extraW.karakteristikWilayah,
+                    konteksDaerah: extraD.konteksDaerah,
+                    konteksKecamatan: extraK.konteks || `kawasan strategis di Kecamatan ${extraK.nama}`
+                  });
+                }
+                if (targetPool.length >= requestedMax) break;
+              }
+              if (targetPool.length >= requestedMax) break;
+            }
+          }
+          const baseLen = targetPool.length;
+          let round = 2;
+          while (targetPool.length < requestedMax && baseLen > 0) {
+            const src = targetPool[(targetPool.length - baseLen) % baseLen];
+            targetPool.push({
+              ...src,
+              kecamatan: `${src.kecamatan} (Bagian ${round})`
             });
+            if (targetPool.length % baseLen === 0) round++;
           }
 
-          const imgRender = clientRenderProjectImagesForArticle({
-            projectImages,
-            imagesPerArticle,
-            articleIndex: idx,
-            topic: cfg.topic,
-            imageTitlePattern: inputImageTitlePattern.value,
-            imageAltPattern: inputImageAlt.value,
-            target
-          });
+          const masterSpintax = textareaSpintax.value;
+          const generated = [];
+          const peerProfiles = []; // sliding window of compact 32-bit integer Sets (freed right after loop!)
+          const campaignSeed = `${cfg.topic}::${w.wilayah}::${d.labelLengkap}`;
+          const maxAttempts = isSlowMode ? (targetPool.length > 40 ? 3 : 5) : (targetPool.length > 30 ? 2 : 3);
+          const peerWindow = targetPool.length > 40 ? 8 : 12;
 
-          let bestContent = '';
-          let bestOverlap = 100;
-
-          for (let attempt = 0; attempt < maxAttempts; attempt++) {
-            const seed = attempt === 0 ? campaignSeed : `${campaignSeed}::retry-${attempt}::${idx}`;
-            const spun = clientResolveSpintax(masterSpintax, seed, idx + attempt * 7);
-            let content = clientInjectGeo(spun, target, cfg);
-            content = content.replace(/\{\{PROJECT_IMAGES_BLOCK\}\}/g, imgRender.figuresHtml);
-
-            if (generated.length === 0) {
-              bestContent = content;
-              bestOverlap = 0;
-              break;
-            }
-
-            let maxOvl = 0;
-            const startPeer = Math.max(0, generated.length - peerWindow);
-            for (let p = startPeer; p < generated.length; p++) {
-              const cmp = clientCompareArticles(content, generated[p].content);
-              if (cmp.overlap4 > maxOvl) maxOvl = cmp.overlap4;
-            }
-            if (maxOvl < bestOverlap) {
-              bestOverlap = maxOvl;
-              bestContent = content;
-            }
-            if (maxOvl <= 14.0) break;
+          isGeneratingCancelled = false;
+          const wsSettings = getWorkspaceSettings();
+          const pacingDelay = isSlowMode ? Math.max(120, Number(wsSettings.pacingSpeed || 160)) : 0;
+          if (isSlowMode || targetPool.length >= 25) {
+            showProgressModal(targetPool.length);
           }
 
-          const firstLine = bestContent
-            .split('\n')[0]
-            .replace(/^#+\s*/, '')
-            .replace(/<[^>]+>/g, '')
-            .trim();
+          let sumUniqueness = 0;
+          let allPassed = true;
 
-          const seoMeta = clientBuildSeoMeta({
-            title: firstLine,
-            topic: cfg.topic,
-            target,
-            whatsappNumber: cfg.whatsappNumber,
-            targetUrl: cfg.targetUrl,
-            imageUrl: imgRender.metaList[0] ? imgRender.metaList[0].url : ''
-          });
+          for (let idx = 0; idx < targetPool.length; idx++) {
+            if (isGeneratingCancelled) break;
+            const target = targetPool[idx];
 
-          const htmlContent = clientConvertArticleToHtml(
-            bestContent,
-            cfg.enableFaqSchema ? seoMeta : {}
-          );
+            if (isSlowMode || (targetPool.length >= 25 && idx % 5 === 0)) {
+              const pct = Math.round(((idx + 1) / targetPool.length) * 94);
+              updateProgressUI({
+                current: idx + 1,
+                total: targetPool.length,
+                percent: pct,
+                stageText: `[${isSlowMode ? 'Slow Generate' : 'Memproses'} ${idx + 1}/${targetPool.length}] Kec. ${target.kecamatan}, ${target.labelKotaKabupaten}...`
+              });
+            }
 
-          const rawGreet = cfg.whatsappGreeting || `Halo Admin 👋, saya tertarik dengan {{topik}} untuk area Kecamatan {{kecamatan}}, {{label_kota_kabupaten}} ({{wilayah}}). Mohon info estimasi & jadwal surveinya ya.`;
-          const waMessage = rawGreet
-            .replace(/\{\{\s*topik\s*\}\}/gi, cfg.topic)
-            .replace(/\{\{\s*kecamatan\s*\}\}/gi, target.kecamatan)
-            .replace(/\{\{\s*label_kota_kabupaten\s*\}\}/gi, target.labelKotaKabupaten)
-            .replace(/\{\{\s*kota_kabupaten\s*\}\}/gi, target.kotaKabupaten)
-            .replace(/\{\{\s*wilayah\s*\}\}/gi, target.wilayah);
-          const whatsappUrl = clientBuildWhatsAppUrl(cfg.whatsappNumber, waMessage);
+            // 1. Spin & compare ONLY pure text (WITHOUT images!) so zero Base64 enters regex/shingle memory!
+            let bestPureText = '';
+            let bestProf = null;
+            let bestOvl4 = 100;
+            let bestOvl5 = 100;
+            let bestPeerLabel = '-';
 
-          generated.push({
-            index: idx + 1,
-            slug: `${seoMeta.slug}-${idx + 1}`,
-            wilayah: target.wilayah,
-            jenisDaerah: target.jenisDaerah,
-            kotaKabupaten: target.kotaKabupaten,
-            labelKotaKabupaten: target.labelKotaKabupaten,
-            kecamatan: target.kecamatan,
-            title: firstLine,
-            metaTitle: seoMeta.metaTitle,
-            metaDescription: seoMeta.metaDescription,
-            whatsappUrl,
-            assignedImages: imgRender.metaList,
-            content: bestContent,
-            htmlContent
-          });
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+              const seed = attempt === 0 ? campaignSeed : `${campaignSeed}::retry-${attempt}::${idx}`;
+              const spun = clientResolveSpintax(masterSpintax, seed, idx + attempt * 7);
+              const pureCandidate = clientInjectGeo(spun, target, cfg).replace(/\{\{PROJECT_IMAGES_BLOCK\}\}/g, '');
+              const candProf = buildCompactTextProfile(pureCandidate);
 
-          // Pacing delay only in Slow Generate mode; instant mode yields only every 25 items for large batches
-          if (isSlowMode && pacingDelay > 0) {
-            await new Promise((r) => setTimeout(r, pacingDelay));
-          } else if (!isSlowMode && idx > 0 && idx % 25 === 0) {
-            await new Promise((r) => setTimeout(r, 0));
-          }
-        }
+              if (peerProfiles.length === 0) {
+                bestPureText = clientInjectGeo(spun, target, cfg);
+                bestProf = candProf;
+                bestOvl4 = 0;
+                bestOvl5 = 0;
+                break;
+              }
 
-        if (isSlowMode) {
-          updateProgressUI({
-            current: generated.length,
-            total: targetPool.length,
-            percent: 92,
-            stageText: '[Tahap 2/3] Memeriksa skor keunikan n-gram Copyscape (&le;14% overlap)...'
-          });
-          await new Promise((r) => setTimeout(r, 40));
-        }
+              let maxOvl4 = 0;
+              let maxOvl5 = 0;
+              let peerLabel = '-';
+              const startPeer = Math.max(0, peerProfiles.length - peerWindow);
+              for (let p = startPeer; p < peerProfiles.length; p++) {
+                const peer = peerProfiles[p];
+                if (!peer) continue;
+                const cmp = compareCompactProfiles(candProf, peer.prof);
+                if (cmp.overlap4 > maxOvl4) {
+                  maxOvl4 = cmp.overlap4;
+                  maxOvl5 = cmp.overlap5;
+                  peerLabel = `Kec. ${peer.kecamatan}`;
+                }
+              }
 
-        let sumUniqueness = 0;
-        let allPassed = true;
+              if (maxOvl4 < bestOvl4 || !bestProf) {
+                bestOvl4 = maxOvl4;
+                bestOvl5 = maxOvl5;
+                bestPeerLabel = peerLabel;
+                bestProf = candProf;
+                bestPureText = clientInjectGeo(spun, target, cfg);
+              }
+              if (maxOvl4 <= 14.0) break;
+            }
 
-        generated.forEach((art, i) => {
-          let maxOvl4 = 0;
-          let maxOvl5 = 0;
-          let closestPeer = '-';
-          const wordCount = clientCompareArticles(art.content, art.content).wordCount;
+            peerProfiles.push({ kecamatan: target.kecamatan, prof: bestProf });
+            // Drop old profiles outside sliding window immediately so RAM stays O(1) constant!
+            if (peerProfiles.length > peerWindow + 2) {
+              peerProfiles[peerProfiles.length - peerWindow - 3] = null;
+            }
 
-          const startPeer = Math.max(0, i - peerWindow);
-          const endPeer = Math.min(generated.length, i + peerWindow);
-          for (let j = startPeer; j < endPeer; j++) {
-            if (i === j) continue;
-            const cmp = clientCompareArticles(art.content, generated[j].content);
-            if (cmp.overlap4 > maxOvl4) {
-              maxOvl4 = cmp.overlap4;
-              maxOvl5 = cmp.overlap5;
-              closestPeer = `Kec. ${generated[j].kecamatan}`;
+            // 2. Inject lightweight image references ONCE on the winning text
+            const imgRender = clientRenderProjectImagesForArticle({
+              projectImages,
+              imagesPerArticle,
+              articleIndex: idx,
+              topic: cfg.topic,
+              imageTitlePattern: inputImageTitlePattern.value,
+              imageAltPattern: inputImageAlt.value,
+              target
+            });
+            const finalContent = bestPureText.replace(/\{\{PROJECT_IMAGES_BLOCK\}\}/g, imgRender.figuresHtml);
+
+            const firstLine = bestPureText
+              .split('\n')[0]
+              .replace(/^#+\s*/, '')
+              .replace(/<[^>]+>/g, '')
+              .trim();
+
+            const seoMeta = clientBuildSeoMeta({
+              title: firstLine,
+              topic: cfg.topic,
+              target,
+              whatsappNumber: cfg.whatsappNumber,
+              targetUrl: cfg.targetUrl,
+              imageUrl: imgRender.metaList[0] ? imgRender.metaList[0].url : ''
+            });
+
+            const htmlContent = clientConvertArticleToHtml(
+              finalContent,
+              cfg.enableFaqSchema ? seoMeta : {}
+            );
+
+            const rawGreet = cfg.whatsappGreeting || `Halo Admin 👋, saya tertarik dengan {{topik}} untuk area Kecamatan {{kecamatan}}, {{label_kota_kabupaten}} ({{wilayah}}). Mohon info estimasi & jadwal surveinya ya.`;
+            const waMessage = rawGreet
+              .replace(/\{\{\s*topik\s*\}\}/gi, cfg.topic)
+              .replace(/\{\{\s*kecamatan\s*\}\}/gi, target.kecamatan)
+              .replace(/\{\{\s*label_kota_kabupaten\s*\}\}/gi, target.labelKotaKabupaten)
+              .replace(/\{\{\s*kota_kabupaten\s*\}\}/gi, target.kotaKabupaten)
+              .replace(/\{\{\s*wilayah\s*\}\}/gi, target.wilayah);
+            const whatsappUrl = clientBuildWhatsAppUrl(cfg.whatsappNumber, waMessage);
+
+            const uniquenessPct = Number(Math.max(0, 100 - bestOvl4).toFixed(2));
+            const passed = bestOvl4 <= 14.0;
+            if (!passed) allPassed = false;
+            sumUniqueness += uniquenessPct;
+
+            generated.push({
+              index: idx + 1,
+              slug: `${seoMeta.slug}-${idx + 1}`,
+              wilayah: target.wilayah,
+              jenisDaerah: target.jenisDaerah,
+              kotaKabupaten: target.kotaKabupaten,
+              labelKotaKabupaten: target.labelKotaKabupaten,
+              kecamatan: target.kecamatan,
+              title: firstLine,
+              metaTitle: seoMeta.metaTitle,
+              metaDescription: seoMeta.metaDescription,
+              whatsappUrl,
+              assignedImages: imgRender.metaList,
+              wordCount: bestProf ? bestProf.wordCount : 0,
+              maxOverlap4: bestOvl4,
+              maxOverlap5: bestOvl5,
+              uniquenessPct,
+              closestPeer: bestPeerLabel,
+              passed,
+              selected: true,
+              htmlContent
+            });
+
+            // Yield to browser GC frequently so Young/Old Gen V8 memory never spikes!
+            if (isSlowMode && pacingDelay > 0) {
+              await new Promise((r) => setTimeout(r, pacingDelay));
+            } else if (idx > 0 && idx % 6 === 0) {
+              await new Promise((r) => setTimeout(r, 0));
             }
           }
 
-          art.wordCount = wordCount;
-          art.maxOverlap4 = maxOvl4;
-          art.maxOverlap5 = maxOvl5;
-          art.uniquenessPct = Number(Math.max(0, 100 - maxOvl4).toFixed(2));
-          art.closestPeer = closestPeer;
-          art.passed = maxOvl4 <= 14.0;
-          if (!art.passed) allPassed = false;
-          sumUniqueness += art.uniquenessPct;
-        });
+          // Free sliding shingle sets immediately!
+          peerProfiles.length = 0;
 
-        currentBatchArticles = generated.map((a) => ({ ...a, selected: true }));
-        currentArticlesPage = 1;
-        updateCapacityAdvisorUI();
+          currentBatchArticles = generated;
+          currentArticlesPage = 1;
+          updateCapacityAdvisorUI();
 
-        const avgUnique = generated.length <= 1 ? 100 : (sumUniqueness / generated.length).toFixed(1);
-        document.getElementById('metricAvgUniqueness').textContent = `${avgUnique}%`;
-        document.getElementById('metricCopyscapeGate').innerHTML = allPassed
-          ? `<span class="badge badge-pass">&#10003; LULUS COPYSCAPE (&le;14% Overlap)</span>`
-          : `<span class="badge badge-warn">&#9888; PERLU TAMBAH SPINTAX</span>`;
+          const avgUnique = generated.length <= 1 ? 100 : (sumUniqueness / generated.length).toFixed(1);
+          document.getElementById('metricAvgUniqueness').textContent = `${avgUnique}%`;
+          document.getElementById('metricCopyscapeGate').innerHTML = allPassed
+            ? `<span class="badge badge-pass">&#10003; LULUS COPYSCAPE (&le;14% Overlap)</span>`
+            : `<span class="badge badge-warn">&#9888; PERLU TAMBAH SPINTAX</span>`;
 
-        if (isSlowMode) {
-          updateProgressUI({
-            current: generated.length,
-            total: targetPool.length,
-            percent: 100,
-            stageText: `[Tahap 3/3] Selesai! ${generated.length} artikel berhasil dibuat (${avgUnique}% keunikan).`
-          });
-          await new Promise((r) => setTimeout(r, 220));
+          if (isSlowMode || targetPool.length >= 25) {
+            updateProgressUI({
+              current: generated.length,
+              total: targetPool.length,
+              percent: 100,
+              stageText: `Selesai! ${generated.length} artikel berhasil dibuat (${avgUnique}% keunikan).`
+            });
+            if (isSlowMode) await new Promise((r) => setTimeout(r, 150));
+            hideProgressModal();
+          }
+
+          renderArticlesList();
+          refreshSitemapPreview();
+        } finally {
+          isBatchRunningNow = false;
           hideProgressModal();
         }
-
-        renderArticlesList();
-        refreshSitemapPreview();
       }
 
       let currentArticlesPage = 1;
@@ -2245,8 +2398,7 @@
   </style>
 </head>
 <body>
-${art.htmlContent}
-  <div id="wevoHoverInputTooltip" class="wevo-hover-tooltip" role="tooltip"></div>
+${expandBlobUrlsForExport(art.htmlContent)}
 </body>
 </html>`;
       }
@@ -2290,24 +2442,24 @@ ${art.htmlContent}
         });
       }
 
-      function handleUploadedFiles(files) {
+      async function handleUploadedFiles(files) {
         const txtArea = document.getElementById('textareaProjectImages');
-        const thumbs = document.getElementById('imageThumbsStrip');
+        normalizeRawDataUrlsInTextarea();
         let currentUrls = txtArea.value.split('\n').map(s => s.trim()).filter(Boolean);
+        const validFiles = Array.from(files || []).filter(f => f && String(f.type || '').startsWith('image/'));
+        const slotsLeft = Math.max(0, MAX_IMAGES_PER_PROJECT - currentUrls.length);
 
-        Array.from(files).forEach((file) => {
-          if (!file.type.startsWith('image/')) return;
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            const dataUrl = event.target.result;
-            if (currentUrls.length < 99) {
-              currentUrls.unshift(dataUrl);
-              txtArea.value = currentUrls.join('\n');
-              renderThumbnails();
-            }
-          };
-          reader.readAsDataURL(file);
-        });
+        for (const file of validFiles.slice(0, slotsLeft)) {
+          const compactRef = await compressImageFileToRef(file, 1280, 0.8);
+          if (compactRef && currentUrls.length < MAX_IMAGES_PER_PROJECT) {
+            currentUrls.push(compactRef);
+          }
+        }
+        txtArea.value = currentUrls.join('\n');
+        updateImagePoolUI();
+        renderThumbnails();
+        saveFormIntoActiveProject();
+        if (fileInput) fileInput.value = '';
       }
 
       function renderThumbnails() {
@@ -2359,7 +2511,7 @@ ${art.htmlContent}
     <published>${new Date(Date.now() - idx * 60000).toISOString()}</published>
     <updated>${new Date(Date.now() - idx * 60000).toISOString()}</updated>
     <title type='text'>${escapeXml(a.title)}</title>
-    <content type='html'>${escapeXml(a.htmlContent)}</content>
+    <content type='html'>${escapeXml(expandBlobUrlsForExport(a.htmlContent))}</content>
     <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/blogger/2008/kind#post"/>
     <category scheme="http://www.blogger.com/atom/ns#" term="${escapeXml(a.category || 'Artikel')}"/>
     <author><name>wevo.biz.id</name></author>
@@ -2593,10 +2745,10 @@ ${art.htmlContent}
               </div>
 
               <!-- Visual Rendered HTML Container -->
-              <div id="visual-view-${idx}" class="article-rendered-view">${art.htmlContent}</div>
+              <div id="visual-view-${idx}" class="article-rendered-view" data-hydrated="0"></div>
 
               <!-- Raw HTML Code Container -->
-              <pre id="code-view-${idx}" class="article-source-code" style="display: none;"></pre>
+              <pre id="code-view-${idx}" class="article-source-code" style="display: none;" data-hydrated="0"></pre>
 
               <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; font-size: 0.84rem; color: var(--text-muted);">
                 <span>Perbandingan Terdekat: <strong>${art.closestPeer}</strong> (4-Gram Overlap: ${art.maxOverlap4}% | 5-Gram: ${art.maxOverlap5}%)</span>
@@ -2605,7 +2757,6 @@ ${art.htmlContent}
             </div>
           `;
           articlesOutputContainer.appendChild(card);
-          card.querySelector(`#code-view-${idx}`).textContent = art.htmlContent;
         });
 
         updateSelectedCountUI();
@@ -2623,6 +2774,19 @@ ${art.htmlContent}
             const i = btn.dataset.idx;
             const card = document.getElementById(`article-card-${i}`);
             const minimized = card.classList.toggle('is-minimized');
+            if (!minimized) {
+              const artObj = currentBatchArticles[Number(i)];
+              const vEl = document.getElementById(`visual-view-${i}`);
+              const cEl = document.getElementById(`code-view-${i}`);
+              if (artObj && vEl && vEl.dataset.hydrated !== '1') {
+                vEl.innerHTML = artObj.htmlContent;
+                vEl.dataset.hydrated = '1';
+              }
+              if (artObj && cEl && cEl.dataset.hydrated !== '1') {
+                cEl.textContent = artObj.htmlContent;
+                cEl.dataset.hydrated = '1';
+              }
+            }
             btn.innerHTML = minimized ? '&#9662; Buka Detail' : '&#9652; Minimize';
           });
         });
@@ -2673,7 +2837,7 @@ ${art.htmlContent}
             const i = Number(btn.dataset.idx);
             const art = currentBatchArticles[i];
             if (!art) return;
-            window.LocalSpinClient.clientCopyText(art.htmlContent);
+            window.LocalSpinClient.clientCopyText(expandBlobUrlsForExport(art.htmlContent));
             const orig = btn.textContent;
             btn.textContent = '✓ HTML Tersalin!';
             setTimeout(() => (btn.textContent = orig), 1800);
@@ -3025,7 +3189,7 @@ ${art.htmlContent}
         const selected = getSelectedArticles();
         if (!selected.length) return;
         const combined = selected
-          .map((a, idx) => `<!-- #${idx + 1}: ${a.metaTitle} | Slug: /${a.slug} -->\n${a.htmlContent}`)
+          .map((a, idx) => `<!-- #${idx + 1}: ${a.metaTitle} | Slug: /${a.slug} -->\n${expandBlobUrlsForExport(a.htmlContent)}`)
           .join('\n\n<!-- === PEMISAH ARTIKEL === -->\n\n');
         window.LocalSpinClient.clientCopyText(combined);
         const btn = document.getElementById('btnCopyAllSelectedHtml');
@@ -3091,7 +3255,7 @@ ${art.htmlContent}
     <wp:post_type>post</wp:post_type>
     <wp:post_id>${1000 + idx}</wp:post_id>
     <excerpt:encoded>${cdata(a.metaDescription)}</excerpt:encoded>
-    <content:encoded>${cdata(a.htmlContent)}</content:encoded>
+    <content:encoded>${cdata(expandBlobUrlsForExport(a.htmlContent))}</content:encoded>
   </item>`
           )
           .join('\n');
@@ -4016,5 +4180,6 @@ if __name__ == '__main__':
       initCheckpointPipelineAndHoverMode();
     })();
   </script>
+  <div id="wevoHoverInputTooltip" class="wevo-hover-tooltip" role="tooltip"></div>
 </body>
 </html>
