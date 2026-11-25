@@ -1643,6 +1643,37 @@ body[data-theme="emerald-dark"] .wevo-logo-wrap:hover .wevo-logo-text {
   opacity: 0.55;
   cursor: not-allowed;
 }
+.cp-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1.5px solid #ef4444;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.cp-reset-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+body[data-theme="emerald-dark"] .cp-reset-btn {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: #f87171;
+  color: #fca5a5;
+}
+body[data-theme="emerald-dark"] .cp-reset-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
 .cp-step-num {
   width: 22px;
   height: 22px;

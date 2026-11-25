@@ -112,6 +112,10 @@
         <span class="cp-step-num">6</span>
         <span>CP 6: Spintax &amp; Generate</span>
       </button>
+      <button type="button" class="cp-reset-btn" id="btnResetCheckpoints" title="Ulangi urutan tahapan kembali ke Checkpoint 1">
+        <span>🔄</span>
+        <span>Reset Checkpoint</span>
+      </button>
     </div>
 
     <div class="studio-layout">
@@ -130,6 +134,9 @@
               🐢 Slow Generate
             </button>
           </div>
+          <button type="button" id="btnResetCheckpointsSidebar" class="cp-reset-btn" style="width: 100%; margin-top: 8px; padding: 7px 10px;">
+            🔄 Reset Semua Checkpoint (Mulai dari CP 1)
+          </button>
           <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 8px; line-height: 1.45;">
             <strong>Alur 4 Langkah:</strong> 1. Generate Prompt &rarr; 2. Tempel Prompt &rarr; 3. <strong>Spin Prompt</strong> &rarr; 4. <strong>Generate Langsung</strong> (instan) / <strong>Slow Generate</strong> (bertahap).
           </div>
@@ -749,6 +756,9 @@
               </button>
               <button type="button" id="btnGenerateBatchSlow" class="btn btn-secondary btn-sm" style="font-weight: 800; padding: 9px 16px; border: 1.5px solid #059669; color: #059669;">
                 🐢 Slow Generate (Bertahap)
+              </button>
+              <button type="button" id="btnResetCheckpointsFinal" class="cp-reset-btn cp-unlock-hint-btn" style="padding: 9px 14px;">
+                🔄 Reset Checkpoint
               </button>
             </div>
           </div>
@@ -3957,6 +3967,25 @@ if __name__ == '__main__':
         document.getElementById('btnNewProject')?.addEventListener('click', () => {
           setProjectCheckpointStage(0);
           scrollToCheckpoint(1);
+        });
+
+        // Reset Checkpoints button handler (Top Stepper, Sidebar, and CP 6 Final Bar)
+        const handleResetCheckpoints = () => {
+          const ok = confirm(
+            'Reset progres checkpoint project ini kembali ke Checkpoint 1?\n(Data teks & gambar Anda tetap tersimpan aman, hanya urutan tahapannya yang diulang dari awal.)'
+          );
+          if (!ok) return;
+          isGeneratingCancelled = true;
+          hideProgressModal();
+          currentBatchArticles = [];
+          if (articlesOutputContainer) {
+            articlesOutputContainer.innerHTML = '<div class="notice-banner">Checkpoint telah di-reset ke tahap awal. Silakan periksa &amp; simpan mulai dari <strong>Checkpoint 1</strong> secara bertahap.</div>';
+          }
+          setProjectCheckpointStage(0);
+          scrollToCheckpoint(1);
+        };
+        ['btnResetCheckpoints', 'btnResetCheckpointsSidebar', 'btnResetCheckpointsFinal'].forEach((resetId) => {
+          document.getElementById(resetId)?.addEventListener('click', handleResetCheckpoints);
         });
 
         // Hook Generate button click in Checkpoint 6
