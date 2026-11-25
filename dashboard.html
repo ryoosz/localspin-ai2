@@ -639,6 +639,14 @@
                     </div>
                   </div>
                 </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; padding: 0.5rem 0.65rem; background: rgba(37, 99, 235, 0.08); border: 1px solid #93c5fd; border-radius: 6px;">
+                  <span id="kwChecklistLiveCounter" style="font-size: 0.76rem; font-weight: 600; color: #1e40af;">
+                    🔗 Tercentang siap dihubungkan ke Output Prompt Chatbot (4-Stage Framework)
+                  </span>
+                  <button type="button" id="btnBridgeChecklistToPrompt" class="btn btn-primary btn-sm" style="font-size: 0.75rem; font-weight: 700;">
+                    🔗 Hubungkan Centang 1B-1 &rarr; Output Prompt 4-Stage
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -734,11 +742,19 @@
             <div class="cp-lock-notice">🔒 Simpan Checkpoint 3 terlebih dahulu agar Prompt Chatbot dibuat sesuai konfigurasi terbaru.</div>
           <div class="grid-2" style="gap: 0.85rem; margin-bottom: 0.9rem;">
             <div style="background: #0f172a; color: #f8fafc; padding: 0.85rem; border-radius: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; padding-bottom: 0.4rem; border-bottom: 1px solid #334155;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; padding-bottom: 0.4rem; border-bottom: 1px solid #334155;">
                 <span style="font-weight: 700; font-size: 0.88rem; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
                   <span>⚡</span> Output Prompt Chatbot (4-Stage Framework)
                 </span>
                 <button type="button" id="btnCopySeoPrompt" class="btn btn-primary btn-sm" style="font-size: 0.78rem; padding: 5px 12px; background: #2563eb; border-color: #2563eb; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">📋 Salin Prompt</button>
+              </div>
+              <div id="promptConnected1BStrip" style="background: rgba(30, 58, 138, 0.45); border: 1px solid #1d4ed8; border-radius: 6px; padding: 6px 10px; margin-bottom: 0.6rem; font-size: 0.73rem; line-height: 1.45;">
+                <div id="promptConnected1BBadge" style="font-weight: 700; color: #93c5fd;">
+                  🔗 Terhubung dari Checklist 1B-1 (Pemetaan Unik 9-Bagian Aktif)
+                </div>
+                <div id="promptConnected1BSummary" style="color: #cbd5e1; margin-top: 2px;">
+                  Semantic Keywords &amp; Related Entities pilihan Anda akan disebar unik ke Bagian 01 s/d Bagian 09.
+                </div>
               </div>
               <div class="prompt-tab-toolbar">
                 <button type="button" id="btnPromptTabMaster" class="prompt-tab-pill active" data-prompt-tab="master">Master Prompt</button>
@@ -747,7 +763,7 @@
                 <button type="button" id="btnPromptTabStage3" class="prompt-tab-pill" data-prompt-tab="stage3">3. SEO Opt</button>
                 <button type="button" id="btnPromptTabStage4" class="prompt-tab-pill" data-prompt-tab="stage4">4. Quality Audit</button>
               </div>
-              <textarea id="textareaGeneratedPrompt" class="form-control" rows="6" readonly style="background: #1e293b; color: #e2e8f0; border-color: #334155; font-family: var(--font-family-mono); font-size: 0.78rem;"></textarea>
+              <textarea id="textareaGeneratedPrompt" class="form-control" rows="9" readonly style="background: #1e293b; color: #e2e8f0; border-color: #334155; font-family: var(--font-family-mono); font-size: 0.78rem;"></textarea>
             </div>
 
             <div style="background: #f8fafc; border: 1px solid var(--border-subtle); padding: 0.85rem; border-radius: 8px;">
@@ -3957,6 +3973,15 @@ if __name__ == '__main__':
       // ==========================================================
       // 1B MINI-PROMPT KEYWORD & SEMANTIC/RELATED ENTITIES WIDGET
       // ==========================================================
+      function updateKeywordChecklistLiveCounter() {
+        const counterEl = document.getElementById('kwChecklistLiveCounter');
+        if (!counterEl) return;
+        const secChecked = getCheckedValuesFromContainer('kwChecklistSecondary') || [];
+        const semChecked = getCheckedValuesFromContainer('kwChecklistSemantic') || [];
+        const entChecked = getCheckedValuesFromContainer('kwChecklistEntities') || [];
+        counterEl.textContent = `🔗 Tercentang: ${secChecked.length} Keyword Khusus • ${semChecked.length} Semantic Keywords • ${entChecked.length} Related Entities`;
+      }
+
       function appendKeywordChipToContainer(containerEl, textValue, checked = true) {
         if (!containerEl) return;
         const val = String(textValue || '').trim();
@@ -3965,6 +3990,7 @@ if __name__ == '__main__':
         for (let i = 0; i < existing.length; i++) {
           if (String(existing[i].value || '').toLowerCase() === val.toLowerCase()) {
             existing[i].checked = checked;
+            updateKeywordChecklistLiveCounter();
             return;
           }
         }
@@ -3974,6 +4000,14 @@ if __name__ == '__main__':
         chk.type = 'checkbox';
         chk.checked = checked;
         chk.value = val;
+        chk.addEventListener('change', () => {
+          updateKeywordChecklistLiveCounter();
+          const badge = document.getElementById('kwChecklistSavedBadge');
+          if (badge) {
+            badge.className = 'badge badge-warn';
+            badge.textContent = 'Perubahan centang belum dihubungkan — klik Hubungkan / Simpan Checklist';
+          }
+        });
         const span = document.createElement('span');
         span.textContent = val;
         lbl.appendChild(chk);
@@ -4001,9 +4035,10 @@ if __name__ == '__main__':
           (parsed.entities || []).forEach((item) => appendKeywordChipToContainer(entWrap, item, true));
         }
         if (panel) panel.style.display = 'block';
+        updateKeywordChecklistLiveCounter();
         if (badge) {
           badge.className = 'badge badge-warn';
-          badge.textContent = 'Pilih centang & parameter lalu klik Simpan Checklist';
+          badge.textContent = 'Pilih centang & parameter lalu klik Hubungkan / Simpan Checklist';
         }
       }
 
@@ -4048,6 +4083,7 @@ if __name__ == '__main__':
         for (let i = 0; i < boxes.length; i++) {
           boxes[i].checked = Boolean(state);
         }
+        updateKeywordChecklistLiveCounter();
       }
 
       document.getElementById('btnPullRawArticleTo1B')?.addEventListener('click', () => {
@@ -4147,10 +4183,11 @@ if __name__ == '__main__':
           if (!v) return;
           appendKeywordChipToContainer(wrap, v, true);
           inp.value = '';
+          updateKeywordChecklistLiveCounter();
         });
       });
 
-      document.getElementById('btnSaveKeywordChecklist')?.addEventListener('click', () => {
+      function applyChecklistAndBridgeToPrompt(triggerBtn) {
         syncCheckedKeywordsToQuizInputs();
         const qpk = document.getElementById('quizPrimaryKeyword');
         if (qpk && qpk.value.trim()) inputTopic.value = qpk.value.trim();
@@ -4159,24 +4196,49 @@ if __name__ == '__main__':
           textareaRawMainArticle.value = seedVal;
         }
         saveFormIntoActiveProject();
+        refreshPromptOutputUI();
 
         const badge = document.getElementById('kwChecklistSavedBadge');
         if (badge) {
           badge.className = 'badge badge-pass';
-          badge.textContent = '✓ Checklist & Pilihan Tersimpan! Siap Keluarkan Prompt (CP 4)';
+          badge.textContent = '✓ Terhubung ke Output Prompt 4-Stage! Klik tombol (4) untuk buka CP 4';
         }
-        const btnSaveCheck = document.getElementById('btnSaveKeywordChecklist');
-        if (btnSaveCheck) {
-          const orig = btnSaveCheck.innerHTML;
-          btnSaveCheck.innerHTML = '✓ Checklist Keyword Tersimpan!';
-          setTimeout(() => (btnSaveCheck.innerHTML = orig), 1800);
+        const counterEl = document.getElementById('kwChecklistLiveCounter');
+        if (counterEl) {
+          const secC = (document.getElementById('quizSecondaryKeywords')?.value || '').split(',').map((s) => s.trim()).filter(Boolean).length;
+          const semC = (document.getElementById('quizSemanticKeywords')?.value || '').split(',').map((s) => s.trim()).filter(Boolean).length;
+          const entC = (document.getElementById('quizRelatedEntities')?.value || '').split(',').map((s) => s.trim()).filter(Boolean).length;
+          counterEl.textContent = `✓ Terhubung ke Prompt 4-Stage: ${secC} Keyword Khusus • ${semC} Semantic • ${entC} Entities`;
         }
+        if (triggerBtn) {
+          const orig = triggerBtn.innerHTML;
+          triggerBtn.innerHTML = '✓ Terhubung ke Prompt 4-Stage!';
+          setTimeout(() => (triggerBtn.innerHTML = orig), 1800);
+        }
+      }
+
+      document.getElementById('btnBridgeChecklistToPrompt')?.addEventListener('click', (e) => {
+        applyChecklistAndBridgeToPrompt(e.currentTarget || document.getElementById('btnBridgeChecklistToPrompt'));
+      });
+
+      document.getElementById('btnSaveKeywordChecklist')?.addEventListener('click', (e) => {
+        applyChecklistAndBridgeToPrompt(e.currentTarget || document.getElementById('btnSaveKeywordChecklist'));
       });
 
       function refreshPromptOutputUI() {
         const cfg = getQuizConfigFromUI();
         const prompts = buildSeoPromptFramework(cfg);
         document.getElementById('textareaGeneratedPrompt').value = prompts[activePromptTab] || prompts.master;
+
+        const badgeEl = document.getElementById('promptConnected1BBadge');
+        const summaryEl = document.getElementById('promptConnected1BSummary');
+        if (prompts.connectedStats && badgeEl && summaryEl) {
+          const st = prompts.connectedStats;
+          badgeEl.textContent = `🔗 Terhubung dari Checklist 1B-1: ${st.secondaryCount} Keyword Khusus • ${st.semanticCount} Semantic Keywords • ${st.entityCount} Related Entities`;
+          const semPreview = st.semanticList.slice(0, 6).join(', ') + (st.semanticList.length > 6 ? `, +${st.semanticList.length - 6} lainnya` : '');
+          const entPreview = st.entityList.slice(0, 5).join(', ') + (st.entityList.length > 5 ? `, +${st.entityList.length - 5} lainnya` : '');
+          summaryEl.innerHTML = `<strong>Semantic Aktif:</strong> ${semPreview.replace(/</g, '&lt;')} &nbsp;|&nbsp; <strong>Entities Aktif:</strong> ${entPreview.replace(/</g, '&lt;')}`;
+        }
       }
 
       function refreshAlignmentAuditUI() {
@@ -4217,7 +4279,7 @@ if __name__ == '__main__':
               <strong style="font-size: 0.78rem; color: #1e3a8a;">${spec.num}. ${spec.title}</strong>
               <span id="sec-wc-${spec.id}" class="badge badge-sim" style="font-size: 0.68rem;">0 / ${spec.targetWords} kata</span>
             </div>
-            <div style="font-size: 0.71rem; color: var(--text-muted); line-height: 1.35;">${spec.instruction}</div>
+            <div style="font-size: 0.71rem; color: var(--text-muted); line-height: 1.35;">${spec.uniqueInstruction || spec.instruction}</div>
             <textarea id="sec-input-${spec.id}" data-sec-id="${spec.id}" class="form-control" rows="4" style="font-size: 0.8rem; line-height: 1.45;"></textarea>
           `;
           grid.appendChild(card);
@@ -4275,8 +4337,9 @@ if __name__ == '__main__':
           activePromptTab = b.dataset.promptTab;
           ['btnPromptTabMaster', 'btnPromptTabStage1', 'btnPromptTabStage2', 'btnPromptTabStage3', 'btnPromptTabStage4'].forEach((id) => {
             const el = document.getElementById(id);
-            if (el) el.className = id === btnId ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+            if (el) el.classList.toggle('active', id === btnId);
           });
+          syncCheckedKeywordsToQuizInputs();
           refreshPromptOutputUI();
         });
       });

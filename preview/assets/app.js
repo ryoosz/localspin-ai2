@@ -1468,13 +1468,57 @@ function parseKeywordResearchIntoChecklist(rawResponse = '', primaryKeyword = ''
   return buckets;
 }
 
+function parseCommaKeywordList(rawStr = '', fallbackArr = []) {
+  const items = String(rawStr || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return items.length ? items : fallbackArr;
+}
+
+function distributeItemsAcrossBuckets(items = [], bucketCount = 9) {
+  const buckets = Array.from({ length: bucketCount }, () => []);
+  if (!items.length) return buckets;
+  if (items.length >= bucketCount) {
+    items.forEach((item, idx) => {
+      buckets[idx % bucketCount].push(item);
+    });
+  } else {
+    for (let b = 0; b < bucketCount; b++) {
+      buckets[b].push(items[b % items.length]);
+    }
+  }
+  return buckets;
+}
+
 function buildSeoPromptFramework(cfg = {}) {
   const primaryKw = String(cfg.primaryKeyword || 'Jasa Pembuatan Website').trim();
-  const secondaryKw = String(cfg.secondaryKeywords || 'biaya layanan, fitur unggulan, proses pengerjaan, bergaransi resmi').trim();
-  const semanticKw = String(cfg.semanticKeywords || 'kualitas profesional, konsultasi teknis, dukungan pemeliharaan, solusi bisnis').trim();
-  const entities = String(cfg.relatedEntities || 'UMKM, Perusahaan, Pelaku Usaha Lokal, Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}').trim();
+  const secondaryList = parseCommaKeywordList(cfg.secondaryKeywords, [
+    'biaya layanan',
+    'fitur unggulan',
+    'proses pengerjaan',
+    'bergaransi resmi'
+  ]);
+  const semanticList = parseCommaKeywordList(cfg.semanticKeywords, [
+    'kualitas profesional',
+    'konsultasi teknis',
+    'dukungan pemeliharaan',
+    'solusi bisnis'
+  ]);
+  const entityList = parseCommaKeywordList(cfg.relatedEntities, [
+    'UMKM',
+    'Perusahaan',
+    'Pelaku Usaha Lokal',
+    'Kecamatan {{kecamatan}}',
+    '{{label_kota_kabupaten}}'
+  ]);
+
+  const secondaryKw = secondaryList.join(', ');
+  const semanticKw = semanticList.join(', ');
+  const entities = entityList.join(', ');
+
   const mainSeed = stripSectionMarkers(String(cfg.mainArticleSeed || '').trim());
-  const mainSeedSnippet = mainSeed ? `\n- Konteks Artikel Utama / Referensi Materi: ${mainSeed.slice(0, 600)}` : '';
+  const mainSeedSnippet = mainSeed ? `\n- Konteks Artikel Utama / Referensi Materi (1B-1): ${mainSeed.slice(0, 600)}` : '';
   const targetLen = Number(cfg.articleLength || 1000);
   const minLen = Math.round(targetLen * 0.9);
   const maxLen = Math.round(targetLen * 1.1);
@@ -1488,86 +1532,133 @@ function buildSeoPromptFramework(cfg = {}) {
   const lang = cfg.language || 'Indonesia';
   const scaled = getScaledSectionSpec(targetLen);
 
-  const structureLines = scaled
-    .map((s) => `[BAGIAN ${s.num}] ${s.title}: ~${s.targetWords} kata — ${s.instruction}`)
+  // Distribute checked 1B-1 Secondary Keywords, Semantic Keywords & Related Entities uniquely across all 9 sections
+  const secPerBagian = distributeItemsAcrossBuckets(secondaryList, scaled.length);
+  const semPerBagian = distributeItemsAcrossBuckets(semanticList, scaled.length);
+  const entPerBagian = distributeItemsAcrossBuckets(entityList, scaled.length);
+
+  const enrichedScaled = scaled.map((s, idx) => {
+    const secFocus = secPerBagian[idx].join(', ');
+    const semFocus = semPerBagian[idx].join(', ');
+    const entFocus = entPerBagian[idx].join(', ');
+    const uniqueInjectNote = `Fokus Unik 1B-1 -> Keyword Khusus: [${secFocus}] | Semantic/LSI: [${semFocus}] | Related Entities: [${entFocus}]`;
+    return {
+      ...s,
+      secFocus,
+      semFocus,
+      entFocus,
+      uniqueInstruction: `${s.instruction} (${uniqueInjectNote})`
+    };
+  });
+
+  const structureLines = enrichedScaled
+    .map(
+      (s) =>
+        `[BAGIAN ${s.num}] ${s.title} (~${s.targetWords} kata):\n  • Instruksi: ${s.instruction}\n  • Wajib Sisipkan Secara Alami -> Keyword Khusus: [${s.secFocus}] | Semantic: [${s.semFocus}] | Entitas: [${s.entFocus}]`
+    )
     .join('\n');
 
   const master = `ROLE:
-Bertindak sebagai SEO Content Strategist dan Professional Article Writer.
+Bertindak sebagai Senior SEO Content Strategist, Topical Authority Architect, dan Penulis Spesialis Berpengalaman (E-E-A-T Tinggi).
 
-INPUT CONFIGURATION:
-- Primary Keyword / Topik: ${primaryKw}
-- Secondary Keywords: ${secondaryKw}
-- Semantic Keywords: ${semanticKw}
-- Related Entities & Lokal: ${entities}
+INPUT CONFIGURATION (TERHUBUNG DARI CHECKLIST 1B-1):
+- Primary Keyword / Topik Utama: ${primaryKw}
+- Keyword Khusus Terpilih (${secondaryList.length} item): ${secondaryKw}
+- Semantic Keywords / LSI Terpilih (${semanticList.length} item): ${semanticKw}
+- Related Entities & Konteks Lokal Terpilih (${entityList.length} item): ${entities}
 - Target Panjang: ${targetLen} kata unik/orisinal (Toleransi: ${minLen}–${maxLen} kata)
 - Article Type: ${articleType} | Search Intent: ${searchIntent}
 - Writing Style: ${writingStyle} | Tone: ${tone}
 - Target Audience: ${audience} | Content Depth: ${depth}
 - CTA Type: ${ctaType} | Bahasa: ${lang}${mainSeedSnippet}
 
-CONTENT STRUCTURE (WAJIB IKUTI 9 BAGIAN & PENANDA [BAGIAN 01] s/d [BAGIAN 09]):
+CONTENT STRUCTURE & PEMETAAN UNIK 9 BAGIAN (WAJIB PAKAI PENANDA [BAGIAN 01] s/d [BAGIAN 09]):
 ${structureLines}
 
-KEYWORD DISTRIBUTION & HEADING RULES:
-- Letakkan Primary Keyword (${primaryKw}) pada: Judul H1 (#), Paragraf Pembuka (Bagian 01), minimal satu H2 (##), dan Kesimpulan (Bagian 08).
-- Sebarkan Secondary & Semantic Keywords secara alami di Pembahasan Utama (Bagian 02–06) dan FAQ (Bagian 07).
-- Gunakan satu H1 (#) di awal Bagian 01, H2 (##) untuk tiap pembahasan utama, dan H3 (###) untuk subtopik penting.
-- Sertakan placeholder wilayah {{kecamatan}}, {{label_kota_kabupaten}}, dan {{wilayah}} agar siap di-spin untuk banyak daerah.
-- Jangan mengulang ide yang sama untuk mengejar jumlah kata.`;
+ATURAN KEUNIKAN ARTIKEL, SEMANTIC SALIENCE & ANTI-KLISE AI:
+1. DILARANG memakai kalimat pembuka klise AI (seperti "Di era digital saat ini", "Tidak dapat dipungkiri", "Dalam dunia yang serba cepat"). Buka Bagian 01 langsung dengan skenario nyata yang mengaitkan "${primaryKw}", semantic "${semPerBagian[0].join(', ')}", dan entitas "${entPerBagian[0].join(', ')}".
+2. Letakkan Primary Keyword (${primaryKw}) secara organik pada: Judul H1 (#), Paragraf Pembuka (Bagian 01), minimal satu H2 (##), dan Kesimpulan (Bagian 08).
+3. Pastikan SELURUH Semantic Keywords (${semanticKw}) dan Related Entities (${entities}) dari checklist 1B-1 terjalin menyatu sebagai argumen teknis, contoh konkret, atau standar kerja nyata sesuai pembagian tiap bagian di atas (bukan sekadar deretan kata kunci).
+4. Gunakan satu H1 (#) di awal Bagian 01, variasi H2 (##) berbasis Keyword Khusus/Semantic untuk tiap pembahasan utama, dan H3 (###) untuk rincian spesifik.
+5. Sertakan placeholder wilayah {{kecamatan}}, {{label_kota_kabupaten}}, dan {{wilayah}} secara kontekstual agar siap di-spin unik antar daerah tanpa pengulangan ide.`;
 
-  const stage1 = `PROMPT 1 — RESEARCH & PLANNING (${primaryKw}):
-Analisis sebelum menulis artikel ${targetLen} kata (${articleType} / Intent: ${searchIntent}):
-1. Identifikasi masalah utama pembaca (${audience}) terkait "${primaryKw}".
-2. Petakan distribusi Primary Keyword (${primaryKw}), Secondary (${secondaryKw}), Semantic (${semanticKw}), dan Entities (${entities}).
-3. Susun kerangka H1, H2, dan H3 untuk 9 bagian artikel agar tidak ada subtopik yang tumpang tindih.`;
+  const stage1 = `PROMPT 1 — SEMANTIC & ENTITY RESEARCH MAPPING (${primaryKw}):
+Analisis sudut pandang unik sebelum menulis artikel ${targetLen} kata (${articleType} / Intent: ${searchIntent}):
+1. Rumuskan sudut pandang pembeda (Unique Angle) untuk "${primaryKw}" bagi pembaca (${audience}) dengan menggabungkan konteks Semantic Keywords: [${semanticKw}].
+2. Bangun hubungan antar-entitas (Entity Relationship) dari daftar Related Entities 1B-1: [${entities}] agar artikel memiliki kedalaman E-E-A-T yang tidak generik.
+3. Petakan distribusi Keyword Khusus [${secondaryKw}], Semantic Keywords, dan Related Entities ke dalam kerangka H1, H2, dan H3 untuk 9 bagian tanpa tumpang tindih topik.`;
 
-  const stage2 = `PROMPT 2 — CONTENT GENERATION (9 BAGIAN = ${targetLen} KATA):
-Tuliskan isi artikel lengkap mengikuti pembagian kata berikut (awali tiap bagian dengan label [BAGIAN 01] s/d [BAGIAN 09]):
-${structureLines}`;
+  const stage2 = `PROMPT 2 — UNIQUE CONTENT GENERATION (9 BAGIAN TERPETAKAN = ${targetLen} KATA):
+Tuliskan isi artikel lengkap yang unik, spesifik, dan bebas kalimat template AI mengikuti pemetaan checklist 1B-1 berikut (awali tiap bagian dengan label [BAGIAN 01] s/d [BAGIAN 09]):
+${structureLines}
 
-  const stage3 = `PROMPT 3 — SEO OPTIMIZATION:
-Optimalkan hasil artikel "${primaryKw}" untuk:
-- SEO Title, Meta Description, dan URL Slug
-- Penempatan Primary Keyword di H1, Intro, H2, dan Conclusion
-- Peluang Internal Link, Alt Text Gambar Daerah ({{kecamatan}}), dan FAQ Schema`;
+Catatan Eksekusi: Setiap bagian WAJIB memadukan Keyword Khusus, Semantic Keyword, dan Related Entity yang ditugaskan pada bagian tersebut ke dalam kalimat informatif bernilai praktis tinggi.`;
 
-  const stage4 = `PROMPT 4 — QUALITY AUDIT:
-Periksa kembali artikel yang telah dibuat:
-1. Apakah total kata berada di rentang ${minLen}–${maxLen} kata orisinal?
-2. Apakah ke-9 bagian memiliki informasi spesifik tanpa pengulangan kalimat?
-3. Apakah struktur H1, H2, H3 dan Search Intent (${searchIntent}) sudah terpenuhi?`;
+  const stage3 = `PROMPT 3 — SEMANTIC SEO & ENTITY SALIENCE OPTIMIZATION:
+Optimalkan hasil artikel "${primaryKw}" berdasarkan checklist 1B-1:
+- Buat variasi SEO Title, Meta Description, dan URL Slug yang memadukan "${primaryKw}" dengan nilai unik dari [${secPerBagian[0].concat(semPerBagian[0]).join(', ')}]
+- Perkuat ko-okurensi (co-occurrence) antara Semantic Keywords [${semanticKw}] dan Related Entities [${entities}] di sekitar subjudul H2 & H3
+- Pastikan penempatan Primary Keyword di H1, Intro, H2, dan Conclusion terasa alami serta relevan dengan wilayah Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}`;
 
-  return { master, stage1, stage2, stage3, stage4, scaledSpec: scaled };
+  const stage4 = `PROMPT 4 — UNIQUENESS & SEMANTIC COVERAGE AUDIT:
+Audit kualitas dan keunikan artikel sebelum finalisasi:
+1. Apakah total kata berada di rentang ${minLen}–${maxLen} kata orisinal tanpa kalimat berputar-putar (fluff)?
+2. Cek cakupan Checklist 1B-1: apakah Keyword Khusus (${secondaryList.length} item: ${secondaryKw}), Semantic Keywords (${semanticList.length} item: ${semanticKw}), dan Related Entities (${entityList.length} item: ${entities}) sudah masuk secara kontekstual?
+3. Pastikan 0% frasa pembuka klise AI dan pastikan struktur H1, H2, H3 serta Search Intent (${searchIntent}) terpenuhi 100%.`;
+
+  return {
+    master,
+    stage1,
+    stage2,
+    stage3,
+    stage4,
+    scaledSpec: enrichedScaled,
+    connectedStats: {
+      secondaryCount: secondaryList.length,
+      semanticCount: semanticList.length,
+      entityCount: entityList.length,
+      secondaryList,
+      semanticList,
+      entityList
+    }
+  };
 }
 
 function generateStructured9SectionsDraft(cfg = {}) {
   const primaryKw = String(cfg.primaryKeyword || 'Jasa Pembuatan Website').trim();
-  const secondaryList = String(cfg.secondaryKeywords || 'jenis layanan, fitur utama, rincian biaya, garansi pemeliharaan')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const semanticList = String(cfg.semanticKeywords || 'standar profesional, efisiensi anggaran, konsultasi teknis, hasil terukur')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const entities = String(cfg.relatedEntities || 'pelaku usaha, UMKM, instansi, serta masyarakat di Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}').trim();
-  const sec1 = secondaryList[0] || 'jenis layanan unggulan';
-  const sec2 = secondaryList[1] || 'fitur dan spesifikasi';
-  const sec3 = secondaryList[2] || 'estimasi biaya transparan';
-  const sem1 = semanticList[0] || 'kualitas pengerjaan terukur';
-  const sem2 = semanticList[1] || 'dukungan teknis berkelanjutan';
+  const secondaryList = parseCommaKeywordList(cfg.secondaryKeywords, [
+    'jenis layanan',
+    'fitur utama',
+    'rincian biaya',
+    'garansi pemeliharaan'
+  ]);
+  const semanticList = parseCommaKeywordList(cfg.semanticKeywords, [
+    'standar profesional',
+    'efisiensi anggaran',
+    'konsultasi teknis',
+    'hasil terukur'
+  ]);
+  const entityList = parseCommaKeywordList(cfg.relatedEntities, [
+    'pelaku usaha & UMKM',
+    'tim teknisi bersertifikat',
+    'Kecamatan {{kecamatan}}',
+    '{{label_kota_kabupaten}}'
+  ]);
+  const entitiesJoined = entityList.join(', ');
+  const secPick = (i, fb) => secondaryList[i % secondaryList.length] || fb;
+  const semPick = (i, fb) => semanticList[i % semanticList.length] || fb;
+  const entPick = (i, fb) => entityList[i % entityList.length] || fb;
 
   return {
-    s1_intro: `# ${primaryKw}: Panduan Memilih Solusi Terbaik di Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}\n\nKebutuhan terhadap ${primaryKw} semakin meningkat seiring berkembangnya aktivitas ekonomi dan digitalisasi bagi ${entities} di Provinsi {{wilayah}}. Namun, banyak calon pengguna yang masih menghadapi kendala saat menentukan spesifikasi layanan, memperkirakan anggaran yang rasional, serta memastikan ${sem1} agar investasi yang dikeluarkan memberikan hasil jangka panjang. Artikel ini hadir sebagai panduan menyeluruh untuk membantu Anda memahami definisi, mekanisme kerja, manfaat utama, rincian biaya, hingga cara menghindari kesalahan umum saat memilih ${primaryKw} di wilayah Kecamatan {{kecamatan}} ({{label_kota_kabupaten}}).`,
-    s2_def: `## Apa Itu ${primaryKw} dan Mengapa Penting?\n\nSecara spesifik, ${primaryKw} merupakan solusi terstruktur yang dirancang untuk menjawab kebutuhan teknis maupun operasional pelanggan dengan standar mutu yang teruji. Layanan ini tidak sekadar menyediakan hasil akhir, melainkan mencakup perencanaan awal, pemetaan kebutuhan, hingga implementasi yang disesuaikan dengan karakter pengguna di {{label_kota_kabupaten}}.\n\n### Jenis Layanan dan Cakupan Solusi\n\nDalam praktiknya, cakupan ${sec1} dibagi menjadi paket standar untuk kebutuhan dasar yang cepat serta paket kustom (custom) yang fleksibel mengikuti skala bisnis maupun properti Anda di Kecamatan {{kecamatan}}.`,
-    s3_mech: `## Bagaimana Proses dan Cara Kerja ${primaryKw}?\n\nAgar setiap pekerjaan berjalan tepat waktu dan sesuai spesifikasi, pelaksanaan ${primaryKw} dilakukan melalui tahapan operasional yang sistematis dan terdokumentasi sejak hari pertama.\n\n### Tahapan Analisis, Eksekusi, dan Uji Kelayakan\n\n1. **Konsultasi & Pemetaan Kebutuhan:** Mengidentifikasi target, kondisi aktual, serta ruang lingkup ${sec2} yang dibutuhkan pelanggan di Kecamatan {{kecamatan}}.\n2. **Perancangan & Penyusunan Rincian Teknis:** Menyusun cetak biru pengerjaan, jadwal waktu, serta rincian komponen secara transparan.\n3. **Implementasi & Pengawasan Mutu:** Eksekusi oleh personel berpengalaman diikuti pengujian menyeluruh sebelum serah terima kepada pelanggan di {{label_kota_kabupaten}}.`,
-    s4_benefit: `## Manfaat Utama, Fungsi, dan Keunggulan ${primaryKw}\n\nMenggunakan ${primaryKw} yang dikelola secara profesional memberikan nilai tambah nyata dibandingkan penanganan tanpa perencanaan matang. Fokus utamanya adalah menghadirkan ${sem1} sekaligus memastikan efisiensi waktu dan biaya.\n\n### Fitur Unggulan dan Nilai Tambah Layanan\n\n- **Spesifikasi Terukur & Modern:** Setiap elemen ${sec2} dirancang agar mudah digunakan, aman, dan tahan lama.\n- **Dukungan Purna Jual & Pemeliharaan:** Dilengkapi ${sem2} sehingga pelanggan di Kecamatan {{kecamatan}} mendapatkan ketenangan jangka panjang.\n- **Fleksibilitas Pengembangan:** Mudah ditingkatkan kapasitasnya seiring pertumbuhan kebutuhan Anda di Provinsi {{wilayah}}.`,
-    s5_case: `## Contoh Penerapan, Estimasi Biaya, dan Studi Kasus di {{kecamatan}}\n\nSebagai gambaran nyata, banyak pelaku usaha dan warga di koridor Kecamatan {{kecamatan}}, {{label_kota_kabupaten}} yang berhasil meningkatkan efisiensi operasional mereka setelah menerapkan ${primaryKw} secara tepat sasaran. Pemilihan spesifikasi yang pas sejak awal terbukti memangkas biaya perbaikan berulang hingga puluhan persen.\n\n### Perhitungan Biaya dan Pemeliharaan Berkala\n\nSkema ${sec3} sangat bergantung pada tingkat kompleksitas fitur, durasi pengerjaan, serta dukungan pemeliharaan rutin. Dengan rincian anggaran yang terbuka sejak tahap konsultasi, pelanggan di {{label_kota_kabupaten}} dapat menyesuaikan paket layanan tanpa khawatir adanya biaya tersembunyi.`,
-    s6_risk: `## Kesalahan Umum yang Harus Dihindari Saat Memilih ${primaryKw}\n\nKesalahan paling sering terjadi adalah tergiur penawaran harga terlalu murah tanpa memeriksa portofolio, kejelasan spesifikasi ${sec2}, serta ketersediaan garansi layanan. Akibatnya, hasil pengerjaan sering kali tidak sesuai ekspektasi atau sulit dirawat di kemudian hari. Solusinya, pastikan Anda selalu meminta rincian kerja tertulis, memeriksa rekam jejak tim pelaksana di {{label_kota_kabupaten}}, dan memastikan adanya dukungan teknis yang responsif untuk area Kecamatan {{kecamatan}}.`,
-    s7_faq: `## Pertanyaan yang Sering Diajukan (FAQ) Seputar ${primaryKw}\n\n### Berapa lama waktu pengerjaan ${primaryKw} untuk area Kecamatan {{kecamatan}}?\nDurasi pengerjaan disesuaikan dengan skala dan spesifikasi yang dipilih, namun seluruh jadwal disepakati secara tertulis sejak awal agar tepat waktu.\n\n### Apakah tersedia layanan konsultasi awal untuk wilayah {{label_kota_kabupaten}}?\nYa, tim kami menyediakan sesi konsultasi dan pemetaan kebutuhan awal bagi pelanggan di seluruh Kecamatan {{kecamatan}} dan sekitarnya di {{wilayah}}.\n\n### Bagaimana sistem garansi dan pemeliharaan setelah layanan selesai?\nSetiap pelanggan mendapatkan jaminan mutu tertulis serta dukungan teknis berkala untuk memastikan seluruh fungsi berjalan optimal.`,
-    s8_conc: `## Kesimpulan\n\nMemilih ${primaryKw} yang tepat di Kecamatan {{kecamatan}}, {{label_kota_kabupaten}} memerlukan pemahaman menyeluruh mengenai jenis layanan, tahapan proses kerja, fitur utama, serta transparansi biaya. Dengan mengutamakan ${sem1} dan dukungan tim yang kompeten di Provinsi {{wilayah}}, Anda akan memperoleh solusi yang aman, efektif, dan bernilai investasi tinggi.`,
-    s9_cta: `Siap mendiskusikan kebutuhan ${primaryKw} Anda hari ini? Hubungi tim spesialis kami untuk mendapatkan konsultasi gratis, rincian estimasi anggaran terbaik, dan jadwal penanganan cepat khusus wilayah Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}.`
+    s1_intro: `# ${primaryKw}: Solusi Terukur Berstandar Tinggi di Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}\n\nKebutuhan terhadap ${primaryKw} menuntut perencanaan yang presisi bagi ${entitiesJoined} di Provinsi {{wilayah}}. Tantangan paling krusial di lapangan umumnya berkaitan dengan ${semPick(0, 'kualitas pengerjaan terukur')} serta pemilihan skema ${secPick(0, 'layanan spesifik')} yang benar-benar sesuai kebutuhan aktual agar anggaran memberi dampak jangka panjang. Panduan komprehensif ini mengupas tuntas mekanisme teknis, keunggulan ${semPick(1, 'spesifikasi unggulan')}, keterlibatan ${entPick(0, 'tim ahli')}, hingga rincian biaya ${primaryKw} untuk wilayah Kecamatan {{kecamatan}} ({{label_kota_kabupaten}}).`,
+    s2_def: `## Ruang Lingkup ${primaryKw} dan Spesifikasi ${secPick(0, 'Layanan Utama')}\n\nSecara fungsional, ${primaryKw} dirancang sebagai sistem penanganan menyeluruh yang mengintegrasikan ${semPick(1, 'standar operasional')} dengan kebutuhan spesifik pengguna di {{label_kota_kabupaten}}. Pendekatan ini memastikan setiap komponen berjalan selaras bersama dukungan ${entPick(1, 'tenaga spesialis')}.\n\n### Klasifikasi Paket & Fokus ${secPick(1, 'Fitur Spesifik')}\n\nDalam penerapannya di Kecamatan {{kecamatan}}, cakupan ${secPick(0, 'layanan')} dan ${secPick(1, 'spesifikasi teknis')} dibagi ke dalam opsi terukur yang mengedepankan ${semPick(2, 'efisiensi kinerja')} baik untuk skala rumah tangga, UMKM, maupun operasional institusi.`,
+    s3_mech: `## Tahapan Kerja, Standar Teknis, dan Peran ${entPick(1, 'Tim Ahli')}\n\nAgar pelaksanaan ${primaryKw} mencapai akurasi maksimal, seluruh alur kerja dijalankan secara sistematis dengan mengacu pada parameter ${semPick(2, 'pengawasan mutu')} sejak tahap evaluasi awal.\n\n### Alur Audit, Implementasi ${secPick(1, 'Teknis')}, dan Pengujian\n\n1. **Pemetaan Kebutuhan & Evaluasi Awal:** Mengukur parameter ${semPick(0, 'kondisi aktual')} serta lingkup ${secPick(1, 'spesifikasi')} pelanggan di Kecamatan {{kecamatan}}.\n2. **Perancangan Teknis Berbasis ${entPick(2, 'Standar Resmi')}:** Menyusun jadwal eksekusi, pemilihan material/komponen, serta target ${semPick(3, 'efisiensi')}.\n3. **Eksekusi & Verifikasi Lapangan:** Pengerjaan presisi yang ditutup dengan uji kelayakan menyeluruh bagi pelanggan di {{label_kota_kabupaten}}.`,
+    s4_benefit: `## Keunggulan Utama dan Nilai Tambah ${semPick(3, 'Efisiensi Berkelanjutan')}\n\nMempercayakan ${primaryKw} pada tim yang memahami ${semPick(0, 'detail teknis')} menghadirkan perbedaan signifikan dibandingkan penanganan konvensional. Fokus utamanya adalah memadukan ${secPick(2, 'keunggulan fitur')} dengan keandalan ${entPick(2, 'perangkat & tim teruji')}.\n\n### Diferensiasi Fitur & Dukungan ${semPick(4, 'Purna Jual')}\n\n- **Optimalisasi ${semPick(1, 'Kinerja')}:** Setiap detail ${secPick(2, 'layanan')} diselaraskan agar stabil, aman, dan berdaya guna tinggi.\n- **Dukungan ${entPick(0, 'Mitra Resmi')} & Pemeliharaan:** Dilengkapi ${semPick(4, 'jaminan layanan berkelanjutan')} khusus area Kecamatan {{kecamatan}}.\n- **Skalabilitas Jangka Panjang:** Mudah disesuaikan mengikuti perkembangan kebutuhan di Provinsi {{wilayah}}.`,
+    s5_case: `## Penerapan Lapangan dan Estimasi ${secPick(3, 'Biaya Transparan')} di {{kecamatan}}\n\nPada berbagai skenario nyata di koridor Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}, penerapan ${primaryKw} yang memperhatikan aspek ${semPick(5, 'perhitungan beban & spesifikasi')} terbukti menekan risiko pembengkakan anggaran secara signifikan bagi ${entPick(3, 'pelanggan lokal')}.\n\n### Struktur Anggaran ${secPick(3, 'Paket Layanan')} & Pemeliharaan\n\nPerhitungan ${secPick(3, 'estimasi biaya')} ditentukan secara terbuka berdasarkan kapasitas, ruang lingkup ${semPick(2, 'spesifikasi teknis')}, serta opsi perawatan berkala sehingga pelanggan di {{label_kota_kabupaten}} memperoleh kepastian nilai investasi tanpa biaya tersembunyi.`,
+    s6_risk: `## Risiko dan Kesalahan Umum Terkait ${semPick(6, 'Pemilihan Spesifikasi')}\n\nKesalahan yang kerap merugikan calon pengguna saat mencari ${primaryKw} adalah mengabaikan aspek ${semPick(6, 'kelayakan teknis')} dan tidak memverifikasi kredibilitas ${entPick(1, 'tim pelaksana')} demi mengejar selisih harga sesaat pada ${secPick(4, 'penawaran awal')}. Solusi terbaiknya adalah memastikan adanya dokumen rincian kerja tertulis, kejelasan standar ${semPick(0, 'mutu pengerjaan')}, serta akses dukungan langsung di wilayah Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}.`,
+    s7_faq: `## Pertanyaan yang Sering Diajukan (FAQ) Seputar ${primaryKw}\n\n### Bagaimana rincian ${secPick(0, 'paket layanan')} untuk area Kecamatan {{kecamatan}}?\nSetiap paket disesuaikan dengan kebutuhan aktual di lokasi serta mencakup evaluasi ${semPick(0, 'spesifikasi teknis')} sejak awal agar hasilnya tepat sasaran.\n\n### Apakah ${primaryKw} sudah melibatkan ${entPick(1, 'tenaga berkompeten')} di {{label_kota_kabupaten}}?\nYa, seluruh tahapan ditangani oleh ${entPick(1, 'tim berpengalaman')} dengan mengutamakan ${semPick(1, 'standar mutu')} bagi pelanggan di Kecamatan {{kecamatan}} dan sekitarnya.\n\n### Bagaimana pengaruh ${semPick(2, 'kualitas pengerjaan')} terhadap efisiensi jangka panjang?\nPenerapan ${semPick(2, 'standar teknis yang tepat')} menjaga keawetan hasil kerja sekaligus meminimalkan biaya perbaikan berulang di masa mendatang.`,
+    s8_conc: `## Kesimpulan\n\nKeberhasilan memilih ${primaryKw} di Kecamatan {{kecamatan}}, {{label_kota_kabupaten}} sangat ditentukan oleh ketepatan memadukan ${secPick(0, 'jenis layanan')}, penerapan ${semPick(0, 'standar teknis terukur')}, serta keterlibatan ${entPick(0, 'entitas profesional')}. Dengan perencanaan yang matang di Provinsi {{wilayah}}, Anda mendapatkan solusi yang unik, andal, dan bernilai investasi optimal.`,
+    s9_cta: `Siap berkonsultasi mengenai ${secPick(0, primaryKw)} bersama ${entPick(1, 'tim spesialis kami')} hari ini? Hubungi kami sekarang untuk mendapatkan pemetaan ${semPick(0, 'kebutuhan teknis')} gratis, rincian anggaran transparan, dan jadwal prioritas khusus wilayah Kecamatan {{kecamatan}}, {{label_kota_kabupaten}}.`
   };
 }
 

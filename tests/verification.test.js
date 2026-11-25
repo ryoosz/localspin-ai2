@@ -968,7 +968,25 @@ test('L2 & L3 - Section 1B Mini-Prompt Keyword Research, Auto-Extraction of Sema
     'Kecamatan {{kecamatan}}'
   ]);
 
-  // Verify dashboard.html exposes all 1B mini-prompt & checklist elements
+  // Verify 1B-1 Checklist items connect into all 4 Stages + 9-Section unique distribution of buildSeoPromptFramework
+  const fourStage = client.buildSeoPromptFramework({
+    primaryKeyword: 'Jasa Catering Prasmanan Kantor',
+    secondaryKeywords: parsed.secondary.join(', '),
+    semanticKeywords: parsed.semantic.join(', '),
+    relatedEntities: parsed.entities.join(', '),
+    articleLength: 1000
+  });
+  assert.equal(fourStage.connectedStats.secondaryCount, 3);
+  assert.equal(fourStage.connectedStats.semanticCount, 3);
+  assert.equal(fourStage.connectedStats.entityCount, 3);
+  assert.ok(fourStage.master.includes('TERHUBUNG DARI CHECKLIST 1B-1'));
+  assert.ok(fourStage.master.includes('Wajib Sisipkan Secara Alami -> Keyword Khusus:'));
+  assert.ok(fourStage.stage1.includes('menu prasmanan higienis'));
+  assert.ok(fourStage.stage2.includes('Sertifikasi Halal MUI'));
+  assert.ok(fourStage.stage3.includes('porsi seimbang bergizi'));
+  assert.ok(fourStage.stage4.includes('Tim Koki Profesional'));
+
+  // Verify dashboard.html exposes all 1B mini-prompt & checklist elements + 4-Stage bridge
   const { dispatch } = createAppServer({ dbPath: ':memory:' });
   const dashRes = await dispatch({ method: 'GET', url: '/dashboard.html' });
   assert.equal(dashRes.status, 200);
@@ -979,5 +997,7 @@ test('L2 & L3 - Section 1B Mini-Prompt Keyword Research, Auto-Extraction of Sema
   assert.ok(dashHtml.includes('id="kwChecklistSecondary"'));
   assert.ok(dashHtml.includes('id="kwChecklistSemantic"'));
   assert.ok(dashHtml.includes('id="kwChecklistEntities"'));
+  assert.ok(dashHtml.includes('id="btnBridgeChecklistToPrompt"'));
+  assert.ok(dashHtml.includes('id="promptConnected1BStrip"'));
   assert.ok(dashHtml.includes('id="btnSaveKeywordChecklist"'));
 });
