@@ -174,8 +174,67 @@ function clientDetectLanguage(rawText) {
   return { languageCode, label, confidence, wordCount: words.length };
 }
 
+
+function stripSectionMarkers(text) {
+  return String(text || '')
+    .replace(/\[\s*(?:BAGIAN|BAGAN|SECTION|STAGE|PART|TAHAP)\s*0?\d+[^\]]*\]\s*[:\-–—]?/gi, ' ')
+    .replace(/^(\s*#{1,4}\s+)\*{0,2}(?:BAGIAN|BAGAN|SECTION|TAHAP)\s*0?\d+\*{0,2}\s*[:\-–—]\s*/gim, '$1')
+    .replace(/^\s*(?:#{1,4}\s*)?\*{0,2}(?:BAGIAN|BAGAN|SECTION|TAHAP)\s*0?\d+\*{0,2}\s*[:\-–—]?\s*$/gim, '')
+    .replace(/\b(?:BAGIAN|BAGAN)\s*0?[1-9]\b\s*[:\-–—]?/gi, ' ')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function normalizeSmartHref(rawTarget) {
+  const val = String(rawTarget || '').trim();
+  if (!val) return { href: '', isWeb: false, kind: 'empty', display: '' };
+  if (/^mailto:/i.test(val)) {
+    const cleanMail = val.replace(/^mailto:/i, '').trim();
+    return { href: 'mailto:' + cleanMail, isWeb: false, kind: 'email', display: cleanMail.split('?')[0] };
+  }
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+    return { href: 'mailto:' + val, isWeb: false, kind: 'email', display: val };
+  }
+  if (/^tel:/i.test(val)) {
+    const rawPh = val.replace(/^tel:/i, '').trim();
+    const digits = rawPh.replace(/[^0-9+]/g, '');
+    return { href: 'tel:' + digits, isWeb: false, kind: 'phone', display: rawPh };
+  }
+  if (/^[+\d][\d\s().\-]{5,22}$/.test(val) && !val.includes('.')) {
+    const digitsOnly = val.replace(/[^0-9]/g, '');
+    const normPhone = digitsOnly.startsWith('0')
+      ? '+62' + digitsOnly.slice(1)
+      : digitsOnly.startsWith('62')
+        ? '+' + digitsOnly
+        : '+' + digitsOnly;
+    return { href: 'tel:' + normPhone, isWeb: false, kind: 'phone', display: val };
+  }
+  const webUrl = /^https?:\/\//i.test(val) ? val : 'https://' + val;
+  return { href: webUrl, isWeb: true, kind: 'url', display: val };
+}
+
+function splitBodyAtMidpointClient(bodyStr) {
+  const blocks = String(bodyStr || '').split(/\n\n+/).map((b) => b.trim()).filter(Boolean);
+  if (blocks.length <= 1) return [bodyStr, ''];
+  let splitIdx = Math.ceil(blocks.length / 2);
+  for (let offset = 0; offset <= 2; offset++) {
+    const cand = splitIdx + offset;
+    if (cand > 0 && cand < blocks.length && /^#{2,3}\s+/.test(blocks[cand])) {
+      splitIdx = cand;
+      break;
+    }
+    const candBack = splitIdx - offset;
+    if (candBack > 0 && candBack < blocks.length && /^#{2,3}\s+/.test(blocks[candBack])) {
+      splitIdx = candBack;
+      break;
+    }
+  }
+  return [blocks.slice(0, splitIdx).join('\n\n'), blocks.slice(splitIdx).join('\n\n')];
+}
+
 function clientAutoSpinRawArticle(rawText, topic = 'Layanan Profesional') {
-  const input = String(rawText || '').trim();
+  const input = stripSectionMarkers(rawText);
   const detection = clientDetectLanguage(input || topic);
   const lang = detection.languageCode;
   if (!input) return { detectedLanguage: detection, spunArticleBody: '', blocksCreated: 0 };
@@ -354,6 +413,13 @@ function clientBuildMasterSpintax(options = {}) {
   const whatsappLabel = (options.whatsappLabel || 'Chat WhatsApp Konsultan Sekarang').trim();
   const anchorText = (options.anchorText || 'halaman layanan resmi kami').trim();
   const linkRel = options.linkRel || 'dofollow';
+  const imagePosition = options.imagePosition || 'top';
+  const whatsappPosition = options.whatsappPosition || 'top_bottom';
+  const linkPosition = options.linkPosition || 'middle';
+  const phoneLinkNumber = String(options.phoneLinkNumber || '').trim();
+  const phoneLinkAnchor = String(options.phoneLinkAnchor || '').trim();
+  const emailLinkAddress = String(options.emailLinkAddress || '').trim();
+  const emailLinkAnchor = String(options.emailLinkAnchor || '').trim();
 
   const enableBoldKeywords = options.enableBoldKeywords !== false;
   const enableUnderlineBenefits = options.enableUnderlineBenefits !== false;
@@ -373,74 +439,107 @@ function clientBuildMasterSpintax(options = {}) {
     ? `<u>{bergaransi resmi tertulis|transparan tanpa biaya tersembunyi|dikerjakan teknisi bersertifikat|mengikuti standar mutu nasional|didukung layanan purna jual cepat|memiliki kepastian jadwal kerja|menggunakan material orisinal}</u>`
     : `{bergaransi resmi tertulis|transparan tanpa biaya tersembunyi|dikerjakan teknisi bersertifikat|mengikuti standar mutu nasional|didukung layanan purna jual cepat|memiliki kepastian jadwal kerja|menggunakan material orisinal}`;
 
-  const ctaSpin = `{${cleanCta}|Silakan kontak konsultan lapangan kami guna mengatur jadwal pengecekan lokasi|Segera diskusikan rencana anggaran Anda bersama tim teknis resmi kami|Kirimkan detail kebutuhan lokasi Anda agar teknisi kami menyiapkan estimasi akurat|Dapatkan jadwal kunjungan inspeksi langsung dengan menghubungi layanan pelanggan kami|Konsultasikan spesifikasi proyek Anda hari ini tanpa biaya komitmen awal|Terhubung langsung dengan koordinator lapangan kami untuk penawaran terbaik}`;
+  const ctaSpin = `{${cleanCta}|Silakan kontak konsultan lapangan kami guna mengatur jadwal pengecekan lokasi|Segera diskusikan rencana anggaran Anda bersama tim teknis resmi kami|Kirimkan detail kebutuhan lokasi Anda agar teknisi kami menyiapkan estimasi akurat|Konsultasikan spesifikasi proyek Anda hari ini tanpa biaya komitmen awal}`;
 
   const relAttr = linkRel === 'nofollow' ? ' rel="nofollow noopener"' : ' rel="noopener"';
-  const hyperlinkSnippet = enableHyperlink
-    ? ` Silakan kunjungi <a href="{{target_url}}" target="_blank"${relAttr}>{${anchorText}|portal informasi layanan {{kota_kabupaten}}|katalog spesifikasi teknis kami|daftar portofolio pengerjaan {{wilayah}}|pusat informasi resmi kami|halaman panduan pelanggan|tautan layanan utama kami}</a> untuk referensi lengkap.`
+  const linkItems = [];
+  if (enableHyperlink && String(options.targetUrl || 'https://nusantaraseo.id').trim()) {
+    const parsedTarget = normalizeSmartHref(options.targetUrl || 'https://nusantaraseo.id');
+    const targetAttr = parsedTarget.isWeb ? ` target="_blank"${relAttr}` : '';
+    const hrefVal = parsedTarget.isWeb ? '{{target_url}}' : parsedTarget.href;
+    linkItems.push(`<a href="${hrefVal}"${targetAttr}>{${anchorText}|portal informasi layanan {{kota_kabupaten}}|pusat informasi resmi kami}</a>`);
+  }
+  if (phoneLinkNumber) {
+    const ph = normalizeSmartHref(phoneLinkNumber);
+    linkItems.push(`<a href="${ph.href}" class="contact-tel-link">&#128222; <strong>${phoneLinkAnchor || 'Telepon Resmi (' + ph.display + ')'}</strong></a>`);
+  }
+  if (emailLinkAddress) {
+    const em = normalizeSmartHref(emailLinkAddress);
+    linkItems.push(`<a href="${em.href}" class="contact-email-link">&#9993; <strong>${emailLinkAnchor || 'Email Resmi (' + em.display + ')'}</strong></a>`);
+  }
+  const hyperlinkBlock = linkItems.length > 0
+    ? `## {Informasi Resmi & Kontak Layanan|Saluran Konsultasi & Referensi Resmi|Kontak & Tautan Resmi Layanan} di {{label_kota_kabupaten}}\n\n{Untuk informasi lengkap, konsultasi teknis, maupun penjadwalan layanan di Kecamatan {{kecamatan}}, silakan hubungi atau kunjungi saluran resmi kami:|Akses informasi spesifikasi serta kontak resmi layanan pelanggan kami untuk area {{kecamatan}} ({{label_kota_kabupaten}}) melalui:} ${linkItems.join(' | ')}.`
     : '';
 
-  const h1Title = `# {Panduan Lengkap|Rekomendasi Terbaik|Layanan Spesialis|Pusat Layanan Terpercaya|Solusi Profesional|Mitra Resmi|Tim Ahli} ${topicSpin} {di Kecamatan {{kecamatan}} ({{label_kota_kabupaten}})|Area {{kecamatan}} – {{kota_kabupaten}}, {{wilayah}}|Wilayah {{kecamatan}} & Sekitarnya|Khusus Kecamatan {{kecamatan}}, {{wilayah}}|Terdekat di {{kecamatan}}, {{jenis_daerah}} {{kota_kabupaten}}|Koridor {{kecamatan}} ({{wilayah}})|Cakupan Area {{kecamatan}}}`;
+  const h1Title = `# {Panduan Lengkap|Rekomendasi Terbaik|Layanan Spesialis|Pusat Layanan Terpercaya|Solusi Profesional|Mitra Resmi|Tim Ahli} ${topicSpin} {di Kecamatan {{kecamatan}} ({{label_kota_kabupaten}})|Area {{kecamatan}} – {{kota_kabupaten}}, {{wilayah}}|Wilayah {{kecamatan}} & Sekitarnya|Khusus Kecamatan {{kecamatan}}, {{wilayah}}|Terdekat di {{kecamatan}}, {{jenis_daerah}} {{kota_kabupaten}}}`;
 
-  const imageSection = enableImageBlock ? `{{PROJECT_IMAGES_BLOCK}}` : '';
-
-  // If user provided custom rawMainArticle and wants Auto-Spin + Auto-Template
   let coreBodySpintax = '';
-  if (options.useRawMainArticle && options.rawMainArticle && options.rawMainArticle.trim().length > 15) {
+  if (options.useRawMainArticle && options.rawMainArticle && stripSectionMarkers(options.rawMainArticle).length > 15) {
     const spunRaw = clientAutoSpinRawArticle(options.rawMainArticle, cleanTopic);
-    coreBodySpintax = spunRaw.spunArticleBody + hyperlinkSnippet;
+    coreBodySpintax = stripSectionMarkers(spunRaw.spunArticleBody);
   } else {
-    const paragraph1 = `{Mencari {rekanan|mitra|penyedia|tim teknis} {terpercaya|berpengalaman|profesional|bersertifikat} dalam hal ${boldTopicSpin} di ${boldKecamatan} {kini jauh lebih praktis berkat sistem kerja terukur|membutuhkan ketelitian agar hasil akhirnya optimal|merupakan langkah penting demi kenyamanan properti Anda}.|Permintaan masyarakat terhadap ${boldTopicSpin} yang ${uBenefit1} terus tumbuh pesat di seputar ${boldKecamatan}, Provinsi {{wilayah}}.|Bagi {pemilik hunian maupun pelaku usaha|warga serta pengelola gedung|keluarga maupun instansi bisnis} yang beraktivitas di ${boldKecamatan} ({{label_kota_kabupaten}}), menentukan pelaksana ${boldTopicSpin} memerlukan pertimbangan objektif.|Pertumbuhan kawasan ${boldKecamatan} sebagai {{konteks_kecamatan}} mendorong {urgensi pengadaan|tingginya kebutuhan|permintaan rutin} atas ${boldTopicSpin} yang ${uBenefit1}.|Ketika merencanakan pekerjaan ${boldTopicSpin} di lingkup ${boldKecamatan}, {keakuratan diagnosa awal|pemilihan spesifikasi material|kompetensi teknisi lapangan} menjadi kunci keberhasilan jangka panjang.|Hadirnya dukungan spesialis ${boldTopicSpin} yang menjangkau langsung titik lokasi di ${boldKecamatan} memberikan {kemudahan koordinasi harian|penghematan waktu tunggu survei|solusi praktis bagi warga di {{wilayah}}}.|Kebutuhan penanganan ${boldTopicSpin} pada kawasan ${boldKecamatan} di {{jenis_daerah}} {{kota_kabupaten}} {kini dapat terlayani secara terjadwal|menuntut kesiapan perangkat kerja berstandar tinggi|memerlukan dukungan personel yang sigap dan jujur}.} {Mengingat pesatnya perkembangan {{label_kota_kabupaten}}, setiap titik pengerjaan di {{kecamatan}} {wajib dievaluasi langsung sebelum eksekusi|memerlukan penyesuaian teknis sesuai kondisi bangunan|tidak boleh ditangani secara asal-asalan}.|Sejalan dengan dinamika ekonomi Provinsi {{wilayah}}, standar pelaksanaan di {{kecamatan}} {selalu mengacu pada kaidah efisiensi modern|dirancang agar awet serta mudah dirawat|mengutamakan kerapian instalasi}.|Kondisi spesifik {{kecamatan}} sebagai {{konteks_kecamatan}} menuntut {kesiapan peralatan lengkap sejak kunjungan pertama|dukungan personel yang memahami medan {{kota_kabupaten}}|perencanaan kerja yang sistematis dan terdokumentasi}.|Faktor lingkungan dan tata ruang di seputaran {{kecamatan}} ({{jenis_daerah}} {{kota_kabupaten}}) menjadikan {tahap inspeksi pendahuluan sangat krusial|pendekatan teknis yang presisi sebagai prioritas utama|pengawasan mutu berlapis sebagai kewajiban tim kami}.|Dengan memahami profil kawasan {{kecamatan}} secara menyeluruh, proses pelaksanaan ${boldTopicSpin} dapat {diselesaikan lebih efektif tanpa pemborosan anggaran|berjalan lancar sesuai jadwal yang disepakati|memberikan performa maksimal sejak hari pertama}.|Kedekatan jangkauan operasional kami menuju {{kecamatan}} memastikan {respons cepat untuk kebutuhan reguler maupun mendesak|fleksibilitas penjadwalan kunjungan survei|efisiensi logistik di seluruh koridor {{kota_kabupaten}}}.|Setiap proyek di wilayah {{kecamatan}} dipersiapkan dengan {perhitungan beban kerja yang matang|pemilihan komponen berkualitas tinggi|koordinasi langsung bersama pemilik lokasi di {{kota_kabupaten}}}.}${hyperlinkSnippet}`;
+    const paragraph1 = `{Mencari {rekanan|mitra|penyedia|tim teknis} {terpercaya|berpengalaman|profesional|bersertifikat} dalam hal ${boldTopicSpin} di ${boldKecamatan} {kini jauh lebih praktis berkat sistem kerja terukur|membutuhkan ketelitian agar hasil akhirnya optimal|merupakan langkah penting demi kenyamanan properti Anda}.|Permintaan masyarakat terhadap ${boldTopicSpin} yang ${uBenefit1} terus tumbuh pesat di seputar ${boldKecamatan}, Provinsi {{wilayah}}.|Bagi {pemilik hunian maupun pelaku usaha|warga serta pengelola gedung} yang beraktivitas di ${boldKecamatan} ({{label_kota_kabupaten}}), menentukan pelaksana ${boldTopicSpin} memerlukan pertimbangan objektif.} {Mengingat pesatnya perkembangan {{label_kota_kabupaten}}, setiap titik pengerjaan di {{kecamatan}} {wajib dievaluasi langsung sebelum eksekusi|memerlukan penyesuaian teknis sesuai kondisi bangunan}.|Kondisi spesifik {{kecamatan}} sebagai {{konteks_kecamatan}} menuntut {kesiapan peralatan lengkap sejak kunjungan pertama|dukungan personel yang memahami medan {{kota_kabupaten}}}.}`;
 
-    const paragraph2 = `## {Keunggulan Utama|Nilai Tambah Layanan|Mengapa Warga {{kecamatan}} Memilih|Standar Mutu Pengerjaan|Komitmen Profesional|Faktor Pembeda|Keistimewaan Teknis} di {{kecamatan}}, {{kota_kabupaten}}\n\n{Tidak sedikit pengguna jasa di {{kota_kabupaten}} yang {pernah kecewa akibat|mengeluhkan kendala berupa|menghindari risiko seperti} {pembengkakan biaya di luar kesepakatan|molornya target penyelesaian pekerjaan|spesifikasi komponen yang diturunkan sepihak}.|Dalam menyeleksi pelaksana ${boldTopicSpin} untuk area {{kecamatan}}, {kejujuran rincian anggaran|kecepatan tanggap darurat|kelengkapan dokumen garansi|rekam jejak penanganan di {{wilayah}}} merupakan tolok ukur utama.|Kami menghadirkan metode kerja terstruktur bagi klien di ${boldKecamatan} supaya {aktivitas harian Anda tetap berjalan tenang|setiap rupiah yang diinvestasikan menghasilkan kualitas terbaik|target waktu pengerjaan tercapai secara akurat}.|Prioritas utama tim kami saat bertugas di {{kecamatan}} ({{label_kota_kabupaten}}) adalah {menjaga keterbukaan informasi teknis sejak awal|memastikan seluruh prosedur standar terpenuhi|memberikan rekomendasi solusi yang paling hemat dan tepat}.|Berbekal pengalaman menangani beragam karakteristik bangunan di {{wilayah}}, unit ${boldTopicSpin} kami di {{kecamatan}} {mengedepankan ketelitian pengerjaan detail|menjamin kebersihan area kerja pasca-instalasi|menyediakan pendampingan teknis berkelanjutan}.|Kepercayaan pelanggan di koridor {{kecamatan}} dibangun melalui {konsistensi mutu di lapangan|komunikasi dua arah yang responsif|komitmen penuh terhadap jadwal serta spesifikasi kontrak}.|Standar operasional yang kami jalankan di {{kecamatan}} ({{kota_kabupaten}}) berfokus pada {ketepatan diagnosa masalah sejak awal|penggunaan suku cadang serta material orisinal|perlindungan garansi kerja yang mudah diklaim}.}\n\n### {1. Jaminan Mutu & Spesifikasi Terukur|1. Transparansi Rincian Biaya Sejak Awal|1. Dukungan Teknisi Berpengalaman di {{kota_kabupaten}}|1. Kecepatan Respons Survei ke {{kecamatan}}|1. Standar Keselamatan & Kerapian Kerja|1. Garansi Resmi & Pendampingan Purna Jual|1. Kesiapan Peralatan Kerja Modern}\n\n{Setiap pengerjaan di ${boldKecamatan} selalu didahului dengan {pengukuran parameter lapangan yang objektif|pengecekan kondisi aktual secara cermat|evaluasi spesifikasi teknis yang transparan} serta ${uBenefit1} sehingga hasil akhirnya benar-benar presisi.|Pelanggan di {{label_kota_kabupaten}} memperoleh keuntungan berupa layanan yang ${uBenefit1} untuk seluruh cakupan wilayah Kecamatan {{kecamatan}}.|Tim pelaksana di {{kecamatan}} memastikan bahwa setiap tahapan berjalan ${uBenefit1} dan {sesuai kesepakatan tertulis|tanpa mengganggu kenyamanan lingkungan sekitar|dengan pengawasan kualitas berlapis}.|Kombinasi antara keahlian personel dan layanan yang ${uBenefit1} di {{kota_kabupaten}} membuat pengerjaan di {{kecamatan}} {lebih cepat tuntas|jauh lebih rapi|hemat biaya perawatan jangka panjang}.|Kami mengutamakan kepastian hasil yang ${uBenefit1} bagi warga Kecamatan {{kecamatan}} melalui {uji kelayakan fungsi sebelum serah terima|dokumentasi hasil kerja yang lengkap|kemudahan konsultasi pasca-pengerjaan}.|Seluruh material yang dipasang pada proyek di {{kecamatan}} ({{wilayah}}) telah {melewati seleksi mutu ketat|disesuaikan dengan beban pemakaian harian} serta ${uBenefit1}.|Fokus kami di {{kecamatan}} adalah memberikan solusi yang ${uBenefit1} dan {tuntas sejak kunjungan pertama|efisien dari sisi anggaran|tahan lama untuk pemakaian bertahun-tahun}.}`;
+    const paragraph2 = `## {Keunggulan Utama|Nilai Tambah Layanan|Mengapa Warga {{kecamatan}} Memilih|Standar Mutu Pengerjaan} di {{kecamatan}}, {{kota_kabupaten}}\n\n{Dalam menyeleksi pelaksana ${boldTopicSpin} untuk area {{kecamatan}}, {kejujuran rincian anggaran|kecepatan tanggap darurat|kelengkapan dokumen garansi} merupakan tolok ukur utama.|Kami menghadirkan metode kerja terstruktur bagi klien di ${boldKecamatan} supaya {aktivitas harian Anda tetap berjalan tenang|setiap rupiah yang diinvestasikan menghasilkan kualitas terbaik}.}\n\n### {1. Jaminan Mutu & Spesifikasi Terukur|1. Transparansi Rincian Biaya Sejak Awal|1. Dukungan Teknisi Berpengalaman di {{kota_kabupaten}}}\n\n{Setiap pengerjaan di ${boldKecamatan} selalu didahului dengan {pengukuran parameter lapangan yang objektif|pengecekan kondisi aktual secara cermat} serta ${uBenefit1} sehingga hasil akhirnya benar-benar presisi.|Pelanggan di {{label_kota_kabupaten}} memperoleh keuntungan berupa layanan yang ${uBenefit1} untuk seluruh cakupan wilayah Kecamatan {{kecamatan}}.}`;
 
-    const paragraph3 = `## {Alur Operasional|Tahapan Pelaksanaan|Prosedur Standar|Mekanisme Penanganan|Rangkaian Proses Kerja|Sistem Kerja Terpadu|Langkah Penanganan} di Kecamatan {{kecamatan}}\n\n- **{Pemetaan & Diagnosa Awal|Inspeksi Teknis Lokasi|Survei & Identifikasi Kebutuhan|Evaluasi Lapangan Terukur|Analisis Spesifikasi Area|Asesmen Kondisi Aktual|Pengecekan Parameter Lokasi}:** {Tim mempelajari kondisi titik lokasi di {{kecamatan}} guna merumuskan langkah paling efektif.|Pengecekan parameter dilakukan secara cermat menyesuaikan karakter kawasan {{kecamatan}}.|Data teknis dikumpulkan langsung di lapangan agar solusi ${topicSpin} benar-benar presisi.|Kami mendengarkan kebutuhan spesifik Anda di {{kecamatan}} sebelum menyusun rekomendasi.|Pemeriksaan menyeluruh memastikan tidak ada detail struktur yang terlewat.|Diagnosa objektif menjadi fondasi utama keberhasilan pengerjaan di {{kota_kabupaten}}.|Tim survei mendokumentasikan kebutuhan aktual bangunan Anda di {{kecamatan}} secara akurat.}\n- **{Penyusunan Rincian Anggaran|Rencana Kerja & Estimasi Resmi|Proposal Biaya Transparan|Kalkulasi Teknis Terbuka|Penawaran Harga Jelas|Kontrak Jadwal & Spesifikasi|Rancangan Biaya Terukur}:** {Klien di {{kecamatan}} memperoleh rincian item kerja secara jelas sebelum proses dimulai.|Setiap tahapan dan material dijabarkan transparan sehingga anggaran terkendali.|Jadwal pelaksanaan disepakati bersama untuk menjaga ketepatan waktu di {{label_kota_kabupaten}}.|Tidak ada biaya mendadak karena seluruh skema telah dikunci sejak awal.|Anda dapat menyesuaikan skala pekerjaan sesuai prioritas kebutuhan di {{kecamatan}}.|Proposal kerja memuat target capaian yang terukur dan dapat dipertanggungjawabkan.|Estimasi anggaran disusun rasional berdasarkan hasil pengecekan aktual di {{kecamatan}}.}\n- **{Implementasi oleh Tim Ahli|Eksekusi Standar Industri|Pengerjaan Lapangan Presisi|Penanganan Teknis Terkontrol|Instalasi & Tindakan Rapi|Pelaksanaan Berstandar Mutu|Penerapan Solusi Teruji}:** {Pekerjaan ${topicSpin} dijalankan secara disiplin mengikuti protokol keamanan kerja.|Personel berpengalaman memastikan setiap bagian berfungsi optimal di lokasi {{kecamatan}}.|Pengawasan kualitas dilakukan ketat demi menjaga kepuasan warga {{wilayah}}.|Kerapian dan ketepatan teknis menjadi fokus utama selama tim bekerja di {{kecamatan}}.|Peralatan modern digunakan untuk mempercepat durasi kerja tanpa mengurangi mutu.|Setiap prosedur dikerjakan sesuai pedoman teknis yang berlaku di {{kota_kabupaten}}.|Penerapan metode kerja yang tertib menjaga kenyamanan lingkungan sekitar {{kecamatan}}.}`;
+    const paragraph3 = `## {Alur Operasional|Tahapan Pelaksanaan|Prosedur Standar|Langkah Penanganan} di Kecamatan {{kecamatan}}\n\n- **{Pemetaan & Diagnosa Awal|Inspeksi Teknis Lokasi|Survei & Identifikasi Kebutuhan}:** {Tim mempelajari kondisi titik lokasi di {{kecamatan}} guna merumuskan langkah paling efektif.|Data teknis dikumpulkan langsung di lapangan agar solusi ${topicSpin} benar-benar presisi.}\n- **{Penyusunan Rincian Anggaran|Rencana Kerja & Estimasi Resmi|Proposal Biaya Transparan}:** {Klien di {{kecamatan}} memperoleh rincian item kerja secara jelas sebelum proses dimulai.|Setiap tahapan dan material dijabarkan transparan sehingga anggaran terkendali.}\n- **{Implementasi oleh Tim Ahli|Eksekusi Standar Industri|Pengerjaan Lapangan Presisi}:** {Pekerjaan ${topicSpin} dijalankan secara disiplin mengikuti protokol keamanan kerja.|Personel berpengalaman memastikan setiap bagian berfungsi optimal di lokasi {{kecamatan}}.}`;
 
     coreBodySpintax = [paragraph1, paragraph2, paragraph3].join('\n\n');
   }
 
+  if (!autoTemplateEnabled) {
+    return stripSectionMarkers(coreBodySpintax);
+  }
+
   const faqSection = enableFaqSchema
-    ? `## {Tanya Jawab (FAQ)|Pertanyaan Umum Pelanggan|Informasi Penting|Panduan Tanya Jawab|Hal yang Sering Ditanyakan|FAQ Layanan Lokal|Penjelasan Singkat} Seputar Layanan di Kecamatan {{kecamatan}}\n\n### {Apakah melayani survei langsung ke seluruh kelurahan di Kecamatan {{kecamatan}}?|Bagaimana prosedur pemesanan jadwal kunjungan ke area {{kecamatan}}?|Berapa cepat tim teknis dapat menjangkau lokasi di {{kecamatan}}, {{kota_kabupaten}}?|Apakah seluruh titik di Kecamatan {{kecamatan}} masuk dalam jangkauan layanan?|Bagaimana cara mengatur jadwal inspeksi awal di {{kecamatan}}?|Apakah tersedia kunjungan pengecekan lokasi di area {{kecamatan}}?|Dapatkah tim langsung datang mengecek lokasi di Kecamatan {{kecamatan}}?}\n\n{Ya, tim operasional kami di {{label_kota_kabupaten}} menjangkau seluruh area Kecamatan {{kecamatan}} dengan penjadwalan fleksibel sesuai waktu luang Anda.|Tentu, petugas lapangan kami siap mengunjungi titik lokasi Anda di {{kecamatan}} setelah koordinasi waktu melalui WhatsApp.|Benar, seluruh kawasan pemukiman maupun komersial di Kecamatan {{kecamatan}} ({{wilayah}}) termasuk dalam rute layanan prioritas kami.|Kami melayani kunjungan survei terjadwal maupun kebutuhan mendesak untuk seluruh pelanggan di lingkup Kecamatan {{kecamatan}}.|Tim teknis cabang {{kota_kabupaten}} rutin bertugas di area {{kecamatan}} sehingga proses penjadwalan survei sangat cepat.|Anda cukup mengirimkan titik lokasi di Kecamatan {{kecamatan}} dan koordinator kami akan segera mengatur jadwal kedatangan teknisi.|Seluruh jalan utama hingga area perumahan di Kecamatan {{kecamatan}} dapat dijangkau dengan cepat oleh armada operasional kami.}`
+    ? `## {Tanya Jawab (FAQ)|Pertanyaan Umum Pelanggan|Informasi Penting} Seputar Layanan di Kecamatan {{kecamatan}}\n\n### {Apakah melayani survei langsung ke seluruh kelurahan di Kecamatan {{kecamatan}}?|Bagaimana prosedur pemesanan jadwal kunjungan ke area {{kecamatan}}?|Berapa cepat tim teknis dapat menjangkau lokasi di {{kecamatan}}, {{kota_kabupaten}}?}\n\n{Ya, tim operasional kami di {{label_kota_kabupaten}} menjangkau seluruh area Kecamatan {{kecamatan}} dengan penjadwalan fleksibel.|Tentu, petugas lapangan kami siap mengunjungi titik lokasi Anda di {{kecamatan}} setelah koordinasi waktu melalui WhatsApp.}`
     : '';
 
   const waTopHtml = enableWhatsappCta
-    ? `<div class="wa-cta-box wa-cta-top"><a href="{{wa_url}}" target="_blank" rel="noopener" class="wa-cta-button">&#128172; {${whatsappLabel}|Konsultasi Cepat via WhatsApp ({{kecamatan}})|Hubungi WhatsApp Resmi Area {{kecamatan}}|Respon Cepat WhatsApp Cabang {{kota_kabupaten}}} ({{wa_number}})</a></div>`
+    ? `<div class="wa-cta-box wa-cta-top"><a href="{{wa_url}}" target="_blank" rel="noopener" class="wa-cta-button">&#128172; {${whatsappLabel}|Konsultasi Cepat via WhatsApp ({{kecamatan}})|Hubungi WhatsApp Resmi Area {{kecamatan}}} ({{wa_number}})</a></div>`
+    : '';
+  const waMidHtml = enableWhatsappCta
+    ? `<div class="wa-cta-box wa-cta-middle"><a href="{{wa_url}}" target="_blank" rel="noopener" class="wa-cta-button">&#128172; {${whatsappLabel}|Tanya Estimasi Biaya Area {{kecamatan}}|Chat Tim Teknis {{kota_kabupaten}}} ({{wa_number}})</a></div>`
+    : '';
+  const waBotHtml = enableWhatsappCta
+    ? `<div class="wa-cta-box wa-cta-bottom"><a href="{{wa_url}}" target="_blank" rel="noopener" class="wa-cta-button">&#128172; {${whatsappLabel}|Klik untuk Chat WhatsApp Area {{kecamatan}}|Jadwalkan Survei via WhatsApp Sekarang} ({{wa_number}})</a></div>`
     : '';
 
-  const waButtonHtml = enableWhatsappCta
-    ? `\n\n<div class="wa-cta-box wa-cta-bottom"><a href="{{wa_url}}" target="_blank" rel="noopener" class="wa-cta-button">&#128172; {${whatsappLabel}|Klik untuk Chat WhatsApp Area {{kecamatan}}|Hubungi WhatsApp Resmi Cabang {{kota_kabupaten}}|Konsultasi Cepat via WhatsApp ({{kecamatan}})|Respon Cepat WhatsApp Tim Teknis {{kecamatan}}|Tanya Estimasi Biaya via WhatsApp|Jadwalkan Survei via WhatsApp Sekarang} ({{wa_number}})</a></div>`
-    : '';
+  const showWaTop = whatsappPosition === 'top' || whatsappPosition === 'top_bottom' || whatsappPosition === 'all';
+  const showWaMid = whatsappPosition === 'middle' || whatsappPosition === 'all';
+  const showWaBot = whatsappPosition === 'bottom' || whatsappPosition === 'top_bottom' || whatsappPosition === 'all';
 
-  const paragraph5 = `## {Jadwalkan Survei di {{kecamatan}}|Hubungi Spesialis Area {{kecamatan}}|Konsultasi Kebutuhan Anda|Dapatkan Estimasi Wilayah {{kecamatan}}|Layanan Cepat Area {{kecamatan}}|Diskusikan Proyek Anda di {{kecamatan}}|Kontak Tim Teknis {{kota_kabupaten}}}\n\n{Jangan tunda kebutuhan ${boldTopicSpin} di lokasi Anda. ${ctaSpin} untuk seluruh area ${boldKecamatan}, {{label_kota_kabupaten}} ({{wilayah}}).|Siap memperoleh penanganan ${boldTopicSpin} yang rapi, transparan, dan bergaransi di {{kecamatan}}? ${ctaSpin} — tim {{kota_kabupaten}} kami siap melayani.|Untuk tanya jawab teknis, rincian anggaran, maupun jadwal kunjungan ke Kecamatan {{kecamatan}} ({{label_kota_kabupaten}}), segera hubungi kami. ${ctaSpin}.|Pastikan proyek ${boldTopicSpin} Anda di Kecamatan {{kecamatan}} ditangani oleh tenaga kompeten. ${ctaSpin} dan dapatkan solusi terbaik di {{wilayah}}.|Kami siap mendampingi kebutuhan ${boldTopicSpin} rumah tangga maupun komersial di {{kecamatan}}, {{jenis_daerah}} {{kota_kabupaten}}. ${ctaSpin}.|Ambil langkah tepat hari ini untuk kebutuhan ${boldTopicSpin} di kawasan {{kecamatan}}. ${ctaSpin} bersama tim profesional {{label_kota_kabupaten}}.|Wujudkan pengerjaan ${boldTopicSpin} yang aman dan tepat anggaran di Kecamatan {{kecamatan}}. ${ctaSpin} sekarang juga.}${waButtonHtml}`;
+  const imgTop = enableImageBlock && imagePosition === 'top' ? '{{PROJECT_IMAGES_BLOCK}}'
+    : enableImageBlock && imagePosition === 'top_bottom' ? '{{PROJECT_IMAGES_BLOCK_TOP}}' : '';
+  const imgMid = enableImageBlock && imagePosition === 'middle' ? '{{PROJECT_IMAGES_BLOCK}}' : '';
+  const imgBot = enableImageBlock && imagePosition === 'bottom' ? '{{PROJECT_IMAGES_BLOCK}}'
+    : enableImageBlock && imagePosition === 'top_bottom' ? '{{PROJECT_IMAGES_BLOCK_BOTTOM}}' : '';
 
-  if (!autoTemplateEnabled) {
-    return coreBodySpintax;
-  }
+  const lnkTop = linkPosition === 'top' ? hyperlinkBlock : '';
+  const lnkMid = (linkPosition === 'middle' || linkPosition === 'middle_bottom') ? hyperlinkBlock : '';
+  const lnkBot = (linkPosition === 'bottom' || linkPosition === 'middle_bottom') ? hyperlinkBlock : '';
 
   const hasOwnH1 = /^#\s+/m.test(coreBodySpintax);
   const hasOwnFaq = /^#{2,3}\s+.*(faq|tanya jawab|pertanyaan)/im.test(coreBodySpintax);
 
+  let firstHeader = h1Title;
+  let bodyContent = coreBodySpintax;
   if (hasOwnH1) {
     const lines = coreBodySpintax.split('\n');
-    const firstLine = lines[0];
-    const restBody = lines.slice(1).join('\n').trim();
-    const sections = [firstLine];
-    if (waTopHtml) sections.push(waTopHtml);
-    if (imageSection) sections.push(imageSection);
-    if (restBody) sections.push(restBody);
-    if (faqSection && !hasOwnFaq) sections.push(faqSection);
-    if (waButtonHtml) sections.push(waButtonHtml.trim());
-    return sections.join('\n\n');
+    firstHeader = lines[0];
+    bodyContent = lines.slice(1).join('\n').trim();
   }
 
-  const sections = [h1Title];
-  if (waTopHtml) sections.push(waTopHtml);
-  if (imageSection) sections.push(imageSection);
-  sections.push(coreBodySpintax);
-  if (faqSection && !hasOwnFaq) sections.push(faqSection);
-  sections.push(paragraph5);
+  const [firstHalf, secondHalf] = splitBodyAtMidpointClient(bodyContent);
+  const closingSection = `## {Jadwalkan Survei di {{kecamatan}}|Hubungi Spesialis Area {{kecamatan}}|Konsultasi Kebutuhan Anda}\n\n{Jangan tunda kebutuhan ${boldTopicSpin} di lokasi Anda. ${ctaSpin} untuk seluruh area ${boldKecamatan}, {{label_kota_kabupaten}} ({{wilayah}}).|Siap memperoleh penanganan ${boldTopicSpin} yang rapi, transparan, dan bergaransi di {{kecamatan}}? ${ctaSpin} — tim {{kota_kabupaten}} kami siap melayani.}${showWaBot && waBotHtml ? '\n\n' + waBotHtml : ''}`;
 
-  return sections.join('\n\n');
+  return [
+    firstHeader,
+    showWaTop ? waTopHtml : '',
+    imgTop,
+    lnkTop,
+    firstHalf,
+    imgMid,
+    lnkMid,
+    showWaMid ? waMidHtml : '',
+    secondHalf,
+    imgBot,
+    lnkBot,
+    hasOwnFaq ? '' : faqSection,
+    hasOwnH1 ? (showWaBot ? waBotHtml : '') : closingSection
+  ]
+    .filter(Boolean)
+    .join('\n\n');
 }
 
 function clientRenderProjectImagesForArticle({
@@ -457,7 +556,7 @@ function clientRenderProjectImagesForArticle({
     : [];
 
   if (pool.length === 0) {
-    return { figuresHtml: '', metaList: [] };
+    return { figuresHtml: '', topFiguresHtml: '', bottomFiguresHtml: '', metaList: [] };
   }
 
   const count = Math.max(1, Math.min(pool.length, Number(imagesPerArticle) || 1));
@@ -548,7 +647,11 @@ function clientInjectGeo(text, target, extraVars = {}) {
     cta: extraVars.callToAction || 'Hubungi konsultan teknis kami sekarang',
     wa_number: extraVars.whatsappNumber || '6281234567890',
     wa_url: waUrl,
-    target_url: extraVars.targetUrl || 'https://nusantaraseo.id/layanan-resmi',
+    target_url: normalizeSmartHref(extraVars.targetUrl || 'https://nusantaraseo.id/layanan-resmi').href,
+    tel_url: normalizeSmartHref(extraVars.phoneLinkNumber || extraVars.whatsappNumber || '6281234567890').href,
+    phone_display: extraVars.phoneLinkNumber || extraVars.whatsappNumber || '0812-3456-7890',
+    mailto_url: normalizeSmartHref(extraVars.emailLinkAddress || 'info@wevo.biz.id').href,
+    email_display: extraVars.emailLinkAddress || 'info@wevo.biz.id',
     image_url: extraVars.imageUrl || ''
   };
   return String(text || '').replace(/\{\{([a-zA-Z0-9_]+)\}\}/g, (full, k) => {
@@ -558,7 +661,7 @@ function clientInjectGeo(text, target, extraVars = {}) {
 }
 
 function clientConvertArticleToHtml(rawContent, seoMeta = {}) {
-  const blocks = String(rawContent || '')
+  const blocks = stripSectionMarkers(rawContent)
     .split(/\n\n+/)
     .map((b) => b.trim())
     .filter(Boolean);
@@ -1182,7 +1285,7 @@ function generateStructured9SectionsDraft(cfg = {}) {
 }
 
 function combine9SectionsToRawArticle(sectionsMap = {}) {
-  return SEO_PROMPT_SECTIONS_SPEC.map((s) => String(sectionsMap[s.id] || '').trim())
+  return SEO_PROMPT_SECTIONS_SPEC.map((s) => stripSectionMarkers(sectionsMap[s.id] || ''))
     .filter(Boolean)
     .join('\n\n');
 }
@@ -1192,20 +1295,21 @@ function parseChatbotOutputInto9Sections(rawText = '', fallbackCfg = {}) {
   if (!text) return generateStructured9SectionsDraft(fallbackCfg);
 
   const result = {};
-  const markerRegex = /\[BAGIAN\s*0?([1-9])\][^\n]*\n([\s\S]*?)(?=\[BAGIAN\s*0?[1-9]\]|$)/gi;
+  const markerRegex = /\[\s*(?:BAGIAN|BAGAN|SECTION)\s*0?([1-9])[^\]]*\][^\n]*\n?([\s\S]*?)(?=\[\s*(?:BAGIAN|BAGAN|SECTION)\s*0?[1-9][^\]]*\]|$)/gi;
   let match;
   let foundMarkers = 0;
   while ((match = markerRegex.exec(text)) !== null) {
     const idx = Number(match[1]) - 1;
     if (SEO_PROMPT_SECTIONS_SPEC[idx]) {
-      result[SEO_PROMPT_SECTIONS_SPEC[idx].id] = match[2].trim();
+      result[SEO_PROMPT_SECTIONS_SPEC[idx].id] = stripSectionMarkers(match[2]);
       foundMarkers++;
     }
   }
   if (foundMarkers >= 3) return result;
 
   // Fallback: split by H2 headings (## ) or paragraphs across the 9 buckets
-  const blocks = text.split(/(?=^##\s+)/m).map((b) => b.trim()).filter(Boolean);
+  const cleanedText = stripSectionMarkers(text);
+  const blocks = cleanedText.split(/(?=^##\s+)/m).map((b) => b.trim()).filter(Boolean);
   if (blocks.length >= 2) {
     SEO_PROMPT_SECTIONS_SPEC.forEach((spec, idx) => {
       result[spec.id] = blocks[idx] || '';
@@ -1216,7 +1320,7 @@ function parseChatbotOutputInto9Sections(rawText = '', fallbackCfg = {}) {
     return result;
   }
 
-  const paras = text.split(/\n\s*\n+/).map((p) => p.trim()).filter(Boolean);
+  const paras = stripSectionMarkers(text).split(/\n\s*\n+/).map((p) => p.trim()).filter(Boolean);
   SEO_PROMPT_SECTIONS_SPEC.forEach((spec, idx) => {
     result[spec.id] = paras[idx] || '';
   });
@@ -1564,5 +1668,7 @@ window.LocalSpinClient = {
   clientConvertArticleToHtml,
   clientBuildSeoMeta,
   clientCountPermutations,
+  stripSectionMarkers,
+  normalizeSmartHref,
   clientCompareArticles
 };

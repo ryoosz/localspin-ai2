@@ -13,6 +13,7 @@ const {
 const {
   detectArticleLanguage,
   autoSpinRawArticle,
+  stripSectionMarkers,
   assembleAutoTemplate,
   calculateSafeArticleCapacity
 } = require('./domain/autoSpinLanguageEngine');
@@ -239,7 +240,7 @@ function createAppServer({ dbPath = ':memory:' } = {}) {
       // 5. Auto-Detect Language + Spin Raw Main Article (Gemini 5-Slot Pool + Local Fallback) + Assemble Auto-Template
       if (req.method === 'POST' && pathname === '/api/v1/spintax/auto-spin') {
         const body = await parseJsonBody(req);
-        const rawMainArticle = String(body.rawMainArticle || '').trim();
+        const rawMainArticle = stripSectionMarkers(body.rawMainArticle || '');
         const topic = String(body.topic || 'Layanan Profesional').trim();
         const clientKeys = Array.isArray(body.geminiApiKeys) ? body.geminiApiKeys.slice(0, 5) : [];
 
@@ -262,7 +263,7 @@ function createAppServer({ dbPath = ':memory:' } = {}) {
           });
           geminiAttempts = geminiRes.attempts || [];
           if (geminiRes.ok && geminiRes.spunArticleBody) {
-            finalSpunBody = geminiRes.spunArticleBody;
+            finalSpunBody = stripSectionMarkers(geminiRes.spunArticleBody);
             engineUsed = geminiRes.model;
             geminiSlotUsed = geminiRes.usedSlot;
           }
@@ -279,6 +280,13 @@ function createAppServer({ dbPath = ':memory:' } = {}) {
                 targetUrl: body.targetUrl,
                 anchorText: body.anchorText,
                 linkRel: body.linkRel,
+                phoneLinkNumber: body.phoneLinkNumber || '',
+                phoneLinkAnchor: body.phoneLinkAnchor || '',
+                emailLinkAddress: body.emailLinkAddress || '',
+                emailLinkAnchor: body.emailLinkAnchor || '',
+                imagePosition: body.imagePosition || 'top',
+                whatsappPosition: body.whatsappPosition || 'top_bottom',
+                linkPosition: body.linkPosition || 'middle',
                 enableBoldKeywords: body.enableBoldKeywords !== false,
                 enableUnderlineBenefits: body.enableUnderlineBenefits !== false,
                 enableImageBlock: body.enableImageBlock !== false,

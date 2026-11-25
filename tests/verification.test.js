@@ -842,3 +842,64 @@ test('L2 & L3 - Backlink-Miner Suite: Broken Link Discovery, Competitor Mining, 
   });
   assert.equal(invalidRes.status, 400);
 });
+
+test('L2 & L3 - Clean [BAGIAN 01..09] Stripping, Configurable Image/WA/Link Layout, & Phone (tel:) + Email (mailto:) Hyperlinks', async () => {
+  const { dispatch } = createAppServer({ dbPath: ':memory:' });
+
+  const noisyArticle = `
+[ BAGIAN 01 ]
+# Jasa Penulisan Artikel SEO Profesional
+
+Layanan penulisan konten berkualitas tinggi untuk bisnis lokal.
+
+[ BAGIAN 06 ]
+
+## Risiko dan Kesalahan Umum Saat Memilih Layanan
+Kesalahan yang sering terjadi adalah memilih jasa hanya berdasarkan skema tarif termurah tanpa memeriksa orisinalitas.
+`;
+
+  const spinRes = await dispatch({
+    method: 'POST',
+    url: '/api/v1/spintax/auto-spin',
+    body: {
+      rawMainArticle: noisyArticle,
+      topic: 'Jasa Penulisan Artikel',
+      useGemini: false,
+      autoTemplateEnabled: true,
+      whatsappNumber: '6281234567890',
+      whatsappLabel: 'Chat WA Admin',
+      targetUrl: '0812-9988-7766',
+      anchorText: 'Telepon Konsultan Langsung',
+      phoneLinkNumber: '021-77889900',
+      phoneLinkAnchor: 'Hubungi Kantor Pusat',
+      emailLinkAddress: 'order@wevo.biz.id',
+      emailLinkAnchor: 'Kirim Email Order',
+      imagePosition: 'bottom',
+      whatsappPosition: 'middle',
+      linkPosition: 'top'
+    }
+  });
+
+  assert.equal(spinRes.status, 200);
+  const spinData = await spinRes.json();
+  const master = spinData.masterSpintax;
+
+  // 1. Verify NO [ BAGIAN 01 ] or BAGIAN 06 leaked into masterSpintax
+  assert.ok(!/BAGIAN\s*0?[1-9]/i.test(master), 'All [ BAGIAN 01..09 ] markers must be stripped completely');
+
+  // 2. Verify tel: and mailto: hyperlinks are generated cleanly
+  assert.ok(master.includes('href="tel:+6281299887766"'), 'Primary phone targetUrl must convert to tel:+62...');
+  assert.ok(master.includes('href="tel:+622177889900"'), 'Dedicated phoneLinkNumber must render tel: hyperlink');
+  assert.ok(master.includes('href="mailto:order@wevo.biz.id"'), 'Dedicated emailLinkAddress must render mailto: hyperlink');
+
+  // 3. Verify configurable positions: Link at top, WA in middle (no wa-cta-top / wa-cta-bottom), Image at bottom
+  assert.ok(!master.includes('wa-cta-top'), 'whatsappPosition=middle must not render top WA box');
+  assert.ok(!master.includes('wa-cta-bottom'), 'whatsappPosition=middle must not render bottom WA box');
+  assert.ok(master.includes('wa-cta-middle'), 'whatsappPosition=middle must render middle WA box');
+
+  const linkIdx = master.indexOf('mailto:order@wevo.biz.id');
+  const waMidIdx = master.indexOf('wa-cta-middle');
+  const imgIdx = master.indexOf('{{PROJECT_IMAGES_BLOCK}}');
+  assert.ok(linkIdx > 0 && linkIdx < waMidIdx, 'linkPosition=top must appear before middle WA box');
+  assert.ok(imgIdx > waMidIdx, 'imagePosition=bottom must appear after middle section');
+});

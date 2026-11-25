@@ -354,12 +354,34 @@
 
           <div class="grid-2" style="gap: 0.5rem;">
             <div class="form-group">
-              <label class="form-label" for="inputTargetUrl">URL Hyperlink Otomatis</label>
-              <input type="url" id="inputTargetUrl" class="form-control" value="https://nusantaraseo.id/panel-surya" />
+              <label class="form-label" for="inputTargetUrl">Hyperlink Utama (URL Web / No. Telp / Email)</label>
+              <input type="text" id="inputTargetUrl" class="form-control" value="https://nusantaraseo.id/panel-surya" placeholder="https://domain.com atau 08123456789 atau email@domain.com" />
             </div>
             <div class="form-group">
-              <label class="form-label" for="inputAnchorText">Anchor Text Link</label>
+              <label class="form-label" for="inputAnchorText">Anchor Text Hyperlink Utama</label>
               <input type="text" id="inputAnchorText" class="form-control" value="katalog paket panel surya resmi" />
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap: 0.5rem;">
+            <div class="form-group">
+              <label class="form-label" for="inputPhoneLink">&#128222; Hyperlink Nomor Telepon (<code>tel:</code> Opsional)</label>
+              <input type="text" id="inputPhoneLink" class="form-control" value="" placeholder="Contoh: 0812-3456-7890 (kosongkan jika tidak pakai)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputPhoneAnchor">Anchor Text Link Telepon</label>
+              <input type="text" id="inputPhoneAnchor" class="form-control" value="" placeholder="Contoh: Hubungi Telepon Kantor Resmi" />
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap: 0.5rem;">
+            <div class="form-group">
+              <label class="form-label" for="inputEmailLink">&#9993; Hyperlink Email (<code>mailto:</code> Opsional)</label>
+              <input type="text" id="inputEmailLink" class="form-control" value="" placeholder="Contoh: info@perusahaan.com (kosongkan jika tidak pakai)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputEmailAnchor">Anchor Text Link Email</label>
+              <input type="text" id="inputEmailAnchor" class="form-control" value="" placeholder="Contoh: Kirim Email Permintaan Penawaran" />
             </div>
           </div>
 
@@ -379,6 +401,41 @@
               class="form-control"
               value="Hubungi tim spesialis kami untuk jadwal konsultasi dan survei gratis di lokasi Anda"
             />
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.85rem;">
+            <div style="font-size: 0.82rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">
+              &#128208; Atur Posisi / Tata Letak Gambar, Tombol WhatsApp &amp; Hyperlink
+            </div>
+            <div class="form-group" style="margin-bottom: 0.5rem;">
+              <label class="form-label" for="selectImagePosition" style="font-size: 0.78rem;">Letak Gambar Artikel</label>
+              <select id="selectImagePosition" class="form-control">
+                <option value="top" selected>Atas Artikel (Setelah Judul H1)</option>
+                <option value="middle">Tengah Artikel (Di Antara Subjudul)</option>
+                <option value="bottom">Bawah Artikel (Sebelum Penutup / FAQ)</option>
+                <option value="top_bottom">Atas &amp; Bawah (Dibagi Merata)</option>
+                <option value="manual">Manual Saja (Lewat Tombol +Gambar di Toolbar)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0.5rem;">
+              <label class="form-label" for="selectWaPosition" style="font-size: 0.78rem;">Letak Tombol CTA WhatsApp</label>
+              <select id="selectWaPosition" class="form-control">
+                <option value="top_bottom" selected>Atas &amp; Bawah Artikel (Konversi Terbaik)</option>
+                <option value="bottom">Bawah Saja (Penutup Artikel)</option>
+                <option value="middle">Tengah Artikel Saja</option>
+                <option value="top">Atas Saja (Setelah Judul H1)</option>
+                <option value="all">Atas, Tengah &amp; Bawah</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="selectLinkPosition" style="font-size: 0.78rem;">Letak Blok Hyperlink (URL / Telepon / Email)</label>
+              <select id="selectLinkPosition" class="form-control">
+                <option value="middle" selected>Tengah Artikel (Kontekstual SEO)</option>
+                <option value="top">Awal Artikel (Setelah Judul / Pembuka)</option>
+                <option value="bottom">Akhir Artikel (Sebelum Penutup)</option>
+                <option value="middle_bottom">Tengah &amp; Akhir Artikel</option>
+              </select>
+            </div>
           </div>
 
           <div class="seo-toggles-grid">
@@ -718,7 +775,9 @@
             <button type="button" class="toolbar-btn tb-format" data-action="italic" title="Miringkan Teks (Italic / <em>)"><em>I</em> Italic</button>
             <span class="toolbar-divider"></span>
             <button type="button" class="toolbar-btn tb-image" data-action="image" title="Sisipkan Blok Gambar Project">&#128444; +Gambar Project</button>
-            <button type="button" class="toolbar-btn tb-link" data-action="link" title="Sisipkan Hyperlink (<a href>)">&#128279; +Hyperlink</button>
+            <button type="button" class="toolbar-btn tb-link" data-action="link" title="Sisipkan Hyperlink Website/Utama">&#128279; +Hyperlink</button>
+            <button type="button" class="toolbar-btn tb-link" data-action="tel-link" title="Sisipkan Hyperlink Nomor Telepon (tel:)">&#128222; +Link Telepon</button>
+            <button type="button" class="toolbar-btn tb-link" data-action="email-link" title="Sisipkan Hyperlink Email (mailto:)">&#9993; +Link Email</button>
             <button type="button" class="toolbar-btn tb-whatsapp" data-action="whatsapp" title="Sisipkan Tombol Klik WhatsApp">&#128172; +CTA WhatsApp</button>
             <span class="toolbar-divider"></span>
             <button type="button" class="toolbar-btn tb-spintax" data-action="spintax" title="Sisipkan Blok Spintax {kata 1|kata 2}">{a|b} Spintax</button>
@@ -1322,6 +1381,13 @@
       const inputTargetUrl = document.getElementById('inputTargetUrl');
       const inputAnchorText = document.getElementById('inputAnchorText');
       const selectLinkRel = document.getElementById('selectLinkRel');
+      const inputPhoneLink = document.getElementById('inputPhoneLink');
+      const inputPhoneAnchor = document.getElementById('inputPhoneAnchor');
+      const inputEmailLink = document.getElementById('inputEmailLink');
+      const inputEmailAnchor = document.getElementById('inputEmailAnchor');
+      const selectImagePosition = document.getElementById('selectImagePosition');
+      const selectWaPosition = document.getElementById('selectWaPosition');
+      const selectLinkPosition = document.getElementById('selectLinkPosition');
       const inputCta = document.getElementById('inputCta');
 
       const chkBoldKeywords = document.getElementById('chkBoldKeywords');
@@ -1567,6 +1633,13 @@
         inputTargetUrl.value = p.targetUrl || 'https://nusantaraseo.id';
         inputAnchorText.value = p.anchorText || 'halaman layanan resmi';
         selectLinkRel.value = p.linkRel || 'dofollow';
+        if (inputPhoneLink) inputPhoneLink.value = p.phoneLinkNumber || '';
+        if (inputPhoneAnchor) inputPhoneAnchor.value = p.phoneLinkAnchor || '';
+        if (inputEmailLink) inputEmailLink.value = p.emailLinkAddress || '';
+        if (inputEmailAnchor) inputEmailAnchor.value = p.emailLinkAnchor || '';
+        if (selectImagePosition) selectImagePosition.value = p.imagePosition || 'top';
+        if (selectWaPosition) selectWaPosition.value = p.whatsappPosition || 'top_bottom';
+        if (selectLinkPosition) selectLinkPosition.value = p.linkPosition || 'middle';
         inputCta.value = p.callToAction || 'Hubungi konsultan teknis kami sekarang';
         selectImagesPerArticle.value = String(p.imagesPerArticle || 2);
         inputImageTitlePattern.value =
@@ -1618,6 +1691,13 @@
           targetUrl: inputTargetUrl.value.trim(),
           anchorText: inputAnchorText.value.trim(),
           linkRel: selectLinkRel.value,
+          phoneLinkNumber: inputPhoneLink ? inputPhoneLink.value.trim() : '',
+          phoneLinkAnchor: inputPhoneAnchor ? inputPhoneAnchor.value.trim() : '',
+          emailLinkAddress: inputEmailLink ? inputEmailLink.value.trim() : '',
+          emailLinkAnchor: inputEmailAnchor ? inputEmailAnchor.value.trim() : '',
+          imagePosition: selectImagePosition ? selectImagePosition.value : 'top',
+          whatsappPosition: selectWaPosition ? selectWaPosition.value : 'top_bottom',
+          linkPosition: selectLinkPosition ? selectLinkPosition.value : 'middle',
           callToAction: inputCta.value.trim(),
           imagesPerArticle: Number(selectImagesPerArticle.value) || 2,
           imageTitlePattern: inputImageTitlePattern.value.trim(),
@@ -1789,11 +1869,25 @@
           else if (action === 'italic') wrapOrInsertInTextarea('<em>', '</em>', 'standar operasional terbaik');
           else if (action === 'image') wrapOrInsertInTextarea('\n\n', '\n\n', '{{PROJECT_IMAGES_BLOCK}}');
           else if (action === 'link') {
-            const rel = selectLinkRel.value === 'nofollow' ? ' rel="nofollow noopener"' : ' rel="noopener"';
+            const parsed = window.LocalSpinClient.normalizeSmartHref(inputTargetUrl.value || 'https://wevo.biz.id');
+            const rel = parsed.isWeb ? (selectLinkRel.value === 'nofollow' ? ' target="_blank" rel="nofollow noopener"' : ' target="_blank" rel="noopener"') : '';
+            const hrefToken = parsed.isWeb ? '{{target_url}}' : parsed.href;
             wrapOrInsertInTextarea(
-              `<a href="{{target_url}}" target="_blank"${rel}>`,
+              `<a href="${hrefToken}"${rel}>`,
               '</a>',
-              inputAnchorText.value || 'halaman layanan resmi kami'
+              inputAnchorText.value || parsed.display || 'halaman layanan resmi kami'
+            );
+          } else if (action === 'tel-link') {
+            wrapOrInsertInTextarea(
+              '<a href="{{tel_url}}" class="contact-tel-link">&#128222; ',
+              '</a>',
+              (inputPhoneAnchor && inputPhoneAnchor.value.trim()) || 'Hubungi Telepon {{phone_display}}'
+            );
+          } else if (action === 'email-link') {
+            wrapOrInsertInTextarea(
+              '<a href="{{mailto_url}}" class="contact-email-link">&#9993; ',
+              '</a>',
+              (inputEmailAnchor && inputEmailAnchor.value.trim()) || 'Kirim Email ke {{email_display}}'
             );
           } else if (action === 'whatsapp') {
             wrapOrInsertInTextarea(
@@ -2161,7 +2255,7 @@
             for (let attempt = 0; attempt < maxAttempts; attempt++) {
               const seed = attempt === 0 ? campaignSeed : `${campaignSeed}::retry-${attempt}::${idx}`;
               const spun = clientResolveSpintax(masterSpintax, seed, idx + attempt * 7);
-              const pureCandidate = clientInjectGeo(spun, target, cfg).replace(/\{\{PROJECT_IMAGES_BLOCK\}\}/g, '');
+              const pureCandidate = clientInjectGeo(spun, target, cfg).replace(/\{\{PROJECT_IMAGES_BLOCK(?:_TOP|_BOTTOM)?\}\}/g, '');
               const candProf = buildCompactTextProfile(pureCandidate);
 
               if (peerProfiles.length === 0) {
@@ -2213,7 +2307,10 @@
               imageAltPattern: inputImageAlt.value,
               target
             });
-            const finalContent = bestPureText.replace(/\{\{PROJECT_IMAGES_BLOCK\}\}/g, imgRender.figuresHtml);
+            const finalContent = bestPureText
+              .replace(/\{\{PROJECT_IMAGES_BLOCK_TOP\}\}/g, imgRender.topFiguresHtml || imgRender.figuresHtml)
+              .replace(/\{\{PROJECT_IMAGES_BLOCK_BOTTOM\}\}/g, imgRender.bottomFiguresHtml || '')
+              .replace(/\{\{PROJECT_IMAGES_BLOCK\}\}/g, imgRender.figuresHtml);
 
             const firstLine = bestPureText
               .split('\n')[0]
@@ -2995,6 +3092,13 @@ ${expandBlobUrlsForExport(art.htmlContent)}
                 targetUrl: inputTargetUrl.value,
                 anchorText: inputAnchorText.value,
                 linkRel: selectLinkRel.value,
+                phoneLinkNumber: inputPhoneLink ? inputPhoneLink.value.trim() : '',
+                phoneLinkAnchor: inputPhoneAnchor ? inputPhoneAnchor.value.trim() : '',
+                emailLinkAddress: inputEmailLink ? inputEmailLink.value.trim() : '',
+                emailLinkAnchor: inputEmailAnchor ? inputEmailAnchor.value.trim() : '',
+                imagePosition: selectImagePosition ? selectImagePosition.value : 'top',
+                whatsappPosition: selectWaPosition ? selectWaPosition.value : 'top_bottom',
+                linkPosition: selectLinkPosition ? selectLinkPosition.value : 'middle',
                 autoTemplateEnabled: chkAutoTemplate.checked,
                 enableBoldKeywords: chkBoldKeywords.checked,
                 enableUnderlineBenefits: chkUnderlineBenefits.checked,
@@ -3759,7 +3863,7 @@ if __name__ == '__main__':
           ta.value = current9SectionsMap[spec.id] || '';
           ta.addEventListener('input', () => {
             current9SectionsMap[spec.id] = ta.value;
-            textareaRawMainArticle.value = combine9SectionsToRawArticle(current9SectionsMap);
+            textareaRawMainArticle.value = window.LocalSpinClient.stripSectionMarkers(combine9SectionsToRawArticle(current9SectionsMap));
             updateDetectedLanguageUI();
             rebuildBlueprintFromInputs(true);
             refreshAlignmentAuditUI();

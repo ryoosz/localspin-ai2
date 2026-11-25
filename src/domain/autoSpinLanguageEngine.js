@@ -267,8 +267,75 @@ function detectArticleLanguage(rawText) {
  * regional hooks ({{kecamatan}}, {{label_kota_kabupaten}}, {{wilayah}}) so every paragraph
  * has deep structural variation.
  */
+
+/**
+ * Strips all [BAGIAN 01], [ BAGIAN 06 ], Bagian 01:, [SECTION 2], [TAHAP 1] markers
+ * so prompt scaffolding labels never leak into generated article prose.
+ */
+function stripSectionMarkers(text) {
+  return String(text || '')
+    .replace(/\[\s*(?:BAGIAN|BAGAN|SECTION|STAGE|PART|TAHAP)\s*0?\d+[^\]]*\]\s*[:\-–—]?/gi, ' ')
+    .replace(/^(\s*#{1,4}\s+)\*{0,2}(?:BAGIAN|BAGAN|SECTION|TAHAP)\s*0?\d+\*{0,2}\s*[:\-–—]\s*/gim, '$1')
+    .replace(/^\s*(?:#{1,4}\s*)?\*{0,2}(?:BAGIAN|BAGAN|SECTION|TAHAP)\s*0?\d+\*{0,2}\s*[:\-–—]?\s*$/gim, '')
+    .replace(/\b(?:BAGIAN|BAGAN)\s*0?[1-9]\b\s*[:\-–—]?/gi, ' ')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/**
+ * Normalizes a smart hyperlink target: supports Website URLs (https://), Phone numbers (tel:), and Emails (mailto:).
+ */
+function normalizeSmartHref(rawTarget) {
+  const val = String(rawTarget || '').trim();
+  if (!val) return { href: '', isWeb: false, kind: 'empty', display: '' };
+  if (/^mailto:/i.test(val)) {
+    const cleanMail = val.replace(/^mailto:/i, '').trim();
+    return { href: 'mailto:' + cleanMail, isWeb: false, kind: 'email', display: cleanMail.split('?')[0] };
+  }
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+    return { href: 'mailto:' + val, isWeb: false, kind: 'email', display: val };
+  }
+  if (/^tel:/i.test(val)) {
+    const rawPh = val.replace(/^tel:/i, '').trim();
+    const digits = rawPh.replace(/[^0-9+]/g, '');
+    return { href: 'tel:' + digits, isWeb: false, kind: 'phone', display: rawPh };
+  }
+  if (/^[+\d][\d\s().\-]{5,22}$/.test(val) && !val.includes('.')) {
+    const digitsOnly = val.replace(/[^0-9]/g, '');
+    const normPhone = digitsOnly.startsWith('0')
+      ? '+62' + digitsOnly.slice(1)
+      : digitsOnly.startsWith('62')
+        ? '+' + digitsOnly
+        : '+' + digitsOnly;
+    return { href: 'tel:' + normPhone, isWeb: false, kind: 'phone', display: val };
+  }
+  const webUrl = /^https?:\/\//i.test(val) ? val : 'https://' + val;
+  return { href: webUrl, isWeb: true, kind: 'url', display: val };
+}
+
+function splitBodyAtMidpoint(bodyStr) {
+  const blocks = String(bodyStr || '').split(/\n\n+/).map((b) => b.trim()).filter(Boolean);
+  if (blocks.length <= 1) return [bodyStr, ''];
+  let splitIdx = Math.ceil(blocks.length / 2);
+  // Prefer splitting right before a heading near the middle so headings stay attached to their paragraphs
+  for (let offset = 0; offset <= 2; offset++) {
+    const cand = splitIdx + offset;
+    if (cand > 0 && cand < blocks.length && /^#{2,3}\s+/.test(blocks[cand])) {
+      splitIdx = cand;
+      break;
+    }
+    const candBack = splitIdx - offset;
+    if (candBack > 0 && candBack < blocks.length && /^#{2,3}\s+/.test(blocks[candBack])) {
+      splitIdx = candBack;
+      break;
+    }
+  }
+  return [blocks.slice(0, splitIdx).join('\n\n'), blocks.slice(splitIdx).join('\n\n')];
+}
+
 function autoSpinRawArticle(rawArticleText, { topic = 'Layanan Profesional', forceLanguage = 'auto' } = {}) {
-  const input = String(rawArticleText || '').trim();
+  const input = stripSectionMarkers(rawArticleText);
   const detection = detectArticleLanguage(input || topic);
   const lang = forceLanguage && forceLanguage !== 'auto' ? forceLanguage : detection.languageCode;
 
@@ -384,6 +451,13 @@ function assembleAutoTemplate({
   targetUrl = 'https://nusantaraseo.id/layanan-resmi',
   anchorText = 'halaman layanan resmi kami',
   linkRel = 'dofollow',
+  phoneLinkNumber = '',
+  phoneLinkAnchor = '',
+  emailLinkAddress = '',
+  emailLinkAnchor = '',
+  imagePosition = 'top',
+  whatsappPosition = 'top_bottom',
+  linkPosition = 'middle',
   enableBoldKeywords = true,
   enableUnderlineBenefits = true,
   enableImageBlock = true,
@@ -401,54 +475,92 @@ function assembleAutoTemplate({
     ? `<div class="wa-cta-box wa-cta-top"><a href="{{wa_url}}" target="_blank" rel="noopener" class="wa-cta-button">&#128172; {${whatsappLabel || 'Chat WhatsApp Konsultan Sekarang'}|Konsultasi Cepat via WhatsApp ({{kecamatan}})|Hubungi WhatsApp Resmi Area {{kecamatan}}|Respon Cepat WhatsApp Cabang {{kota_kabupaten}}} ({{wa_number}})</a></div>`
     : '';
 
-  const imagePlaceholderBlock = enableImageBlock
-    ? `{{PROJECT_IMAGES_BLOCK}}`
+  const waMiddleHtml = enableWhatsappCta
+    ? `<div class="wa-cta-box wa-cta-middle"><a href="{{wa_url}}" target="_blank" rel="noopener" class="wa-cta-button">&#128172; {${whatsappLabel || 'Konsultasi via WhatsApp'}|Tanya Jadwal & Estimasi Area {{kecamatan}}|Chat Tim Teknis {{label_kota_kabupaten}}} ({{wa_number}})</a></div>`
     : '';
 
-  const autoUrlBlock = enableHyperlink && targetUrl
-    ? `## {Informasi Resmi & Referensi Layanan|Portal Layanan & Spesifikasi Teknis|Tautan Resmi Layanan Pelanggan|Pusat Informasi & Portofolio Kerja|Rujukan Teknis & Katalog Layanan|Akses Informasi Resmi Cabang|Referensi Lengkap Layanan} di {{label_kota_kabupaten}}\n\n{Untuk melihat rincian standar operasional serta cakupan wilayah kerja kami di Provinsi {{wilayah}}, silakan kunjungi|Informasi lebih mendalam mengenai spesifikasi pengerjaan untuk area Kecamatan {{kecamatan}} dapat Anda akses melalui|Anda juga dapat memeriksa daftar layanan lengkap serta portofolio terbaru kami di {{label_kota_kabupaten}} pada|Guna memastikan transparansi prosedur dan rincian layanan di Kecamatan {{kecamatan}}, silakan buka|Pelajari lebih lanjut mengenai standar kualitas dan jaminan layanan kami di {{kota_kabupaten}} dengan mengunjungi|Referensi teknis serta panduan pemesanan jadwal survei untuk kawasan {{kecamatan}} tersedia secara lengkap di|Dapatkan pembaruan informasi layanan resmi untuk seluruh area {{label_kota_kabupaten}} melalui} <a href="{{target_url}}" target="_blank"${relAttr}><strong>{${anchorText || 'halaman layanan resmi kami'}|portal resmi ${cleanTopic} {{kota_kabupaten}}|halaman utama layanan {{label_kota_kabupaten}}|katalog spesifikasi ${cleanTopic} {{wilayah}}|pusat informasi resmi kami}</strong></a>.`
+  const waBottomHtml = enableWhatsappCta
+    ? `<div class="wa-cta-box wa-cta-bottom"><a href="{{wa_url}}" target="_blank" rel="noopener" class="wa-cta-button">&#128172; {${whatsappLabel || 'Chat WhatsApp Konsultan Sekarang'}|Klik untuk Chat WhatsApp Area {{kecamatan}}|Hubungi WhatsApp Resmi Cabang {{kota_kabupaten}}|Konsultasi Cepat via WhatsApp ({{kecamatan}})|Respon Cepat WhatsApp Tim Teknis {{kecamatan}}|Tanya Estimasi Biaya via WhatsApp|Jadwalkan Survei via WhatsApp Sekarang} ({{wa_number}})</a></div>`
+    : '';
+
+  // Build flexible Hyperlink Block (Website URL + Phone tel: + Email mailto:)
+  const linkParts = [];
+  if (enableHyperlink && String(targetUrl || '').trim()) {
+    const mainParsed = normalizeSmartHref(targetUrl);
+    const targetAttr = mainParsed.isWeb ? ` target="_blank"${relAttr}` : '';
+    const hrefToken = mainParsed.isWeb ? '{{target_url}}' : mainParsed.href;
+    linkParts.push(`<a href="${hrefToken}"${targetAttr}><strong>{${anchorText || mainParsed.display || 'halaman layanan resmi kami'}|portal resmi ${cleanTopic} {{kota_kabupaten}}|halaman utama layanan {{label_kota_kabupaten}}|katalog spesifikasi ${cleanTopic} {{wilayah}}|pusat informasi resmi kami}</strong></a>`);
+  }
+  if (String(phoneLinkNumber || '').trim()) {
+    const phParsed = normalizeSmartHref(phoneLinkNumber);
+    const phLabel = String(phoneLinkAnchor || '').trim() || `Hubungi Telepon Resmi (${phParsed.display})`;
+    linkParts.push(`<a href="${phParsed.href}" class="contact-tel-link">&#128222; <strong>${phLabel}</strong></a>`);
+  }
+  if (String(emailLinkAddress || '').trim()) {
+    const emParsed = normalizeSmartHref(emailLinkAddress);
+    const emLabel = String(emailLinkAnchor || '').trim() || `Kirim Email Resmi (${emParsed.display})`;
+    linkParts.push(`<a href="${emParsed.href}" class="contact-email-link">&#9993; <strong>${emLabel}</strong></a>`);
+  }
+
+  const autoUrlBlock = linkParts.length > 0
+    ? `## {Informasi Resmi & Kontak Layanan|Portal Layanan & Spesifikasi Teknis|Tautan Resmi Layanan Pelanggan|Pusat Informasi & Portofolio Kerja|Rujukan Teknis & Katalog Layanan|Akses Informasi Resmi Cabang|Referensi Lengkap Layanan} di {{label_kota_kabupaten}}\n\n{Untuk melihat rincian standar operasional serta cakupan wilayah kerja kami di Provinsi {{wilayah}}, silakan kunjungi|Informasi lebih mendalam mengenai spesifikasi pengerjaan untuk area Kecamatan {{kecamatan}} dapat Anda akses melalui|Anda juga dapat memeriksa daftar layanan lengkap serta portofolio terbaru kami di {{label_kota_kabupaten}} pada|Guna memastikan transparansi prosedur dan rincian layanan di Kecamatan {{kecamatan}}, silakan buka|Pelajari lebih lanjut mengenai standar kualitas dan jaminan layanan kami di {{kota_kabupaten}} dengan mengunjungi|Referensi teknis serta panduan pemesanan jadwal survei untuk kawasan {{kecamatan}} tersedia secara lengkap di|Dapatkan pembaruan informasi layanan resmi untuk seluruh area {{label_kota_kabupaten}} melalui} ${linkParts.join(' | ')}.`
     : '';
 
   const faqBlock = enableFaqSchema
     ? `## {Tanya Jawab (FAQ)|Pertanyaan Umum Pelanggan|Informasi Penting|Panduan Tanya Jawab|Hal yang Sering Ditanyakan|FAQ Layanan Lokal|Penjelasan Singkat} Seputar ${cleanTopic} di Kecamatan {{kecamatan}}\n\n### {Apakah melayani kunjungan survei ke seluruh kelurahan di Kecamatan {{kecamatan}}?|Bagaimana prosedur pemesanan jadwal ke area {{kecamatan}}, {{kota_kabupaten}}?|Berapa cepat tim teknis dapat menjangkau lokasi di {{kecamatan}}?|Apakah seluruh titik di Kecamatan {{kecamatan}} masuk dalam rute layanan?|Bagaimana cara mengatur jadwal inspeksi awal di {{kecamatan}}?|Apakah tersedia pengecekan lokasi langsung di area {{kecamatan}}?|Dapatkah teknisi langsung datang ke lokasi di Kecamatan {{kecamatan}}?}\n\n{Ya, tim operasional kami di {{label_kota_kabupaten}} menjangkau seluruh area Kecamatan {{kecamatan}} dengan penjadwalan fleksibel.|Tentu, petugas lapangan kami siap mengunjungi titik lokasi Anda di {{kecamatan}} setelah koordinasi waktu melalui WhatsApp.|Benar, seluruh kawasan pemukiman maupun komersial di Kecamatan {{kecamatan}} ({{wilayah}}) termasuk dalam rute prioritas kami.|Kami melayani kunjungan survei terjadwal maupun kebutuhan mendesak untuk seluruh pelanggan di lingkup Kecamatan {{kecamatan}}.|Tim teknis cabang {{kota_kabupaten}} rutin bertugas di area {{kecamatan}} sehingga proses penjadwalan sangat cepat.|Anda cukup mengirimkan titik lokasi di Kecamatan {{kecamatan}} dan koordinator kami segera mengatur jadwal kedatangan.|Seluruh jalan utama hingga area perumahan di Kecamatan {{kecamatan}} dapat dijangkau dengan cepat oleh armada kami.}`
     : '';
 
-  const waButtonHtml = enableWhatsappCta
-    ? `\n\n<div class="wa-cta-box wa-cta-bottom"><a href="{{wa_url}}" target="_blank" rel="noopener" class="wa-cta-button">&#128172; {${whatsappLabel || 'Chat WhatsApp Konsultan Sekarang'}|Klik untuk Chat WhatsApp Area {{kecamatan}}|Hubungi WhatsApp Resmi Cabang {{kota_kabupaten}}|Konsultasi Cepat via WhatsApp ({{kecamatan}})|Respon Cepat WhatsApp Tim Teknis {{kecamatan}}|Tanya Estimasi Biaya via WhatsApp|Jadwalkan Survei via WhatsApp Sekarang} ({{wa_number}})</a></div>`
-    : '';
+  const showWaTop = whatsappPosition === 'top' || whatsappPosition === 'top_bottom' || whatsappPosition === 'all';
+  const showWaMid = whatsappPosition === 'middle' || whatsappPosition === 'all';
+  const showWaBot = whatsappPosition === 'bottom' || whatsappPosition === 'top_bottom' || whatsappPosition === 'all';
 
-  const autoCtaFooter = `## {Jadwalkan Survei di {{kecamatan}}|Hubungi Spesialis Area {{kecamatan}}|Konsultasi Kebutuhan Anda|Dapatkan Estimasi Wilayah {{kecamatan}}|Layanan Cepat Area {{kecamatan}}|Diskusikan Proyek Anda di {{kecamatan}}|Kontak Tim Teknis {{kota_kabupaten}}}\n\n{Jangan tunda kebutuhan <strong>${cleanTopic}</strong> di lokasi Anda. ${callToAction} untuk seluruh area Kecamatan {{kecamatan}}, {{label_kota_kabupaten}} ({{wilayah}}).|Siap memperoleh penanganan <strong>${cleanTopic}</strong> yang rapi, transparan, dan bergaransi di {{kecamatan}}? ${callToAction} — tim {{kota_kabupaten}} kami siap melayani.|Untuk tanya jawab teknis, rincian anggaran, maupun jadwal kunjungan ke Kecamatan {{kecamatan}} ({{label_kota_kabupaten}}), segera hubungi kami. ${callToAction}.|Pastikan proyek <strong>${cleanTopic}</strong> Anda di Kecamatan {{kecamatan}} ditangani oleh tenaga kompeten. ${callToAction} dan dapatkan solusi terbaik di {{wilayah}}.|Kami siap mendampingi kebutuhan <strong>${cleanTopic}</strong> rumah tangga maupun komersial di {{kecamatan}}, {{jenis_daerah}} {{kota_kabupaten}}. ${callToAction}.|Ambil langkah tepat hari ini untuk kebutuhan <strong>${cleanTopic}</strong> di kawasan {{kecamatan}}. ${callToAction} bersama tim profesional {{label_kota_kabupaten}}.|Wujudkan pengerjaan <strong>${cleanTopic}</strong> yang aman dan tepat anggaran di Kecamatan {{kecamatan}}. ${callToAction} sekarang juga.}${waButtonHtml}`;
+  const imgPos = imagePosition || 'top';
+  const imgTop = enableImageBlock && imgPos === 'top' ? '{{PROJECT_IMAGES_BLOCK}}'
+    : enableImageBlock && imgPos === 'top_bottom' ? '{{PROJECT_IMAGES_BLOCK_TOP}}' : '';
+  const imgMid = enableImageBlock && imgPos === 'middle' ? '{{PROJECT_IMAGES_BLOCK}}' : '';
+  const imgBot = enableImageBlock && imgPos === 'bottom' ? '{{PROJECT_IMAGES_BLOCK}}'
+    : enableImageBlock && imgPos === 'top_bottom' ? '{{PROJECT_IMAGES_BLOCK_BOTTOM}}' : '';
 
-  const bodyStr = String(spunBody || '').trim();
-  const hasOwnH1 = /^#\s+/m.test(bodyStr);
-  const hasOwnFaq = /^#{2,3}\s+.*(faq|tanya jawab|pertanyaan)/im.test(bodyStr);
+  const lnkPos = linkPosition || 'middle';
+  const lnkTop = lnkPos === 'top' ? autoUrlBlock : '';
+  const lnkMid = (lnkPos === 'middle' || lnkPos === 'middle_bottom') ? autoUrlBlock : '';
+  const lnkBot = (lnkPos === 'bottom' || lnkPos === 'middle_bottom') ? autoUrlBlock : '';
 
+  const autoCtaFooter = `## {Jadwalkan Survei di {{kecamatan}}|Hubungi Spesialis Area {{kecamatan}}|Konsultasi Kebutuhan Anda|Dapatkan Estimasi Wilayah {{kecamatan}}|Layanan Cepat Area {{kecamatan}}|Diskusikan Proyek Anda di {{kecamatan}}|Kontak Tim Teknis {{kota_kabupaten}}}\n\n{Jangan tunda kebutuhan <strong>${cleanTopic}</strong> di lokasi Anda. ${callToAction} untuk seluruh area Kecamatan {{kecamatan}}, {{label_kota_kabupaten}} ({{wilayah}}).|Siap memperoleh penanganan <strong>${cleanTopic}</strong> yang rapi, transparan, dan bergaransi di {{kecamatan}}? ${callToAction} — tim {{kota_kabupaten}} kami siap melayani.|Untuk tanya jawab teknis, rincian anggaran, maupun jadwal kunjungan ke Kecamatan {{kecamatan}} ({{label_kota_kabupaten}}), segera hubungi kami. ${callToAction}.|Pastikan proyek <strong>${cleanTopic}</strong> Anda di Kecamatan {{kecamatan}} ditangani oleh tenaga kompeten. ${callToAction} dan dapatkan solusi terbaik di {{wilayah}}.|Kami siap mendampingi kebutuhan <strong>${cleanTopic}</strong> rumah tangga maupun komersial di {{kecamatan}}, {{jenis_daerah}} {{kota_kabupaten}}. ${callToAction}.|Ambil langkah tepat hari ini untuk kebutuhan <strong>${cleanTopic}</strong> di kawasan {{kecamatan}}. ${callToAction} bersama tim profesional {{label_kota_kabupaten}}.|Wujudkan pengerjaan <strong>${cleanTopic}</strong> yang aman dan tepat anggaran di Kecamatan {{kecamatan}}. ${callToAction} sekarang juga.}${showWaBot && waBottomHtml ? '\n\n' + waBottomHtml : ''}`;
+
+  const cleanBody = stripSectionMarkers(spunBody || '');
+  const hasOwnH1 = /^#\s+/m.test(cleanBody);
+  const hasOwnFaq = /^#{2,3}\s+.*(faq|tanya jawab|pertanyaan)/im.test(cleanBody);
+
+  let headerLine = autoHeader;
+  let coreContent = cleanBody;
   if (hasOwnH1) {
-    const lines = bodyStr.split('\n');
-    const firstLine = lines[0];
-    const restBody = lines.slice(1).join('\n').trim();
-    return [
-      firstLine,
-      waTopHtml,
-      imagePlaceholderBlock,
-      restBody,
-      autoUrlBlock,
-      hasOwnFaq ? '' : faqBlock,
-      waButtonHtml ? waButtonHtml.trim() : ''
-    ]
-      .filter(Boolean)
-      .join('\n\n');
+    const lines = cleanBody.split('\n');
+    headerLine = lines[0];
+    coreContent = lines.slice(1).join('\n').trim();
   }
 
-  return [autoHeader, waTopHtml, imagePlaceholderBlock, bodyStr, autoUrlBlock, hasOwnFaq ? '' : faqBlock, autoCtaFooter]
+  const [firstHalf, secondHalf] = splitBodyAtMidpoint(coreContent);
+
+  return [
+    headerLine,
+    showWaTop ? waTopHtml : '',
+    imgTop,
+    lnkTop,
+    firstHalf,
+    imgMid,
+    lnkMid,
+    showWaMid ? waMiddleHtml : '',
+    secondHalf,
+    imgBot,
+    lnkBot,
+    hasOwnFaq ? '' : faqBlock,
+    hasOwnH1 ? (showWaBot ? waBottomHtml : '') : autoCtaFooter
+  ]
     .filter(Boolean)
     .join('\n\n');
 }
 
-/**
- * Calculates how many unique articles can be generated mathematically vs
- * the SAFE RECOMMENDED number of articles to prevent "artikel sampah" (thin/duplicate doorway spam).
- */
 function calculateSafeArticleCapacity({
   spintaxTemplate = '',
   projectImageCount = 1,
@@ -544,6 +656,8 @@ function calculateSafeArticleCapacity({
 }
 
 module.exports = {
+  stripSectionMarkers,
+  normalizeSmartHref,
   detectArticleLanguage,
   autoSpinRawArticle,
   assembleAutoTemplate,
