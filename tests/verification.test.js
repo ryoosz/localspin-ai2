@@ -1000,4 +1000,31 @@ test('L2 & L3 - Section 1B Mini-Prompt Keyword Research, Auto-Extraction of Sema
   assert.ok(dashHtml.includes('id="btnBridgeChecklistToPrompt"'));
   assert.ok(dashHtml.includes('id="promptConnected1BStrip"'));
   assert.ok(dashHtml.includes('id="btnSaveKeywordChecklist"'));
+
+  // Verify [keyword][provinsi][kota][jumlah spin] folder builder & region spin summarizer
+  const folderTag = client.buildSpinSaveFolderName({
+    keyword: 'Jasa Pasang Panel Surya: Murah/Bergaransi?',
+    provinsi: 'Jawa Barat',
+    kota: 'Kota Bandung',
+    spinCount: 14
+  });
+  assert.equal(folderTag, '[Jasa Pasang Panel Surya Murah Bergaransi][Jawa Barat][Kota Bandung][14 Spin]');
+
+  const spinSummary = client.summarizeSpinCountsByRegion([
+    { wilayah: 'Jawa Barat', jenisDaerah: 'Kota', labelKotaKabupaten: 'Kota Bandung', kecamatan: 'Coblong' },
+    { wilayah: 'Jawa Barat', jenisDaerah: 'Kota', labelKotaKabupaten: 'Kota Bandung', kecamatan: 'Coblong' },
+    { wilayah: 'Jawa Barat', jenisDaerah: 'Kota', labelKotaKabupaten: 'Kota Bandung', kecamatan: 'Cicendo' },
+    { wilayah: 'Jawa Barat', jenisDaerah: 'Kabupaten', labelKotaKabupaten: 'Kabupaten Bandung', kecamatan: 'Soreang' }
+  ]);
+  assert.equal(spinSummary.totalSpins, 4);
+  assert.equal(spinSummary.totalKabupaten, 2);
+  assert.equal(spinSummary.totalKecamatan, 3);
+  assert.equal(spinSummary.kabupatenList[0].label, 'Kota Bandung');
+  assert.equal(spinSummary.kabupatenList[0].spinCount, 3);
+  assert.equal(spinSummary.kabupatenList[0].kecamatanList[0].spinCount, 2);
+
+  assert.ok(dashHtml.includes('id="inputSpinKabKotaCount"'));
+  assert.ok(dashHtml.includes('id="inputSpinPerKecamatan"'));
+  assert.ok(dashHtml.includes('id="spinKabKecBreakdownList"'));
+  assert.ok(dashHtml.includes('id="saveFolderPreviewBadge"'));
 });

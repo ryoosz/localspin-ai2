@@ -199,6 +199,38 @@
             </div>
           </div>
 
+          <!-- Pengaturan & Info Berapa Kali Di-Spin Kabupaten/Kota & Kecamatan -->
+          <div id="spinRegionControlCard" class="spin-region-info-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 0.5rem;">
+              <strong style="font-size: 0.84rem; color: #1e3a8a;">🎛️ Atur &amp; Info Spin Kabupaten/Kota + Kecamatan</strong>
+              <button type="button" id="btnSelectAllKabKotaInProv" class="btn btn-secondary btn-sm" style="font-size: 0.68rem; padding: 2px 7px;" title="Gunakan seluruh Kota/Kabupaten di Provinsi ini">Semua Kab/Kota</button>
+            </div>
+            <div class="grid-3" style="gap: 0.45rem; margin-bottom: 0.5rem;">
+              <div>
+                <label class="form-label" for="inputSpinKabKotaCount" style="font-size: 0.72rem; margin-bottom: 3px;">Jml Kab/Kota Di-Spin</label>
+                <input type="number" id="inputSpinKabKotaCount" class="form-control" min="1" max="38" value="1" style="padding: 5px 7px; height: 34px; font-size: 0.82rem; font-weight: 700;" />
+              </div>
+              <div>
+                <label class="form-label" for="inputSpinPerKecamatan" style="font-size: 0.72rem; margin-bottom: 3px;">Spin / Kecamatan (x)</label>
+                <input type="number" id="inputSpinPerKecamatan" class="form-control" min="1" max="50" value="1" style="padding: 5px 7px; height: 34px; font-size: 0.82rem; font-weight: 700;" />
+              </div>
+              <div>
+                <label class="form-label" for="inputMaxSpinPerKabKota" style="font-size: 0.72rem; margin-bottom: 3px;" title="Isi 0 untuk otomatis (Kecamatan × Spin/Kec), atau isi angka kuota spin per Kabupaten/Kota">Kuota / Kab-Kota (0=Auto)</label>
+                <input type="number" id="inputMaxSpinPerKabKota" class="form-control" min="0" max="250" value="0" style="padding: 5px 7px; height: 34px; font-size: 0.82rem;" />
+              </div>
+            </div>
+            <div style="font-size: 0.71rem; color: var(--text-muted); margin-bottom: 0.45rem;">
+              💡 Tip: Angka kotak kecil pada tiap chip Kecamatan di atas juga bisa diatur berbeda per-kecamatan.
+            </div>
+            <div id="spinKabKecSummaryHeader" style="font-size: 0.78rem; font-weight: 700; color: #0f172a; margin-bottom: 4px;">
+              📊 Info Spin: Menghitung rincian Kabupaten/Kota &amp; Kecamatan...
+            </div>
+            <div id="spinKabKecBreakdownList" class="spin-kab-list" aria-live="polite"></div>
+            <div style="margin-top: 0.5rem;">
+              <span id="cp1SaveFolderPreview" class="save-folder-badge">📁 [Keyword][Provinsi][Kota][0 Spin]</span>
+            </div>
+          </div>
+
           <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1.15rem 0;" />
 
           <!-- Koleksi Gambar Referensi per Project (1 s/d 99 Gambar) -->
@@ -944,7 +976,26 @@
               aria-label="Editor Master Spintax"
             ></textarea>
           </div>
-          <div class="cp-action-bar" style="background: rgba(16, 185, 129, 0.06); padding: 12px; border-radius: 8px; border: 1.5px solid #10b981; margin-top: 0.9rem;">
+          <div id="cp6SpinSummaryBar" style="background: #eff6ff; border: 1px solid #93c5fd; border-radius: 8px; padding: 10px 12px; margin-top: 0.9rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.65rem;">
+            <div style="flex: 1; min-width: 240px;">
+              <div id="cp6SpinBreakdownText" style="font-size: 0.8rem; font-weight: 700; color: #1e3a8a; margin-bottom: 4px;">
+                📊 Info Spin: 1 Kab/Kota &bull; Kecamatan siap di-spin
+              </div>
+              <span id="cp6SaveFolderBadge" class="save-folder-badge">📁 Save Folder: [Keyword][Provinsi][Kota][0 Spin]</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <label style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.76rem; font-weight: 700; color: #1e40af;">
+                <span>Jml Kab/Kota:</span>
+                <input type="number" id="inputSpinKabKotaCp6" class="form-control" min="1" max="38" value="1" style="width: 58px; height: 30px; padding: 3px 6px; font-size: 0.8rem; font-weight: 700;" />
+              </label>
+              <label style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.76rem; font-weight: 700; color: #1e40af;">
+                <span>Spin / Kecamatan:</span>
+                <input type="number" id="inputSpinPerKecCp6" class="form-control" min="1" max="50" value="1" style="width: 58px; height: 30px; padding: 3px 6px; font-size: 0.8rem; font-weight: 700;" />
+              </label>
+            </div>
+          </div>
+
+          <div class="cp-action-bar" style="background: rgba(16, 185, 129, 0.06); padding: 12px; border-radius: 8px; border: 1.5px solid #10b981; margin-top: 0.65rem;">
             <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary);">
               🚀 Tahap Akhir (Checkpoint 6): Setelah Master Spintax dicek/diedit, pilih mode generate:
             </div>
@@ -964,13 +1015,13 @@
 
         <!-- Step 3: Generated Articles + Google SERP Preview + Copyscape Audit -->
         <section class="card" aria-labelledby="copyscape-inspector-heading">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.85rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.65rem;">
             <div>
               <h2 id="copyscape-inspector-heading" style="font-size: 1.18rem; margin-bottom: 0.25rem;">
                 4. Hasil Artikel Daerah (Mode Minimize, Nomor, Checkbox &amp; Siap Upload Website)
               </h2>
               <p class="form-hint" style="margin: 0;">
-                Setiap artikel disimpan sebagai <strong>file <code>.html</code> terpisah di dalam ZIP</strong> (misal 100 hasil = 100 file HTML). Atur tampilan <strong>20 atau 50 artikel per halaman</strong> dan simpan per halaman atau semua sekaligus.
+                Disimpan otomatis dengan format folder <strong><code>[keyword][provinsi][kota][jumlah spin]</code></strong> di dalam ZIP maupun file ekspor.
               </p>
             </div>
             <div style="display: flex; gap: 0.45rem; flex-wrap: wrap;">
@@ -983,6 +1034,11 @@
               <button type="button" id="btnOpenAutoPostModal" class="btn btn-primary btn-sm" style="background: #10b981; border-color: #10b981; font-weight: 700;">🚀 Auto-Post 10 Website</button>
               <button type="button" id="btnExportJson" class="btn btn-secondary btn-sm">JSON</button>
             </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.65rem;">
+            <span id="saveFolderPreviewBadge" class="save-folder-badge">📁 Nama Save Folder: [Keyword][Provinsi][Kota][0 Spin]</span>
+            <span id="generatedSpinStatsBanner" style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Belum ada batch yang di-generate.</span>
           </div>
 
           <div class="bulk-actions-bar" role="region" aria-label="Kontrol Massal & Pagination Hasil Spintax" style="margin-bottom: 0.65rem;">
@@ -1797,9 +1853,21 @@
         const qEntEl = document.getElementById('quizRelatedEntities');
         if (qEntEl && p.relatedEntities) qEntEl.value = p.relatedEntities;
 
+        const spinKabEl = document.getElementById('inputSpinKabKotaCount');
+        const spinKecEl = document.getElementById('inputSpinPerKecamatan');
+        const spinQuotaEl = document.getElementById('inputMaxSpinPerKabKota');
+        if (spinKabEl) spinKabEl.value = String(p.spinKabKotaCount || 1);
+        if (spinKecEl) spinKecEl.value = String(p.spinPerKecamatan || 1);
+        if (spinQuotaEl) spinQuotaEl.value = String(p.maxSpinPerKabKota || 0);
+        const spinKabCp6 = document.getElementById('inputSpinKabKotaCp6');
+        const spinKecCp6 = document.getElementById('inputSpinPerKecCp6');
+        if (spinKabCp6) spinKabCp6.value = String(p.spinKabKotaCount || 1);
+        if (spinKecCp6) spinKecCp6.value = String(p.spinPerKecamatan || 1);
+
         updateDetectedLanguageUI();
         updateImagePoolUI();
         currentBatchArticles = [];
+        if (typeof syncSpinPlanToUI === 'function') syncSpinPlanToUI();
         if (typeof applyCheckpointStageUI === 'function') applyCheckpointStageUI();
       }
 
@@ -1855,6 +1923,9 @@
           secondaryKeywords: document.getElementById('quizSecondaryKeywords') ? document.getElementById('quizSecondaryKeywords').value.trim() : '',
           semanticKeywords: document.getElementById('quizSemanticKeywords') ? document.getElementById('quizSemanticKeywords').value.trim() : '',
           relatedEntities: document.getElementById('quizRelatedEntities') ? document.getElementById('quizRelatedEntities').value.trim() : '',
+          spinKabKotaCount: Number(document.getElementById('inputSpinKabKotaCount')?.value) || 1,
+          spinPerKecamatan: Number(document.getElementById('inputSpinPerKecamatan')?.value) || 1,
+          maxSpinPerKabKota: Number(document.getElementById('inputMaxSpinPerKabKota')?.value) || 0,
           images: imgs
         };
         persistProjectsMapSafe();
@@ -1895,22 +1966,249 @@
           if (idx === 0) opt.selected = true;
           selectDaerah.appendChild(opt);
         });
+        const spinKabEl = document.getElementById('inputSpinKabKotaCount');
+        const spinKabCp6 = document.getElementById('inputSpinKabKotaCp6');
+        const maxDaerah = Math.max(1, (w.daerahList || []).length);
+        if (spinKabEl) {
+          spinKabEl.max = String(maxDaerah);
+          if (Number(spinKabEl.value) > maxDaerah) spinKabEl.value = String(maxDaerah);
+        }
+        if (spinKabCp6) {
+          spinKabCp6.max = String(maxDaerah);
+          if (Number(spinKabCp6.value) > maxDaerah) spinKabCp6.value = String(maxDaerah);
+        }
         populateKecamatanChips();
+      }
+
+      function getSaveFolderNameForArticles(articlesSlice = [], extraTag = '') {
+        const kw = (
+          (document.getElementById('quizPrimaryKeyword')?.value || '').trim() ||
+          (inputTopic.value || '').trim() ||
+          (inputProjectName.value || '').trim() ||
+          'Artikel'
+        );
+        const wObj = getSelectedWilayahObj();
+        const dObj = getSelectedDaerahObj();
+
+        const provSet = [];
+        const kotaSet = [];
+        for (const a of Array.isArray(articlesSlice) ? articlesSlice : []) {
+          if (!a) continue;
+          const pv = String(a.wilayah || '').trim();
+          const kt = String(a.labelKotaKabupaten || a.kotaKabupaten || '').trim();
+          if (pv && !provSet.includes(pv)) provSet.push(pv);
+          if (kt && !kotaSet.includes(kt)) kotaSet.push(kt);
+        }
+
+        const provinsiLabel = provSet.length === 0
+          ? (wObj ? wObj.wilayah : 'Indonesia')
+          : provSet.length === 1
+            ? provSet[0]
+            : `${provSet[0]} +${provSet.length - 1} Prov`;
+
+        const kotaLabel = kotaSet.length === 0
+          ? (dObj ? dObj.labelLengkap : 'Kota')
+          : kotaSet.length === 1
+            ? kotaSet[0]
+            : `${kotaSet[0]} +${kotaSet.length - 1} Daerah`;
+
+        return window.LocalSpinClient.buildSpinSaveFolderName({
+          keyword: kw,
+          provinsi: provinsiLabel,
+          kota: kotaLabel,
+          spinCount: Array.isArray(articlesSlice) ? articlesSlice.length : 0,
+          extraTag
+        });
+      }
+
+      function computePlannedSpinPool({ honorManualMax = false } = {}) {
+        const w = getSelectedWilayahObj();
+        const d = getSelectedDaerahObj();
+        const daerahList = Array.isArray(w.daerahList) ? w.daerahList : [d];
+        const kabKotaCount = Math.max(
+          1,
+          Math.min(daerahList.length, Number(document.getElementById('inputSpinKabKotaCount')?.value) || 1)
+        );
+        const defaultSpinPerKec = Math.max(
+          1,
+          Math.min(50, Number(document.getElementById('inputSpinPerKecamatan')?.value) || 1)
+        );
+        const quotaPerKabKota = Math.max(
+          0,
+          Math.min(250, Number(document.getElementById('inputMaxSpinPerKabKota')?.value) || 0)
+        );
+
+        // Selected Kota/Kabupaten first, followed by other Kota/Kabupaten in the same Province
+        const activeDaerahs = [d];
+        for (const cand of daerahList) {
+          if (activeDaerahs.length >= kabKotaCount) break;
+          if (cand.id !== d.id) activeDaerahs.push(cand);
+        }
+
+        const checkedPrimaryInputs = Array.from(kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked'));
+        const rawPool = [];
+
+        activeDaerahs.forEach((daerahObj, dIdx) => {
+          const daerahEntries = [];
+          if (dIdx === 0) {
+            checkedPrimaryInputs.forEach((chk) => {
+              const qty = Math.max(
+                1,
+                Math.min(50, Number((chk._spinQtyInput && chk._spinQtyInput.value) || defaultSpinPerKec) || defaultSpinPerKec)
+              );
+              for (let s = 1; s <= qty; s++) {
+                daerahEntries.push({
+                  wilayah: w.wilayah,
+                  jenisDaerah: daerahObj.jenis,
+                  kotaKabupaten: daerahObj.nama,
+                  labelKotaKabupaten: daerahObj.labelLengkap,
+                  kecamatan: chk.value,
+                  konteksWilayah: w.karakteristikWilayah,
+                  konteksDaerah: daerahObj.konteksDaerah,
+                  konteksKecamatan: chk.dataset.konteks || `kawasan strategis di Kecamatan ${chk.value}`
+                });
+              }
+            });
+          } else {
+            (daerahObj.kecamatan || []).forEach((kecObj) => {
+              for (let s = 1; s <= defaultSpinPerKec; s++) {
+                daerahEntries.push({
+                  wilayah: w.wilayah,
+                  jenisDaerah: daerahObj.jenis,
+                  kotaKabupaten: daerahObj.nama,
+                  labelKotaKabupaten: daerahObj.labelLengkap,
+                  kecamatan: kecObj.nama,
+                  konteksWilayah: w.karakteristikWilayah,
+                  konteksDaerah: daerahObj.konteksDaerah,
+                  konteksKecamatan: kecObj.konteks || `kawasan strategis di Kecamatan ${kecObj.nama}`
+                });
+              }
+            });
+          }
+
+          if (quotaPerKabKota > 0 && daerahEntries.length > 0) {
+            if (daerahEntries.length > quotaPerKabKota) {
+              daerahEntries.length = quotaPerKabKota;
+            } else {
+              const baseCopy = daerahEntries.slice();
+              let ptr = 0;
+              while (daerahEntries.length < quotaPerKabKota) {
+                daerahEntries.push({ ...baseCopy[ptr % baseCopy.length] });
+                ptr++;
+              }
+            }
+          }
+
+          rawPool.push(...daerahEntries);
+        });
+
+        // Cap or expand if honorManualMax is requested (e.g. user manually entered Target Jumlah Artikel)
+        let finalPool = rawPool.slice(0, 250);
+        if (honorManualMax && finalPool.length > 0) {
+          const manualTarget = Math.min(250, Math.max(1, Number(inputMaxArticlesToGen.value) || finalPool.length));
+          if (manualTarget < finalPool.length) {
+            finalPool = finalPool.slice(0, manualTarget);
+          } else if (manualTarget > finalPool.length) {
+            const baseCopy = finalPool.slice();
+            let ptr = 0;
+            while (finalPool.length < manualTarget) {
+              finalPool.push({ ...baseCopy[ptr % baseCopy.length] });
+              ptr++;
+            }
+          }
+        }
+
+        // Annotate exact spin counters per Kabupaten/Kota & per Kecamatan
+        const kabTotals = new Map();
+        const kecTotals = new Map();
+        finalPool.forEach((item) => {
+          const kabK = `${item.wilayah}::${item.labelKotaKabupaten}`;
+          const kecK = `${kabK}::${item.kecamatan}`;
+          kabTotals.set(kabK, (kabTotals.get(kabK) || 0) + 1);
+          kecTotals.set(kecK, (kecTotals.get(kecK) || 0) + 1);
+        });
+
+        const kabSeen = new Map();
+        const kecSeen = new Map();
+        finalPool.forEach((item) => {
+          const kabK = `${item.wilayah}::${item.labelKotaKabupaten}`;
+          const kecK = `${kabK}::${item.kecamatan}`;
+          const kIdx = (kabSeen.get(kabK) || 0) + 1;
+          const cIdx = (kecSeen.get(kecK) || 0) + 1;
+          kabSeen.set(kabK, kIdx);
+          kecSeen.set(kecK, cIdx);
+          item.kabSpinIndex = kIdx;
+          item.kabSpinTotal = kabTotals.get(kabK) || 1;
+          item.kecSpinIndex = cIdx;
+          item.kecSpinTotal = kecTotals.get(kecK) || 1;
+        });
+
+        return finalPool;
+      }
+
+      function syncSpinPlanToUI({ honorManualMax = false } = {}) {
+        const pool = computePlannedSpinPool({ honorManualMax });
+        if (!honorManualMax && pool.length > 0) {
+          inputMaxArticlesToGen.value = String(pool.length);
+        }
+        const summary = window.LocalSpinClient.summarizeSpinCountsByRegion(pool);
+        const folderPreview = getSaveFolderNameForArticles(pool);
+
+        const headerEl = document.getElementById('spinKabKecSummaryHeader');
+        if (headerEl) {
+          headerEl.textContent = `📊 Rencana Spin: ${summary.totalKabupaten} Kab/Kota • ${summary.totalKecamatan} Kecamatan • Total ${summary.totalSpins}x Spin`;
+        }
+
+        const listEl = document.getElementById('spinKabKecBreakdownList');
+        if (listEl) {
+          if (!summary.kabupatenList.length) {
+            listEl.innerHTML = `<div class="spin-kab-row" style="color:#d97706;">Pilih minimal 1 Kecamatan untuk melihat rincian spin.</div>`;
+          } else {
+            listEl.innerHTML = summary.kabupatenList
+              .map((kab, idx) => {
+                const kecTags = kab.kecamatanList
+                  .map((kc) => `${kc.nama} (<strong>${kc.spinCount}x</strong>)`)
+                  .join(', ');
+                return `<div class="spin-kab-row"><strong>🏛️ #${idx + 1} ${kab.label}: ${kab.spinCount}x Spin</strong> (${kab.kecamatanCount} Kec) &rarr; <span style="color:var(--text-secondary);">${kecTags}</span></div>`;
+              })
+              .join('');
+          }
+        }
+
+        const cp1Folder = document.getElementById('cp1SaveFolderPreview');
+        if (cp1Folder) cp1Folder.textContent = `📁 Save Folder: ${folderPreview}`;
+
+        const cp6Text = document.getElementById('cp6SpinBreakdownText');
+        if (cp6Text) {
+          const kabShort = summary.kabupatenList.map((k) => `${k.label} (${k.spinCount}x)`).slice(0, 3).join(', ') +
+            (summary.kabupatenList.length > 3 ? `, +${summary.kabupatenList.length - 3} lainnya` : '');
+          cp6Text.textContent = `📊 Info Spin: ${summary.totalKabupaten} Kab/Kota [${kabShort || '-'}] • ${summary.totalKecamatan} Kecamatan = Total ${summary.totalSpins} Spin`;
+        }
+
+        const cp6Folder = document.getElementById('cp6SaveFolderBadge');
+        if (cp6Folder) cp6Folder.textContent = `📁 Save Folder: ${folderPreview}`;
+
+        const sec4Folder = document.getElementById('saveFolderPreviewBadge');
+        if (sec4Folder && (!currentBatchArticles || currentBatchArticles.length === 0)) {
+          sec4Folder.textContent = `📁 Nama Save Folder: ${folderPreview}`;
+        }
+
+        return pool;
       }
 
       function populateKecamatanChips() {
         const d = getSelectedDaerahObj();
         daerahJenisBadge.textContent = `Tipe Daerah: ${d.jenis} (${d.labelLengkap}) — ${d.konteksDaerah}`;
         kecamatanContainer.innerHTML = '';
+        const defaultSpinQty = Math.max(1, Number(document.getElementById('inputSpinPerKecamatan')?.value) || 1);
         d.kecamatan.forEach((k) => {
-          addKecamatanChip(k.nama, k.konteks, true);
+          addKecamatanChip(k.nama, k.konteks, true, defaultSpinQty);
         });
-        const checkedCount = kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked').length;
-        inputMaxArticlesToGen.value = String(checkedCount);
+        syncSpinPlanToUI();
         updateCapacityAdvisorUI();
       }
 
-      function addKecamatanChip(nama, konteks, checked = true) {
+      function addKecamatanChip(nama, konteks, checked = true, spinQty = null) {
         const label = document.createElement('label');
         label.className = 'chip-checkbox';
         const input = document.createElement('input');
@@ -1919,14 +2217,31 @@
         input.value = nama;
         input.dataset.konteks = konteks || `area strategis dan pemukiman warga di Kecamatan ${nama}`;
         input.addEventListener('change', () => {
-          const c = kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked').length;
-          inputMaxArticlesToGen.value = String(c);
+          syncSpinPlanToUI();
           updateCapacityAdvisorUI();
         });
         const span = document.createElement('span');
         span.textContent = `Kec. ${nama}`;
+
+        const qtyInput = document.createElement('input');
+        qtyInput.type = 'number';
+        qtyInput.className = 'kec-spin-qty';
+        qtyInput.min = '1';
+        qtyInput.max = '50';
+        qtyInput.value = String(spinQty || Math.max(1, Number(document.getElementById('inputSpinPerKecamatan')?.value) || 1));
+        qtyInput.title = `Atur berapa kali Kecamatan ${nama} di-spin`;
+        qtyInput.addEventListener('click', (ev) => ev.stopPropagation());
+        qtyInput.addEventListener('change', () => {
+          const cleanV = Math.max(1, Math.min(50, Number(qtyInput.value) || 1));
+          qtyInput.value = String(cleanV);
+          syncSpinPlanToUI();
+          updateCapacityAdvisorUI();
+        });
+        input._spinQtyInput = qtyInput;
+
         label.appendChild(input);
         label.appendChild(span);
+        label.appendChild(qtyInput);
         kecamatanContainer.appendChild(label);
       }
 
@@ -2299,72 +2614,10 @@
           const cfg = getBlueprintConfigFromForm();
           const projectImages = getCurrentImageListFromTextarea();
           const imagesPerArticle = Math.max(1, Number(selectImagesPerArticle.value) || 2);
-          const requestedMax = Math.min(250, Math.max(1, Number(inputMaxArticlesToGen.value) || checkedInputs.length));
-
-          const targetPool = [];
-          for (let i = 0; i < Math.min(requestedMax, checkedInputs.length); i++) {
-            const chk = checkedInputs[i];
-            targetPool.push({
-              wilayah: w.wilayah,
-              jenisDaerah: d.jenis,
-              kotaKabupaten: d.nama,
-              labelKotaKabupaten: d.labelLengkap,
-              kecamatan: chk.value,
-              konteksWilayah: w.karakteristikWilayah,
-              konteksDaerah: d.konteksDaerah,
-              konteksKecamatan: chk.dataset.konteks
-            });
-          }
-          if (targetPool.length < requestedMax && Array.isArray(w.daerahList)) {
-            for (const extraD of w.daerahList) {
-              if (extraD.id === d.id) continue;
-              for (const extraK of extraD.kecamatan || []) {
-                if (targetPool.length >= requestedMax) break;
-                targetPool.push({
-                  wilayah: w.wilayah,
-                  jenisDaerah: extraD.jenis,
-                  kotaKabupaten: extraD.nama,
-                  labelKotaKabupaten: extraD.labelLengkap,
-                  kecamatan: extraK.nama,
-                  konteksWilayah: w.karakteristikWilayah,
-                  konteksDaerah: extraD.konteksDaerah,
-                  konteksKecamatan: extraK.konteks || `kawasan strategis di Kecamatan ${extraK.nama}`
-                });
-              }
-              if (targetPool.length >= requestedMax) break;
-            }
-          }
-          if (targetPool.length < requestedMax && Array.isArray(LOCALSPIN_REGIONS)) {
-            for (const extraW of LOCALSPIN_REGIONS) {
-              if (extraW.id === w.id) continue;
-              for (const extraD of extraW.daerahList || []) {
-                for (const extraK of extraD.kecamatan || []) {
-                  if (targetPool.length >= requestedMax) break;
-                  targetPool.push({
-                    wilayah: extraW.wilayah,
-                    jenisDaerah: extraD.jenis,
-                    kotaKabupaten: extraD.nama,
-                    labelKotaKabupaten: extraD.labelLengkap,
-                    kecamatan: extraK.nama,
-                    konteksWilayah: extraW.karakteristikWilayah,
-                    konteksDaerah: extraD.konteksDaerah,
-                    konteksKecamatan: extraK.konteks || `kawasan strategis di Kecamatan ${extraK.nama}`
-                  });
-                }
-                if (targetPool.length >= requestedMax) break;
-              }
-              if (targetPool.length >= requestedMax) break;
-            }
-          }
-          const baseLen = targetPool.length;
-          let round = 2;
-          while (targetPool.length < requestedMax && baseLen > 0) {
-            const src = targetPool[(targetPool.length - baseLen) % baseLen];
-            targetPool.push({
-              ...src,
-              kecamatan: `${src.kecamatan} (Bagian ${round})`
-            });
-            if (targetPool.length % baseLen === 0) round++;
+          const targetPool = computePlannedSpinPool({ honorManualMax: true });
+          if (targetPool.length === 0) {
+            articlesOutputContainer.innerHTML = `<div class="notice-banner" style="border-left-color: #d97706;">Silakan centang minimal 1 Kecamatan terlebih dahulu.</div>`;
+            return;
           }
 
           const masterSpintax = textareaSpintax.value;
@@ -2394,7 +2647,7 @@
                 current: idx + 1,
                 total: targetPool.length,
                 percent: pct,
-                stageText: `[${isSlowMode ? 'Slow Generate' : 'Memproses'} ${idx + 1}/${targetPool.length}] Kec. ${target.kecamatan}, ${target.labelKotaKabupaten}...`
+                stageText: `[${isSlowMode ? 'Slow Generate' : 'Memproses'} ${idx + 1}/${targetPool.length}] Kec. ${target.kecamatan} (Spin #${target.kecSpinIndex || 1}/${target.kecSpinTotal || 1}), ${target.labelKotaKabupaten}...`
               });
             }
 
@@ -2404,10 +2657,11 @@
             let bestOvl4 = 100;
             let bestOvl5 = 100;
             let bestPeerLabel = '-';
+            const baseItemSeed = `${campaignSeed}::${target.labelKotaKabupaten}::${target.kecamatan}::spin-${target.kecSpinIndex || 1}`;
 
             for (let attempt = 0; attempt < maxAttempts; attempt++) {
-              const seed = attempt === 0 ? campaignSeed : `${campaignSeed}::retry-${attempt}::${idx}`;
-              const spun = clientResolveSpintax(masterSpintax, seed, idx + attempt * 7);
+              const seed = attempt === 0 ? baseItemSeed : `${baseItemSeed}::retry-${attempt}::${idx}`;
+              const spun = clientResolveSpintax(masterSpintax, seed, idx * 3 + attempt * 11 + (target.kecSpinIndex || 1) * 5);
               const pureCandidate = clientInjectGeo(spun, target, cfg).replace(/\{\{PROJECT_IMAGES_BLOCK(?:_TOP|_BOTTOM)?\}\}/g, '');
               const candProf = buildCompactTextProfile(pureCandidate);
 
@@ -2507,6 +2761,10 @@
               kotaKabupaten: target.kotaKabupaten,
               labelKotaKabupaten: target.labelKotaKabupaten,
               kecamatan: target.kecamatan,
+              kecSpinIndex: target.kecSpinIndex || 1,
+              kecSpinTotal: target.kecSpinTotal || 1,
+              kabSpinIndex: target.kabSpinIndex || 1,
+              kabSpinTotal: target.kabSpinTotal || 1,
               title: firstLine,
               metaTitle: seoMeta.metaTitle,
               metaDescription: seoMeta.metaDescription,
@@ -2536,6 +2794,19 @@
           currentBatchArticles = generated;
           currentArticlesPage = 1;
           updateCapacityAdvisorUI();
+
+          const genSummary = window.LocalSpinClient.summarizeSpinCountsByRegion(generated);
+          const genStatsBanner = document.getElementById('generatedSpinStatsBanner');
+          if (genStatsBanner) {
+            const kabBreakdown = genSummary.kabupatenList
+              .map((kb) => {
+                const kecSample = kb.kecamatanList.slice(0, 4).map((kc) => `${kc.nama} ${kc.spinCount}x`).join(', ') +
+                  (kb.kecamatanList.length > 4 ? `, +${kb.kecamatanList.length - 4} kec` : '');
+                return `${kb.label}: ${kb.spinCount}x spin (${kecSample})`;
+              })
+              .join(' | ');
+            genStatsBanner.innerHTML = `📊 <strong>Hasil Spin Terealisasi:</strong> ${genSummary.totalKabupaten} Kab/Kota &bull; ${genSummary.totalKecamatan} Kecamatan &bull; Total ${genSummary.totalSpins} Spin &mdash; <span style="color:#1e40af;">${kabBreakdown}</span>`;
+          }
 
           const avgUnique = generated.length <= 1 ? 100 : (sumUniqueness / generated.length).toFixed(1);
           document.getElementById('metricAvgUniqueness').textContent = `${avgUnique}%`;
@@ -2616,10 +2887,16 @@
       }
 
       function updateSelectedCountUI() {
-        const checked = currentBatchArticles.filter((a) => a.selected !== false).length;
+        const selectedList = currentBatchArticles.filter((a) => a.selected !== false);
+        const checked = selectedList.length;
         document.getElementById('selectedArticlesCount').textContent = `${checked}/${currentBatchArticles.length}`;
         const masterChk = document.getElementById('chkSelectAllArticles');
         if (masterChk) masterChk.checked = currentBatchArticles.length > 0 && checked === currentBatchArticles.length;
+        const sec4Folder = document.getElementById('saveFolderPreviewBadge');
+        if (sec4Folder) {
+          const folderTag = getSaveFolderNameForArticles(selectedList.length ? selectedList : currentBatchArticles);
+          sec4Folder.textContent = `📁 Nama Save Folder: ${folderTag}`;
+        }
       }
 
       function getSelectedArticles() {
@@ -2749,12 +3026,13 @@ ${expandBlobUrlsForExport(art.htmlContent)}
           const selected = getSelectedArticles();
           if (!selected.length) return alert('Silakan pilih minimal 1 artikel untuk diekspor.');
 
+          const folderTag = getSaveFolderNameForArticles(selected);
           const escapeXml = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
           const atom = `<?xml version='1.0' encoding='UTF-8'?>
 <feed xmlns='http://www.w3.org/2005/Atom' xmlns:openSearch='http://a9.com/-/spec/opensearchrss/1.0/' xmlns:georss='http://www.georss.org/georss' xmlns:gd='http://schemas.google.com/g/2005' xmlns:thr='http://purl.org/syndication/thread/1.0'>
   <id>tag:blogger.com,1999:blog-export</id>
   <updated>${new Date().toISOString()}</updated>
-  <title type='text'>wevo.biz.id Spintax Export</title>
+  <title type='text'>${escapeXml(folderTag)}</title>
   ${selected.map((a, idx) => `
   <entry>
     <id>tag:blogger.com,1999:blog-post-${Date.now()}-${idx}</id>
@@ -2772,7 +3050,7 @@ ${expandBlobUrlsForExport(art.htmlContent)}
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = `blogger-atom-import-${new Date().toISOString().slice(0, 10)}.xml`;
+          a.download = `${folderTag}-Blogspot.xml`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -2947,7 +3225,7 @@ ${expandBlobUrlsForExport(art.htmlContent)}
                 <span class="article-num-badge">#${num}</span>
                 <div>
                   <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">
-                    ${art.jenisDaerah.toUpperCase()}: ${art.kotaKabupaten.toUpperCase()} &bull; KECAMATAN: ${art.kecamatan.toUpperCase()}
+                    ${art.jenisDaerah.toUpperCase()}: ${art.kotaKabupaten.toUpperCase()} (Spin #${art.kabSpinIndex || 1}/${art.kabSpinTotal || 1}) &bull; KECAMATAN: ${art.kecamatan.toUpperCase()}${(art.kecSpinTotal || 1) > 1 ? ` <span style="color:#2563eb;">(Spin Kec #${art.kecSpinIndex}/${art.kecSpinTotal})</span>` : ''}
                   </div>
                   <h3 style="margin: 2px 0 0; font-size: 0.98rem;">${art.title}</h3>
                 </div>
@@ -3046,7 +3324,8 @@ ${expandBlobUrlsForExport(art.htmlContent)}
             const i = Number(btn.dataset.idx);
             const art = currentBatchArticles[i];
             if (!art) return;
-            window.LocalSpinClient.clientDownloadFile(`${art.slug}.html`, buildStandaloneHtmlDocument(art), 'text/html;charset=utf-8;');
+            const singleTag = getSaveFolderNameForArticles([art], `Kec ${art.kecamatan}`);
+            window.LocalSpinClient.clientDownloadFile(`${singleTag}.html`, buildStandaloneHtmlDocument(art), 'text/html;charset=utf-8;');
           });
         });
 
@@ -3170,9 +3449,82 @@ ${expandBlobUrlsForExport(art.htmlContent)}
         updateCapacityAdvisorUI();
       });
       inputMaxArticlesToGen.addEventListener('change', () => {
+        syncSpinPlanToUI({ honorManualMax: true });
         updateCapacityAdvisorUI();
-        runBatchGeneration();
       });
+
+      // Spin Kabupaten/Kota & Spin per Kecamatan Controls (CP 1 & CP 6 two-way sync)
+      const applySpinPerKecToAllChips = (val) => {
+        const cleanVal = Math.max(1, Math.min(50, Number(val) || 1));
+        const allChks = kecamatanContainer.querySelectorAll('input[type="checkbox"]');
+        for (let i = 0; i < allChks.length; i++) {
+          if (allChks[i]._spinQtyInput) {
+            allChks[i]._spinQtyInput.value = String(cleanVal);
+          }
+        }
+      };
+
+      document.getElementById('inputSpinKabKotaCount')?.addEventListener('change', (e) => {
+        const w = getSelectedWilayahObj();
+        const maxD = Math.max(1, (w.daerahList || []).length);
+        const v = Math.max(1, Math.min(maxD, Number(e.target.value) || 1));
+        e.target.value = String(v);
+        const cp6El = document.getElementById('inputSpinKabKotaCp6');
+        if (cp6El) cp6El.value = String(v);
+        syncSpinPlanToUI();
+        updateCapacityAdvisorUI();
+      });
+
+      document.getElementById('inputSpinKabKotaCp6')?.addEventListener('change', (e) => {
+        const w = getSelectedWilayahObj();
+        const maxD = Math.max(1, (w.daerahList || []).length);
+        const v = Math.max(1, Math.min(maxD, Number(e.target.value) || 1));
+        e.target.value = String(v);
+        const cp1El = document.getElementById('inputSpinKabKotaCount');
+        if (cp1El) cp1El.value = String(v);
+        syncSpinPlanToUI();
+        updateCapacityAdvisorUI();
+      });
+
+      document.getElementById('inputSpinPerKecamatan')?.addEventListener('change', (e) => {
+        const v = Math.max(1, Math.min(50, Number(e.target.value) || 1));
+        e.target.value = String(v);
+        const cp6El = document.getElementById('inputSpinPerKecCp6');
+        if (cp6El) cp6El.value = String(v);
+        applySpinPerKecToAllChips(v);
+        syncSpinPlanToUI();
+        updateCapacityAdvisorUI();
+      });
+
+      document.getElementById('inputSpinPerKecCp6')?.addEventListener('change', (e) => {
+        const v = Math.max(1, Math.min(50, Number(e.target.value) || 1));
+        e.target.value = String(v);
+        const cp1El = document.getElementById('inputSpinPerKecamatan');
+        if (cp1El) cp1El.value = String(v);
+        applySpinPerKecToAllChips(v);
+        syncSpinPlanToUI();
+        updateCapacityAdvisorUI();
+      });
+
+      document.getElementById('inputMaxSpinPerKabKota')?.addEventListener('change', (e) => {
+        const v = Math.max(0, Math.min(250, Number(e.target.value) || 0));
+        e.target.value = String(v);
+        syncSpinPlanToUI();
+        updateCapacityAdvisorUI();
+      });
+
+      document.getElementById('btnSelectAllKabKotaInProv')?.addEventListener('click', () => {
+        const w = getSelectedWilayahObj();
+        const maxD = Math.max(1, (w.daerahList || []).length);
+        const cp1El = document.getElementById('inputSpinKabKotaCount');
+        const cp6El = document.getElementById('inputSpinKabKotaCp6');
+        if (cp1El) cp1El.value = String(maxD);
+        if (cp6El) cp6El.value = String(maxD);
+        syncSpinPlanToUI();
+        updateCapacityAdvisorUI();
+      });
+
+      inputTopic.addEventListener('change', () => syncSpinPlanToUI());
 
       const GEMINI_SLOTS_STORAGE_KEY = 'localspin_gemini_api_slots';
       const geminiInputs = [1, 2, 3, 4, 5].map((n) => document.getElementById(`inputGeminiKey${n}`));
@@ -3348,12 +3700,14 @@ ${expandBlobUrlsForExport(art.htmlContent)}
       document.getElementById('btnApplyRecommendedCount').addEventListener('click', () => {
         const cap = updateCapacityAdvisorUI();
         inputMaxArticlesToGen.value = String(cap.optimalSweetSpot);
+        syncSpinPlanToUI({ honorManualMax: true });
         updateCapacityAdvisorUI();
       });
 
       document.getElementById('btnApplyMaxSafeCount').addEventListener('click', () => {
         const cap = updateCapacityAdvisorUI();
         inputMaxArticlesToGen.value = String(cap.recommendedSafeMaxArticles);
+        syncSpinPlanToUI({ honorManualMax: true });
         updateCapacityAdvisorUI();
       });
 
@@ -3384,8 +3738,7 @@ ${expandBlobUrlsForExport(art.htmlContent)}
         const boxes = Array.from(kecamatanContainer.querySelectorAll('input[type="checkbox"]'));
         const allChecked = boxes.every((b) => b.checked);
         boxes.forEach((b) => (b.checked = !allChecked));
-        const checkedCount = kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked').length;
-        inputMaxArticlesToGen.value = String(Math.max(1, checkedCount));
+        syncSpinPlanToUI();
         updateCapacityAdvisorUI();
       });
 
@@ -3397,8 +3750,7 @@ ${expandBlobUrlsForExport(art.htmlContent)}
           addKecamatanChip(val, `pusat aktivitas warga dan area komersial di Kecamatan ${val}`, true);
         });
         inp.value = '';
-        const checkedCount = kecamatanContainer.querySelectorAll('input[type="checkbox"]:checked').length;
-        inputMaxArticlesToGen.value = String(checkedCount);
+        syncSpinPlanToUI();
         updateCapacityAdvisorUI();
       });
 
@@ -3458,50 +3810,57 @@ ${expandBlobUrlsForExport(art.htmlContent)}
       document.getElementById('btnExportJson').addEventListener('click', () => {
         const selected = getSelectedArticles();
         if (!selected.length) return;
-        window.LocalSpinClient.clientDownloadFile(`localspin-${activeProjectId}-${Date.now()}.json`, JSON.stringify(selected, null, 2), 'application/json');
+        const folderName = getSaveFolderNameForArticles(selected);
+        window.LocalSpinClient.clientDownloadFile(`${folderName}.json`, JSON.stringify(selected, null, 2), 'application/json');
       });
 
-      function buildZipFilesFromArticleSlice(articlesSlice, startNumber = 1) {
+      function buildZipFilesFromArticleSlice(articlesSlice, startNumber = 1, folderName = '') {
+        const cleanFolder = String(folderName || getSaveFolderNameForArticles(articlesSlice)).replace(/[\/\\]+/g, '');
+        const prefix = cleanFolder ? `${cleanFolder}/` : '';
         const files = articlesSlice.map((art, i) => {
           const numStr = String(startNumber + i).padStart(3, '0');
           return {
-            name: `${numStr}-${art.slug}.html`,
+            name: `${prefix}${numStr}-${art.slug}.html`,
             content: buildStandaloneHtmlDocument(art)
           };
         });
-        const indexHtml = `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8" /><title>Daftar ${files.length} Artikel HTML - ${inputProjectName.value}</title><style>body{font-family:system-ui,sans-serif;max-width:860px;margin:2rem auto;padding:0 1rem;line-height:1.6;}li{margin-bottom:6px;}</style></head><body><h1>Daftar ${files.length} File Artikel HTML (${inputProjectName.value})</h1><ol>${articlesSlice
+        const regionSummary = window.LocalSpinClient.summarizeSpinCountsByRegion(articlesSlice);
+        const regionSummaryHtml = regionSummary.kabupatenList
+          .map(
+            (kb) =>
+              `<li><strong>${kb.label} (${kb.spinCount}x spin):</strong> ${kb.kecamatanList.map((kc) => `Kec. ${kc.nama} (${kc.spinCount}x)`).join(', ')}</li>`
+          )
+          .join('');
+        const indexHtml = `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8" /><title>${cleanFolder}</title><style>body{font-family:system-ui,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;line-height:1.6;}li{margin-bottom:6px;}.summary-box{background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:12px 16px;margin-bottom:1.25rem;}</style></head><body><h1>📁 ${cleanFolder}</h1><div class="summary-box"><strong>Ringkasan Spin Kabupaten/Kota &amp; Kecamatan (${regionSummary.totalSpins} Spin):</strong><ul>${regionSummaryHtml}</ul></div><ol>${articlesSlice
           .map((art, i) => {
             const numStr = String(startNumber + i).padStart(3, '0');
-            return `<li><a href="${numStr}-${art.slug}.html">${art.metaTitle}</a> — <em>Kec. ${art.kecamatan}, ${art.labelKotaKabupaten} (${art.uniquenessPct}% unik)</em></li>`;
+            return `<li><a href="${numStr}-${art.slug}.html">${art.metaTitle}</a> — <em>Kec. ${art.kecamatan} (Spin #${art.kecSpinIndex || 1}/${art.kecSpinTotal || 1}), ${art.labelKotaKabupaten} (${art.uniquenessPct}% unik)</em></li>`;
           })
           .join('')}</ol></body></html>`;
-        files.unshift({ name: '000-DAFTAR-INDEX.html', content: indexHtml });
+        files.unshift({ name: `${prefix}000-DAFTAR-INDEX.html`, content: indexHtml });
         return files;
       }
 
       document.getElementById('btnDownloadPageHtmlZip').addEventListener('click', () => {
         const { pageSlice, startIdx } = getCurrentPageArticles();
         if (!pageSlice.length) return;
-        const zipFiles = buildZipFilesFromArticleSlice(pageSlice, startIdx + 1);
-        window.LocalSpinClient.clientDownloadZip(
-          `localspin-${activeProjectId}-halaman-${currentArticlesPage}-${pageSlice.length}-artikel.zip`,
-          zipFiles
-        );
+        const folderName = getSaveFolderNameForArticles(pageSlice, `Hal ${currentArticlesPage}`);
+        const zipFiles = buildZipFilesFromArticleSlice(pageSlice, startIdx + 1, folderName);
+        window.LocalSpinClient.clientDownloadZip(`${folderName}.zip`, zipFiles);
       });
 
       document.getElementById('btnExportHtmlBundle').addEventListener('click', () => {
         const selected = getSelectedArticles();
         if (!selected.length) return;
-        const zipFiles = buildZipFilesFromArticleSlice(selected, 1);
-        window.LocalSpinClient.clientDownloadZip(
-          `localspin-${activeProjectId}-semua-${selected.length}-artikel-html.zip`,
-          zipFiles
-        );
+        const folderName = getSaveFolderNameForArticles(selected);
+        const zipFiles = buildZipFilesFromArticleSlice(selected, 1, folderName);
+        window.LocalSpinClient.clientDownloadZip(`${folderName}.zip`, zipFiles);
       });
 
       document.getElementById('btnExportWpXml').addEventListener('click', () => {
         const selected = getSelectedArticles();
         if (!selected.length) return;
+        const folderName = getSaveFolderNameForArticles(selected);
         const cdata = (s) => `<![CDATA[${String(s || '').replace(/\]\]>/g, ']]]]><![CDATA[>')}]]>`;
         const itemsXml = selected
           .map(
@@ -3519,23 +3878,29 @@ ${expandBlobUrlsForExport(art.htmlContent)}
         const wxr = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wp="http://wordpress.org/export/1.2/">
 <channel>
-  <title>${cdata(inputProjectName.value)}</title>
+  <title>${cdata(folderName)}</title>
   <wp:wxr_version>1.2</wp:wxr_version>
 ${itemsXml}
 </channel>
 </rss>`;
-        window.LocalSpinClient.clientDownloadFile(`localspin-wordpress-import-${activeProjectId}-${Date.now()}.xml`, wxr, 'application/xml;charset=utf-8;');
+        window.LocalSpinClient.clientDownloadFile(`${folderName}-WordPress.xml`, wxr, 'application/xml;charset=utf-8;');
       });
 
-      function downloadArticlesCsvSlice(slice, filenameSuffix) {
+      function downloadArticlesCsvSlice(slice, extraTag = '') {
         if (!slice.length) return;
+        const folderName = getSaveFolderNameForArticles(slice, extraTag);
         const headers = [
           'Nomor',
+          'Folder_Simpan',
           'Project',
           'Wilayah',
           'Jenis_Daerah',
           'Kota_Kabupaten',
+          'Spin_Kab_Ke',
+          'Total_Spin_Kab',
           'Kecamatan',
+          'Spin_Kec_Ke',
+          'Total_Spin_Kec',
           'Slug_URL',
           'Meta_Title',
           'Meta_Description',
@@ -3548,11 +3913,16 @@ ${itemsXml}
         ];
         const rows = slice.map((a, idx) => [
           a.index || idx + 1,
+          folderName,
           inputProjectName.value,
           a.wilayah,
           a.jenisDaerah,
           a.kotaKabupaten,
+          a.kabSpinIndex || 1,
+          a.kabSpinTotal || 1,
           a.kecamatan,
+          a.kecSpinIndex || 1,
+          a.kecSpinTotal || 1,
           a.slug,
           a.metaTitle,
           a.metaDescription,
@@ -3564,17 +3934,17 @@ ${itemsXml}
           a.htmlContent
         ]);
         const csv = window.LocalSpinClient.buildCleanCsvString(headers, rows);
-        window.LocalSpinClient.clientDownloadFile(`localspin-seo-${activeProjectId}-${filenameSuffix}.csv`, csv, 'text/csv;charset=utf-8;');
+        window.LocalSpinClient.clientDownloadFile(`${folderName}.csv`, csv, 'text/csv;charset=utf-8;');
       }
 
       document.getElementById('btnDownloadPageCsv').addEventListener('click', () => {
         const { pageSlice } = getCurrentPageArticles();
-        downloadArticlesCsvSlice(pageSlice, `halaman-${currentArticlesPage}`);
+        downloadArticlesCsvSlice(pageSlice, `Hal ${currentArticlesPage}`);
       });
 
       document.getElementById('btnExportCsv').addEventListener('click', () => {
         const selected = getSelectedArticles();
-        downloadArticlesCsvSlice(selected, `semua-${selected.length}-artikel`);
+        downloadArticlesCsvSlice(selected, '');
       });
 
       // Pop-Up Wide Editor Modals (Raw Main Article + Master Spintax Blueprint)
@@ -4607,6 +4977,7 @@ if __name__ == '__main__':
           saveFormIntoActiveProject();
           const qpk = document.getElementById('quizPrimaryKeyword');
           if (qpk && inputTopic.value.trim()) qpk.value = inputTopic.value.trim();
+          syncSpinPlanToUI();
           setProjectCheckpointStage(1);
           scrollToCheckpoint(2);
         };
@@ -4638,6 +5009,7 @@ if __name__ == '__main__':
           }
           saveFormIntoActiveProject();
           refreshPromptOutputUI();
+          syncSpinPlanToUI();
           setProjectCheckpointStage(3);
           scrollToCheckpoint(4);
         });

@@ -1909,3 +1909,80 @@ body[data-theme="midnight-slate"] .kw-check-chip:has(input:checked) {
   border-color: #60a5fa;
   color: #f8fafc;
 }
+
+/* ========================================================
+   SPIN KABUPATEN/KECAMATAN CONTROLS & SAVE FOLDER PREVIEW
+   ======================================================== */
+.kec-spin-qty {
+  width: 44px;
+  height: 21px;
+  padding: 1px 4px;
+  margin-left: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 5px;
+  border: 1px solid #93c5fd;
+  background: #ffffff;
+  color: #1e3a8a;
+}
+body[data-theme="emerald-dark"] .kec-spin-qty,
+body[data-theme="midnight-slate"] .kec-spin-qty {
+  background: #0f172a;
+  border-color: #3b82f6;
+  color: #93c5fd;
+}
+.spin-region-info-card {
+  background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+  border: 1.5px solid #93c5fd;
+  border-radius: 8px;
+  padding: 0.7rem 0.8rem;
+  margin-bottom: 0.85rem;
+}
+body[data-theme="emerald-dark"] .spin-region-info-card,
+body[data-theme="midnight-slate"] .spin-region-info-card {
+  background: rgba(15, 23, 42, 0.82);
+  border-color: #1d4ed8;
+}
+.spin-kab-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+  margin-top: 6px;
+}
+.spin-kab-row {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+body[data-theme="emerald-dark"] .spin-kab-row,
+body[data-theme="midnight-slate"] .spin-kab-row {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+.save-folder-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-family-mono, monospace);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  color: #065f46;
+  word-break: break-all;
+}
+body[data-theme="emerald-dark"] .save-folder-badge,
+body[data-theme="midnight-slate"] .save-folder-badge {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: #10b981;
+  color: #6ee7b7;
+}

@@ -1854,6 +1854,91 @@ function clientBuildZipUint8Array(files = []) {
   return out;
 }
 
+function sanitizeFolderBracketPart(rawStr = '', fallback = 'Item', maxLen = 45) {
+  let clean = String(rawStr || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\{\{[^}]+\}\}/g, ' ')
+    .replace(/[\[\]<>:"/\\|?*\x00-\x1f{}]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/^[.\s-]+|[.\s-]+$/g, '')
+    .trim();
+  if (!clean) clean = fallback;
+  if (clean.length > maxLen) {
+    clean = clean.slice(0, maxLen).replace(/[\s-]+$/g, '').trim();
+  }
+  return clean || fallback;
+}
+
+function buildSpinSaveFolderName({
+  keyword = '',
+  provinsi = '',
+  kota = '',
+  spinCount = 0,
+  extraTag = ''
+} = {}) {
+  const kwPart = sanitizeFolderBracketPart(keyword, 'Artikel', 45);
+  const provPart = sanitizeFolderBracketPart(provinsi, 'Indonesia', 30);
+  const kotaPart = sanitizeFolderBracketPart(kota, 'Semua Daerah', 35);
+  const num = Math.max(0, Number(spinCount) || 0);
+  const countLabel = extraTag
+    ? `${num} Spin - ${sanitizeFolderBracketPart(extraTag, '', 20)}`
+    : `${num} Spin`;
+  return `[${kwPart}][${provPart}][${kotaPart}][${countLabel}]`;
+}
+
+function summarizeSpinCountsByRegion(items = []) {
+  const kabMap = new Map();
+  let totalSpins = 0;
+
+  for (const it of Array.isArray(items) ? items : []) {
+    if (!it) continue;
+    totalSpins++;
+    const kabLabel = String(it.labelKotaKabupaten || it.kotaKabupaten || 'Kota/Kabupaten').trim();
+    const wilayah = String(it.wilayah || '').trim();
+    const jenis = String(it.jenisDaerah || '').trim();
+    const kecName = String(it.kecamatan || 'Kecamatan').trim();
+    const kabKey = `${wilayah}::${kabLabel}`;
+
+    if (!kabMap.has(kabKey)) {
+      kabMap.set(kabKey, {
+        label: kabLabel,
+        jenis,
+        wilayah,
+        spinCount: 0,
+        kecMap: new Map()
+      });
+    }
+    const kabEntry = kabMap.get(kabKey);
+    kabEntry.spinCount++;
+    kabEntry.kecMap.set(kecName, (kabEntry.kecMap.get(kecName) || 0) + 1);
+  }
+
+  let totalKecamatan = 0;
+  const kabupatenList = [];
+  for (const [, entry] of kabMap.entries()) {
+    const kecamatanList = [];
+    for (const [nama, spinCount] of entry.kecMap.entries()) {
+      kecamatanList.push({ nama, spinCount });
+      totalKecamatan++;
+    }
+    kabupatenList.push({
+      label: entry.label,
+      jenis: entry.jenis,
+      wilayah: entry.wilayah,
+      spinCount: entry.spinCount,
+      kecamatanCount: kecamatanList.length,
+      kecamatanList
+    });
+  }
+
+  return {
+    totalSpins,
+    totalKabupaten: kabupatenList.length,
+    totalKecamatan,
+    kabupatenList
+  };
+}
+
 function clientDownloadZip(zipFilename, files = []) {
   const zipBytes = clientBuildZipUint8Array(files);
   const blob = new Blob([zipBytes], { type: 'application/zip' });
@@ -2026,6 +2111,10 @@ window.LocalSpinClient = {
   buildEmailPromptFramework,
   generateStructured5EmailParts,
   parseChatbotInto5EmailParts,
+  sanitizeFolderBracketPart,
+  buildSpinSaveFolderName,
+  summarizeSpinCountsByRegion,
+  clientBuildZipUint8Array,
   clientDownloadZip,
   buildCleanCsvString,
   normalizeGscSiteEntry,
