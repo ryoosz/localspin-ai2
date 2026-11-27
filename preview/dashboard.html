@@ -1027,6 +1027,10 @@
             <div style="display: flex; gap: 0.45rem; flex-wrap: wrap;">
               <button type="button" id="btnDownloadPageHtmlZip" class="btn btn-whatsapp btn-sm">&#128230; ZIP HTML Halaman Ini</button>
               <button type="button" id="btnExportHtmlBundle" class="btn btn-primary btn-sm">&#128230; ZIP Semua HTML (Per File)</button>
+              <button type="button" id="btnExportDocxAll" class="btn btn-primary btn-sm" style="background: #2563eb; border-color: #1d4ed8; font-weight: 700;" title="Unduh seluruh artikel terpilih ke 1 dokumen Microsoft Word (.docx)">📄 DOCX Semua (Word)</button>
+              <button type="button" id="btnExportDocxZip" class="btn btn-secondary btn-sm" style="border-color: #2563eb; color: #1d4ed8; font-weight: 700;" title="Unduh ZIP berisi file .docx terpisah untuk masing-masing artikel">📦 ZIP Semua DOCX (Per File)</button>
+              <button type="button" id="btnExportXlsxAll" class="btn btn-primary btn-sm" style="background: #15803d; border-color: #166534; font-weight: 700;" title="Unduh laporan lengkap &amp; rekap spin dalam format Microsoft Excel (.xlsx)">📊 XLSX Excel Semua</button>
+              <button type="button" id="btnDownloadPageXlsx" class="btn btn-secondary btn-sm" style="border-color: #15803d; color: #15803d; font-weight: 700;">📊 XLSX Halaman Ini</button>
               <button type="button" id="btnDownloadPageCsv" class="btn btn-secondary btn-sm">CSV Halaman Ini</button>
               <button type="button" id="btnExportCsv" class="btn btn-secondary btn-sm">CSV Semua</button>
               <button type="button" id="btnExportWpXml" class="btn btn-secondary btn-sm" style="background: #1d4ed8; color: #fff; border-color: #1d4ed8; font-weight: 700;">🌐 Export WordPress (WXR XML)</button>
@@ -3238,6 +3242,7 @@ ${expandBlobUrlsForExport(art.htmlContent)}
                 <span class="badge badge-sim">${art.wordCount} Kata</span>
                 <button type="button" class="btn btn-secondary btn-sm btn-copy-html" data-idx="${idx}" title="Salin kode HTML artikel ini">&#128203; Salin HTML</button>
                 <button type="button" class="btn btn-secondary btn-sm btn-download-single-html" data-idx="${idx}" title="Unduh file .html siap upload">&#11015; .html</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-download-single-docx" data-idx="${idx}" title="Unduh artikel ini sebagai dokumen Microsoft Word (.docx)" style="border-color: #93c5fd; color: #1d4ed8; font-weight: 600;">&#11015; .docx</button>
                 <a href="${art.whatsappUrl}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm" title="Tes tombol WhatsApp">&#128172; WA</a>
                 <button type="button" class="btn btn-primary btn-sm btn-toggle-minimize" data-idx="${idx}">&#9662; Buka Detail</button>
               </div>
@@ -3326,6 +3331,16 @@ ${expandBlobUrlsForExport(art.htmlContent)}
             if (!art) return;
             const singleTag = getSaveFolderNameForArticles([art], `Kec ${art.kecamatan}`);
             window.LocalSpinClient.clientDownloadFile(`${singleTag}.html`, buildStandaloneHtmlDocument(art), 'text/html;charset=utf-8;');
+          });
+        });
+
+        articlesOutputContainer.querySelectorAll('.btn-download-single-docx').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const i = Number(btn.dataset.idx);
+            const art = currentBatchArticles[i];
+            if (!art) return;
+            const singleTag = getSaveFolderNameForArticles([art], `Kec ${art.kecamatan}`);
+            window.LocalSpinClient.clientDownloadDocx(`${singleTag}.docx`, [art], { folderName: singleTag });
           });
         });
 
@@ -3855,6 +3870,52 @@ ${expandBlobUrlsForExport(art.htmlContent)}
         const folderName = getSaveFolderNameForArticles(selected);
         const zipFiles = buildZipFilesFromArticleSlice(selected, 1, folderName);
         window.LocalSpinClient.clientDownloadZip(`${folderName}.zip`, zipFiles);
+      });
+
+      document.getElementById('btnExportDocxAll')?.addEventListener('click', () => {
+        const selected = getSelectedArticles();
+        if (!selected.length) return alert('Silakan generate & pilih minimal 1 artikel terlebih dahulu.');
+        const folderName = getSaveFolderNameForArticles(selected);
+        window.LocalSpinClient.clientDownloadDocx(`${folderName}.docx`, selected, { folderName });
+      });
+
+      document.getElementById('btnExportDocxZip')?.addEventListener('click', () => {
+        const selected = getSelectedArticles();
+        if (!selected.length) return alert('Silakan generate & pilih minimal 1 artikel terlebih dahulu.');
+        const folderName = getSaveFolderNameForArticles(selected);
+        const cleanFolder = folderName.replace(/[\/\\]+/g, '');
+        const docxEntries = selected.map((art, i) => {
+          const numStr = String(i + 1).padStart(3, '0');
+          return {
+            name: `${cleanFolder}/${numStr}-${art.slug}.docx`,
+            content: window.LocalSpinClient.clientBuildDocxUint8Array([art], { folderName: cleanFolder })
+          };
+        });
+        window.LocalSpinClient.clientDownloadZip(`${cleanFolder}-DOCX.zip`, docxEntries);
+      });
+
+      document.getElementById('btnExportXlsxAll')?.addEventListener('click', () => {
+        const selected = getSelectedArticles();
+        if (!selected.length) return alert('Silakan generate & pilih minimal 1 artikel terlebih dahulu.');
+        const folderName = getSaveFolderNameForArticles(selected);
+        const kw = (document.getElementById('quizPrimaryKeyword')?.value || inputTopic.value || '').trim();
+        window.LocalSpinClient.clientDownloadXlsx(`${folderName}.xlsx`, selected, {
+          folderName,
+          projectName: inputProjectName.value,
+          keyword: kw
+        });
+      });
+
+      document.getElementById('btnDownloadPageXlsx')?.addEventListener('click', () => {
+        const { pageSlice } = getCurrentPageArticles();
+        if (!pageSlice.length) return alert('Belum ada artikel pada halaman ini.');
+        const folderName = getSaveFolderNameForArticles(pageSlice, `Hal ${currentArticlesPage}`);
+        const kw = (document.getElementById('quizPrimaryKeyword')?.value || inputTopic.value || '').trim();
+        window.LocalSpinClient.clientDownloadXlsx(`${folderName}.xlsx`, pageSlice, {
+          folderName,
+          projectName: inputProjectName.value,
+          keyword: kw
+        });
       });
 
       document.getElementById('btnExportWpXml').addEventListener('click', () => {

@@ -911,7 +911,16 @@ test('L2 & L3 - Section 1B Mini-Prompt Keyword Research, Auto-Extraction of Sema
 
   const appJs = fs.readFileSync(path.join(__dirname, '..', 'assets', 'app.js'), 'utf8');
   const regionsJs = fs.readFileSync(path.join(__dirname, '..', 'assets', 'regionsData.js'), 'utf8');
-  const sandbox = { window: {}, document: { getElementById: () => null, querySelectorAll: () => [] }, navigator: {}, console };
+  const sandbox = {
+    window: {},
+    document: { getElementById: () => null, querySelectorAll: () => [] },
+    navigator: {},
+    console,
+    TextEncoder,
+    Uint8Array,
+    Uint32Array,
+    DataView
+  };
   sandbox.window = sandbox;
   vm.runInNewContext(regionsJs + '\n' + appJs, sandbox);
 
@@ -1027,4 +1036,77 @@ test('L2 & L3 - Section 1B Mini-Prompt Keyword Research, Auto-Extraction of Sema
   assert.ok(dashHtml.includes('id="inputSpinPerKecamatan"'));
   assert.ok(dashHtml.includes('id="spinKabKecBreakdownList"'));
   assert.ok(dashHtml.includes('id="saveFolderPreviewBadge"'));
+  assert.ok(dashHtml.includes('id="btnExportDocxAll"'));
+  assert.ok(dashHtml.includes('id="btnExportDocxZip"'));
+  assert.ok(dashHtml.includes('id="btnExportXlsxAll"'));
+  assert.ok(dashHtml.includes('id="btnDownloadPageXlsx"'));
+
+  // Verify genuine OOXML .docx and .xlsx binary generation (PKZIP Store + valid XML structure)
+  const sampleArticles = [
+    {
+      index: 1,
+      slug: 'jasa-catering-coblong-1',
+      wilayah: 'Jawa Barat',
+      jenisDaerah: 'Kota',
+      kotaKabupaten: 'Bandung',
+      labelKotaKabupaten: 'Kota Bandung',
+      kecamatan: 'Coblong',
+      kecSpinIndex: 1,
+      kecSpinTotal: 2,
+      kabSpinIndex: 1,
+      kabSpinTotal: 2,
+      title: 'Jasa Catering Prasmanan di Kecamatan Coblong',
+      metaTitle: 'Jasa Catering Coblong Bandung',
+      metaDescription: 'Layanan catering prasmanan higienis & halal di Coblong.',
+      whatsappUrl: 'https://api.whatsapp.com/send?phone=6281234567890&text=Halo%20Admin',
+      uniquenessPct: 96.5,
+      maxOverlap4: 3.5,
+      wordCount: 420,
+      htmlContent: '<h1>Jasa Catering Prasmanan di Kecamatan Coblong</h1><p>Layanan <strong>catering kantor</strong> &amp; <u>prasmanan</u> terbaik. Hubungi <a href="https://api.whatsapp.com/send?phone=6281234567890&amp;text=Halo">WhatsApp Kami</a> atau <a href="tel:+6281234567890">Telepon</a>.</p><ul><li>Menu Nusantara</li><li>Sertifikat Halal MUI</li></ul>'
+    },
+    {
+      index: 2,
+      slug: 'jasa-catering-coblong-2',
+      wilayah: 'Jawa Barat',
+      jenisDaerah: 'Kota',
+      kotaKabupaten: 'Bandung',
+      labelKotaKabupaten: 'Kota Bandung',
+      kecamatan: 'Coblong',
+      kecSpinIndex: 2,
+      kecSpinTotal: 2,
+      kabSpinIndex: 2,
+      kabSpinTotal: 2,
+      title: 'Paket Catering Rapat Kantor Kecamatan Coblong',
+      metaTitle: 'Paket Catering Rapat Coblong',
+      metaDescription: 'Pilihan paket prasmanan rapat di Kecamatan Coblong.',
+      whatsappUrl: 'https://api.whatsapp.com/send?phone=6281234567890&text=Info',
+      uniquenessPct: 95.2,
+      maxOverlap4: 4.8,
+      wordCount: 410,
+      htmlContent: '<h1>Paket Catering Rapat Kantor Kecamatan Coblong</h1><h2>Keunggulan Menu Higienis</h2><p>Porsi lengkap &amp; tepat waktu.</p>'
+    }
+  ];
+
+  const docxBytes = client.clientBuildDocxUint8Array(sampleArticles, { folderName: folderTag });
+  assert.equal(docxBytes[0], 0x50, 'DOCX must start with PK magic byte 0x50');
+  assert.equal(docxBytes[1], 0x4b, 'DOCX must start with PK magic byte 0x4b');
+  const docxRawText = Buffer.from(docxBytes).toString('utf8');
+  assert.ok(docxRawText.includes('word/document.xml'), 'DOCX must contain word/document.xml');
+  assert.ok(docxRawText.includes('word/_rels/document.xml.rels'), 'DOCX must contain word/_rels/document.xml.rels');
+  assert.ok(docxRawText.includes('<w:hyperlink r:id="rIdLink1">'), 'DOCX must render clickable hyperlinks');
+  assert.ok(docxRawText.includes('phone=6281234567890&amp;text=Halo'), 'DOCX .rels must XML-escape query string ampersands');
+  assert.ok(docxRawText.includes('<w:br w:type="page"/>'), 'Combined DOCX must separate articles with page breaks');
+
+  const xlsxBytes = client.clientBuildArticlesXlsxUint8Array(sampleArticles, {
+    folderName: folderTag,
+    projectName: 'Project Catering',
+    keyword: 'Jasa Catering Prasmanan'
+  });
+  assert.equal(xlsxBytes[0], 0x50, 'XLSX must start with PK magic byte 0x50');
+  assert.equal(xlsxBytes[1], 0x4b, 'XLSX must start with PK magic byte 0x4b');
+  const xlsxRawText = Buffer.from(xlsxBytes).toString('utf8');
+  assert.ok(xlsxRawText.includes('xl/workbook.xml'), 'XLSX must contain xl/workbook.xml');
+  assert.ok(xlsxRawText.includes('Daftar Artikel Spin'), 'XLSX must include Sheet 1 Daftar Artikel Spin');
+  assert.ok(xlsxRawText.includes('Rekap Spin Daerah'), 'XLSX must include Sheet 2 Rekap Spin Daerah');
+  assert.ok(xlsxRawText.includes('Jasa Catering Prasmanan di Kecamatan Coblong'), 'XLSX cells must contain spun article titles');
 });

@@ -1939,6 +1939,569 @@ function summarizeSpinCountsByRegion(items = []) {
   };
 }
 
+function decodeHtmlEntitiesToUnicode(str = '') {
+  return String(str || '')
+    .replace(/&#(\d+);/g, (_, dec) => {
+      const code = Number(dec);
+      return Number.isFinite(code) && code > 0 ? String.fromCodePoint(code) : '';
+    })
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => {
+      const code = parseInt(hex, 16);
+      return Number.isFinite(code) && code > 0 ? String.fromCodePoint(code) : '';
+    })
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&bull;/gi, '•')
+    .replace(/&rarr;/gi, '→')
+    .replace(/&larr;/gi, '←')
+    .replace(/&mdash;/gi, '—')
+    .replace(/&ndash;/gi, '–')
+    .replace(/&le;/gi, '≤')
+    .replace(/&ge;/gi, '≥')
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&#39;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&amp;/gi, '&');
+}
+
+function escapeXmlStrict(str = '') {
+  return String(str || '')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function stripHtmlToCleanText(html = '') {
+  const withoutScripts = String(html || '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|h1|h2|h3|h4|li|div|figure|figcaption|tr)>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '• ')
+    .replace(/<[^>]+>/g, '');
+  return decodeHtmlEntitiesToUnicode(withoutScripts)
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function buildWordRunXml(text, fmt = {}) {
+  const cleanText = escapeXmlStrict(decodeHtmlEntitiesToUnicode(text));
+  if (!cleanText) return '';
+  const rPrParts = [];
+  if (fmt.bold) rPrParts.push('<w:b/>');
+  if (fmt.italic) rPrParts.push('<w:i/>');
+  if (fmt.underline) rPrParts.push('<w:u w:val="single"/>');
+  if (fmt.color) rPrParts.push(`<w:color w:val="${fmt.color}"/>`);
+  if (fmt.sizeHalfPt) rPrParts.push(`<w:sz w:val="${fmt.sizeHalfPt}"/><w:szCs w:val="${fmt.sizeHalfPt}"/>`);
+  const rPr = rPrParts.length ? `<w:rPr>${rPrParts.join('')}</w:rPr>` : '';
+  return `<w:r>${rPr}<w:t xml:space="preserve">${cleanText}</w:t></w:r>`;
+}
+
+function parseInlineHtmlToWordRunsXml(inlineHtml = '', registerHyperlink = null, baseFmt = {}) {
+  const html = String(inlineHtml || '');
+  // Split out <a ...>...</a> first so hyperlinks become clickable <w:hyperlink> nodes
+  const linkRegex = /<a\b([^>]*)>([\s\S]*?)<\/a>/gi;
+  let lastIdx = 0;
+  let match;
+  const out = [];
+
+  const renderFormattedChunk = (chunkHtml, extraFmt = {}) => {
+    // Tokenize inline formatting tags <strong>, <b>, <em>, <i>, <u>
+    const tokenRx = /<(\/?)(strong|b|em|i|u)\b[^>]*>/gi;
+    let pos = 0;
+    let m;
+    const state = {
+      bold: Boolean(baseFmt.bold || extraFmt.bold),
+      italic: Boolean(baseFmt.italic || extraFmt.italic),
+      underline: Boolean(baseFmt.underline || extraFmt.underline),
+      color: extraFmt.color || baseFmt.color || '',
+      sizeHalfPt: extraFmt.sizeHalfPt || baseFmt.sizeHalfPt || 0
+    };
+    const runs = [];
+    while ((m = tokenRx.exec(chunkHtml)) !== null) {
+      if (m.index > pos) {
+        const plain = chunkHtml.slice(pos, m.index).replace(/<[^>]+>/g, '');
+        runs.push(buildWordRunXml(plain, state));
+      }
+      const closing = m[1] === '/';
+      const tag = m[2].toLowerCase();
+      if (tag === 'strong' || tag === 'b') state.bold = !closing;
+      else if (tag === 'em' || tag === 'i') state.italic = !closing;
+      else if (tag === 'u') state.underline = !closing;
+      pos = m.index + m[0].length;
+    }
+    if (pos < chunkHtml.length) {
+      const tail = chunkHtml.slice(pos).replace(/<[^>]+>/g, '');
+      runs.push(buildWordRunXml(tail, state));
+    }
+    return runs.join('');
+  };
+
+  while ((match = linkRegex.exec(html)) !== null) {
+    if (match.index > lastIdx) {
+      out.push(renderFormattedChunk(html.slice(lastIdx, match.index)));
+    }
+    const attrs = match[1] || '';
+    const inner = match[2] || '';
+    const hrefMatch = attrs.match(/\bhref=["']([^"']+)["']/i);
+    const href = hrefMatch ? decodeHtmlEntitiesToUnicode(hrefMatch[1].trim()) : '';
+    if (href && typeof registerHyperlink === 'function' && /^(https?:|mailto:|tel:)/i.test(href)) {
+      const rId = registerHyperlink(href);
+      const linkRuns = renderFormattedChunk(inner, { underline: true, color: '2563EB', bold: true });
+      if (linkRuns) {
+        out.push(`<w:hyperlink r:id="${rId}">${linkRuns}</w:hyperlink>`);
+      }
+    } else {
+      out.push(renderFormattedChunk(inner, { underline: true, color: '2563EB' }));
+    }
+    lastIdx = match.index + match[0].length;
+  }
+
+  if (lastIdx < html.length) {
+    out.push(renderFormattedChunk(html.slice(lastIdx)));
+  }
+  return out.join('');
+}
+
+function convertArticleToWordParagraphsXml(art = {}, registerHyperlink = null) {
+  const paragraphs = [];
+  const rawHtml = String(art.htmlContent || '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '');
+
+  // Metadata banner paragraph at top of each article
+  const metaHeader = `[#${art.index || 1}] Daerah: Kec. ${art.kecamatan || '-'}, ${art.labelKotaKabupaten || art.kotaKabupaten || '-'} (${art.wilayah || '-'}) | Spin Kec #${art.kecSpinIndex || 1}/${art.kecSpinTotal || 1} | Keunikan: ${art.uniquenessPct ?? 100}% | Slug: /${art.slug || ''}`;
+  paragraphs.push(
+    `<w:p><w:pPr><w:pBdr><w:bottom w:val="single" w:sz="6" w:space="4" w:color="CBD5E1"/></w:pBdr><w:spacing w:after="140"/></w:pPr>${buildWordRunXml(metaHeader, { sizeHalfPt: 18, color: '475569', italic: true })}</w:p>`
+  );
+  if (art.metaTitle || art.metaDescription) {
+    const seoLine = `Meta Title: ${art.metaTitle || '-'} — Meta Desc: ${art.metaDescription || '-'}`;
+    paragraphs.push(
+      `<w:p><w:pPr><w:spacing w:after="180"/></w:pPr>${buildWordRunXml(seoLine, { sizeHalfPt: 18, color: '1E40AF' })}</w:p>`
+    );
+  }
+
+  // Parse top-level & nested content blocks in reading order
+  const blockRegex = /<(h1|h2|h3|li|figcaption|p)\b[^>]*>([\s\S]*?)<\/\1>|<div\b[^>]*class=["'][^"']*wa-cta-box[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi;
+  let m;
+  let blockCount = 0;
+
+  while ((m = blockRegex.exec(rawHtml)) !== null) {
+    blockCount++;
+    if (m[3] !== undefined) {
+      // WhatsApp CTA box
+      const runs = parseInlineHtmlToWordRunsXml(m[3], registerHyperlink, { bold: true, color: '065F46' });
+      if (runs) {
+        paragraphs.push(
+          `<w:p><w:pPr><w:shd w:val="clear" w:color="auto" w:fill="ECFDF5"/><w:spacing w:before="140" w:after="160"/></w:pPr>${runs}</w:p>`
+        );
+      }
+      continue;
+    }
+
+    const tag = m[1].toLowerCase();
+    const inner = m[2] || '';
+    if (tag === 'h1') {
+      const runs = parseInlineHtmlToWordRunsXml(inner, registerHyperlink, { bold: true, sizeHalfPt: 34, color: '0F172A' });
+      if (runs) paragraphs.push(`<w:p><w:pPr><w:pStyle w:val="Heading1"/><w:spacing w:before="200" w:after="160"/></w:pPr>${runs}</w:p>`);
+    } else if (tag === 'h2') {
+      const runs = parseInlineHtmlToWordRunsXml(inner, registerHyperlink, { bold: true, sizeHalfPt: 27, color: '1E3A8A' });
+      if (runs) paragraphs.push(`<w:p><w:pPr><w:pStyle w:val="Heading2"/><w:spacing w:before="220" w:after="120"/></w:pPr>${runs}</w:p>`);
+    } else if (tag === 'h3') {
+      const runs = parseInlineHtmlToWordRunsXml(inner, registerHyperlink, { bold: true, sizeHalfPt: 24, color: '1E40AF' });
+      if (runs) paragraphs.push(`<w:p><w:pPr><w:pStyle w:val="Heading3"/><w:spacing w:before="160" w:after="80"/></w:pPr>${runs}</w:p>`);
+    } else if (tag === 'li') {
+      const bulletRun = buildWordRunXml('• ', { bold: true });
+      const runs = parseInlineHtmlToWordRunsXml(inner, registerHyperlink, { sizeHalfPt: 22 });
+      if (runs) {
+        paragraphs.push(
+          `<w:p><w:pPr><w:ind w:left="420" w:hanging="240"/><w:spacing w:after="80"/></w:pPr>${bulletRun}${runs}</w:p>`
+        );
+      }
+    } else if (tag === 'figcaption') {
+      const runs = parseInlineHtmlToWordRunsXml(`📷 Gambar: ${inner}`, registerHyperlink, { italic: true, sizeHalfPt: 19, color: '475569' });
+      if (runs) paragraphs.push(`<w:p><w:pPr><w:spacing w:before="60" w:after="140"/></w:pPr>${runs}</w:p>`);
+    } else {
+      const runs = parseInlineHtmlToWordRunsXml(inner, registerHyperlink, { sizeHalfPt: 22 });
+      if (runs) paragraphs.push(`<w:p><w:pPr><w:spacing w:after="140" w:line="276" w:lineRule="auto"/></w:pPr>${runs}</w:p>`);
+    }
+  }
+
+  if (blockCount === 0) {
+    const plainLines = stripHtmlToCleanText(rawHtml).split('\n').filter(Boolean);
+    plainLines.forEach((line) => {
+      paragraphs.push(`<w:p><w:pPr><w:spacing w:after="140"/></w:pPr>${buildWordRunXml(line, { sizeHalfPt: 22 })}</w:p>`);
+    });
+  }
+
+  return paragraphs.join('');
+}
+
+function clientBuildDocxUint8Array(articles = [], options = {}) {
+  const list = Array.isArray(articles) ? articles : [articles];
+  const folderTitle = String(options.folderName || 'Hasil Generate Artikel Spintax').trim();
+  const rels = [
+    `<Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`
+  ];
+  const linkMap = new Map();
+  let linkSeq = 1;
+
+  const registerHyperlink = (href) => {
+    const cleanHref = String(href || '').trim();
+    if (linkMap.has(cleanHref)) return linkMap.get(cleanHref);
+    const rId = `rIdLink${linkSeq++}`;
+    linkMap.set(cleanHref, rId);
+    rels.push(
+      `<Relationship Id="${rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${escapeXmlStrict(cleanHref)}" TargetMode="External"/>`
+    );
+    return rId;
+  };
+
+  const bodyParts = [];
+  if (list.length > 1) {
+    const summary = summarizeSpinCountsByRegion(list);
+    bodyParts.push(
+      `<w:p><w:pPr><w:pStyle w:val="Heading1"/><w:spacing w:after="120"/></w:pPr>${buildWordRunXml(`Dokumen Batch Spin: ${folderTitle}`, { bold: true, sizeHalfPt: 32, color: '0F172A' })}</w:p>`
+    );
+    bodyParts.push(
+      `<w:p><w:pPr><w:spacing w:after="160"/></w:pPr>${buildWordRunXml(`Total: ${summary.totalSpins} Artikel Unik | ${summary.totalKabupaten} Kota/Kabupaten | ${summary.totalKecamatan} Kecamatan`, { bold: true, sizeHalfPt: 22, color: '1E40AF' })}</w:p>`
+    );
+    summary.kabupatenList.forEach((kb, idx) => {
+      const kecInfo = kb.kecamatanList.map((kc) => `Kec. ${kc.nama} (${kc.spinCount}x)`).join(', ');
+      bodyParts.push(
+        `<w:p><w:pPr><w:spacing w:after="80"/></w:pPr>${buildWordRunXml(`${idx + 1}. ${kb.label} (${kb.spinCount}x Spin): ${kecInfo}`, { sizeHalfPt: 20, color: '334155' })}</w:p>`
+      );
+    });
+    bodyParts.push(`<w:p><w:r><w:br w:type="page"/></w:r></w:p>`);
+  }
+
+  list.forEach((art, idx) => {
+    bodyParts.push(convertArticleToWordParagraphsXml(art, registerHyperlink));
+    if (idx < list.length - 1) {
+      bodyParts.push(`<w:p><w:r><w:br w:type="page"/></w:r></w:p>`);
+    }
+  });
+
+  const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`;
+
+  const rootRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+
+  const docRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  ${rels.join('\n  ')}
+</Relationships>`;
+
+  const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:docDefaults>
+    <w:rPrDefault>
+      <w:rPr>
+        <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>
+        <w:sz w:val="22"/>
+        <w:szCs w:val="22"/>
+        <w:color w:val="0F172A"/>
+      </w:rPr>
+    </w:rPrDefault>
+  </w:docDefaults>
+  <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
+    <w:name w:val="Normal"/>
+  </w:style>
+  <w:style w:type="paragraph" w:styleId="Heading1">
+    <w:name w:val="heading 1"/>
+    <w:basedOn w:val="Normal"/>
+    <w:rPr><w:b/><w:sz w:val="34"/><w:color w:val="0F172A"/></w:rPr>
+  </w:style>
+  <w:style w:type="paragraph" w:styleId="Heading2">
+    <w:name w:val="heading 2"/>
+    <w:basedOn w:val="Normal"/>
+    <w:rPr><w:b/><w:sz w:val="27"/><w:color w:val="1E3A8A"/></w:rPr>
+  </w:style>
+  <w:style w:type="paragraph" w:styleId="Heading3">
+    <w:name w:val="heading 3"/>
+    <w:basedOn w:val="Normal"/>
+    <w:rPr><w:b/><w:sz w:val="24"/><w:color w:val="1E40AF"/></w:rPr>
+  </w:style>
+</w:styles>`;
+
+  const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <w:body>
+    ${bodyParts.join('\n    ')}
+    <w:sectPr>
+      <w:pgSz w:w="11906" w:h="16838"/>
+      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/>
+    </w:sectPr>
+  </w:body>
+</w:document>`;
+
+  return clientBuildZipUint8Array([
+    { name: '[Content_Types].xml', content: contentTypesXml },
+    { name: '_rels/.rels', content: rootRelsXml },
+    { name: 'word/document.xml', content: documentXml },
+    { name: 'word/_rels/document.xml.rels', content: docRelsXml },
+    { name: 'word/styles.xml', content: stylesXml }
+  ]);
+}
+
+function clientDownloadDocx(filename, articles = [], options = {}) {
+  const bytes = clientBuildDocxUint8Array(articles, options);
+  const safeFile = String(filename || 'artikel.docx').endsWith('.docx') ? filename : `${filename}.docx`;
+  const blob = new Blob([bytes], {
+    type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = safeFile;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 400);
+}
+
+function colIndexToExcelLetter(colIdx = 0) {
+  let n = colIdx;
+  let letters = '';
+  while (n >= 0) {
+    letters = String.fromCharCode((n % 26) + 65) + letters;
+    n = Math.floor(n / 26) - 1;
+  }
+  return letters;
+}
+
+function buildWorksheetXmlFromRows(rows = [], colWidths = []) {
+  const colsXml = colWidths.length
+    ? `<cols>${colWidths
+        .map((w, idx) => `<col min="${idx + 1}" max="${idx + 1}" width="${w}" customWidth="1"/>`)
+        .join('')}</cols>`
+    : '';
+
+  const rowsXml = rows
+    .map((row, rIdx) => {
+      const rowNum = rIdx + 1;
+      const isHeader = rIdx === 0;
+      const styleIdx = isHeader ? 1 : 2;
+      const cellsXml = (Array.isArray(row) ? row : [])
+        .map((val, cIdx) => {
+          const ref = `${colIndexToExcelLetter(cIdx)}${rowNum}`;
+          if (typeof val === 'number' && Number.isFinite(val)) {
+            return `<c r="${ref}" s="${styleIdx}" t="n"><v>${val}</v></c>`;
+          }
+          let s = val === null || val === undefined ? '' : String(val);
+          // Excel max cell text length is 32,767 chars
+          if (s.length > 32000) {
+            s = `${s.slice(0, 31950)}\n...[dipotong agar sesuai batas sel Excel 32rb karakter]`;
+          }
+          return `<c r="${ref}" s="${styleIdx}" t="inlineStr"><is><t xml:space="preserve">${escapeXmlStrict(s)}</t></is></c>`;
+        })
+        .join('');
+      const htAttr = isHeader ? ' ht="26" customHeight="1"' : '';
+      return `<row r="${rowNum}"${htAttr}>${cellsXml}</row>`;
+    })
+    .join('');
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  ${colsXml}
+  <sheetData>${rowsXml}</sheetData>
+</worksheet>`;
+}
+
+function clientBuildArticlesXlsxUint8Array(articles = [], meta = {}) {
+  const folderName = String(meta.folderName || '[Artikel][Indonesia][Semua Daerah][0 Spin]');
+  const projectName = String(meta.projectName || 'LocalSpin Project');
+  const keyword = String(meta.keyword || '');
+
+  const sheet1Headers = [
+    'No',
+    'Folder Simpan',
+    'Project',
+    'Wilayah / Provinsi',
+    'Jenis Daerah',
+    'Kota / Kabupaten',
+    'Spin Kab/Kota Ke',
+    'Total Spin Kab/Kota',
+    'Kecamatan',
+    'Spin Kecamatan Ke',
+    'Total Spin Kecamatan',
+    'Judul Artikel (H1)',
+    'Slug URL',
+    'Meta Title SEO',
+    'Meta Description SEO',
+    'Keunikan (%)',
+    'Overlap 4-Gram (%)',
+    'Jumlah Kata',
+    'Link CTA WhatsApp',
+    'Judul Gambar Utama',
+    'Teks Bersih Artikel',
+    'Kode HTML Siap Upload'
+  ];
+
+  const sheet1Rows = [sheet1Headers];
+  (Array.isArray(articles) ? articles : []).forEach((a, idx) => {
+    const rawHtmlClean = String(a.htmlContent || '').replace(/data:image\/[^"'\s>]+/gi, '[embedded-image]');
+    const plainArticle = stripHtmlToCleanText(rawHtmlClean);
+    sheet1Rows.push([
+      Number(a.index || idx + 1),
+      folderName,
+      projectName,
+      a.wilayah || '',
+      a.jenisDaerah || '',
+      a.labelKotaKabupaten || a.kotaKabupaten || '',
+      Number(a.kabSpinIndex || 1),
+      Number(a.kabSpinTotal || 1),
+      a.kecamatan || '',
+      Number(a.kecSpinIndex || 1),
+      Number(a.kecSpinTotal || 1),
+      decodeHtmlEntitiesToUnicode(a.title || ''),
+      a.slug || '',
+      decodeHtmlEntitiesToUnicode(a.metaTitle || ''),
+      decodeHtmlEntitiesToUnicode(a.metaDescription || ''),
+      Number(a.uniquenessPct ?? 100),
+      Number(a.maxOverlap4 ?? 0),
+      Number(a.wordCount || 0),
+      a.whatsappUrl || '',
+      (a.assignedImages && a.assignedImages[0] && a.assignedImages[0].title) || '',
+      plainArticle,
+      rawHtmlClean
+    ]);
+  });
+
+  const colWidths1 = [6, 42, 24, 18, 14, 22, 14, 16, 20, 15, 17, 38, 32, 36, 44, 14, 16, 13, 34, 30, 55, 55];
+  const sheet1Xml = buildWorksheetXmlFromRows(sheet1Rows, colWidths1);
+
+  // Sheet 2: Rekap Spin Kabupaten/Kota & Kecamatan
+  const summary = summarizeSpinCountsByRegion(articles);
+  const sheet2Rows = [
+    ['Folder Simpan', 'Keyword Utama', 'Wilayah / Provinsi', 'Kota / Kabupaten', 'Total Spin Kab/Kota', 'Kecamatan', 'Jumlah Spin Kecamatan']
+  ];
+  summary.kabupatenList.forEach((kb) => {
+    kb.kecamatanList.forEach((kc) => {
+      sheet2Rows.push([
+        folderName,
+        keyword || projectName,
+        kb.wilayah || '',
+        kb.label || '',
+        Number(kb.spinCount || 0),
+        kc.nama || '',
+        Number(kc.spinCount || 0)
+      ]);
+    });
+  });
+  const sheet2Xml = buildWorksheetXmlFromRows(sheet2Rows, [44, 32, 20, 24, 18, 24, 20]);
+
+  const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+  <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+  <Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+  <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+</Types>`;
+
+  const rootRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>`;
+
+  const workbookXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets>
+    <sheet name="Daftar Artikel Spin" sheetId="1" r:id="rId1"/>
+    <sheet name="Rekap Spin Daerah" sheetId="2" r:id="rId2"/>
+  </sheets>
+</workbook>`;
+
+  const workbookRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/>
+  <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`;
+
+  const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <fonts count="2">
+    <font><sz val="11"/><color rgb="FF0F172A"/><name val="Calibri"/></font>
+    <font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font>
+  </fonts>
+  <fills count="3">
+    <fill><patternFill patternType="none"/></fill>
+    <fill><patternFill patternType="gray125"/></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FF1E3A8A"/><bgColor indexed="64"/></patternFill></fill>
+  </fills>
+  <borders count="2">
+    <border><left/><right/><top/><bottom/><diagonal/></border>
+    <border>
+      <left style="thin"><color rgb="FFCBD5E1"/></left>
+      <right style="thin"><color rgb="FFCBD5E1"/></right>
+      <top style="thin"><color rgb="FFCBD5E1"/></top>
+      <bottom style="thin"><color rgb="FFCBD5E1"/></bottom>
+      <diagonal/>
+    </border>
+  </borders>
+  <cellStyleXfs count="1">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>
+  </cellStyleXfs>
+  <cellXfs count="3">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+    <xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1">
+      <alignment vertical="center" wrapText="1"/>
+    </xf>
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1">
+      <alignment vertical="top" wrapText="1"/>
+    </xf>
+  </cellXfs>
+</styleSheet>`;
+
+  return clientBuildZipUint8Array([
+    { name: '[Content_Types].xml', content: contentTypesXml },
+    { name: '_rels/.rels', content: rootRelsXml },
+    { name: 'xl/workbook.xml', content: workbookXml },
+    { name: 'xl/_rels/workbook.xml.rels', content: workbookRelsXml },
+    { name: 'xl/styles.xml', content: stylesXml },
+    { name: 'xl/worksheets/sheet1.xml', content: sheet1Xml },
+    { name: 'xl/worksheets/sheet2.xml', content: sheet2Xml }
+  ]);
+}
+
+function clientDownloadXlsx(filename, articles = [], meta = {}) {
+  const bytes = clientBuildArticlesXlsxUint8Array(articles, meta);
+  const safeFile = String(filename || 'artikel.xlsx').endsWith('.xlsx') ? filename : `${filename}.xlsx`;
+  const blob = new Blob([bytes], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = safeFile;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 400);
+}
+
 function clientDownloadZip(zipFilename, files = []) {
   const zipBytes = clientBuildZipUint8Array(files);
   const blob = new Blob([zipBytes], { type: 'application/zip' });
@@ -2116,6 +2679,11 @@ window.LocalSpinClient = {
   summarizeSpinCountsByRegion,
   clientBuildZipUint8Array,
   clientDownloadZip,
+  stripHtmlToCleanText,
+  clientBuildDocxUint8Array,
+  clientDownloadDocx,
+  clientBuildArticlesXlsxUint8Array,
+  clientDownloadXlsx,
   buildCleanCsvString,
   normalizeGscSiteEntry,
   initWorkspaceLayoutControls,
